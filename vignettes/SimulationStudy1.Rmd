@@ -1,0 +1,120 @@
+---
+title: "Simulation Study 1"
+author: "Stephen Tueller"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::pdf_document:
+    number_sections: true
+    toc: true
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+The standard ICT model is a multilevel model (MLM) when $N>1$, which simplifies to an autoregression moving average (ARMA) model when $N=1$. Using the notatino from Applied Longitudinal Data Anlysis (ALDA; Singer & Willett, 2003), the standard MLM is 
+
+\begin{equation}
+\label{alda7.1a}
+{
+  Y_{ij} = \pi_{0i} + \pi_{1i} TIME_j + \varepsilon_{ij}
+}
+\end{equation}
+
+where $Y$ is the outcome variable, $i$ indexes the individual ($i=1, \dots, n$), $j$ indexes $TIME$ ($j=1, \dots, T$), $TIME_1=0$, $\pi_{0i}$ are random intercepts, $\pi_{1i}$ are random slopes, and $\varepsilon_ij$ are errors (see ALDA EQ7.1a). The residuals are assumed
+
+\begin{equation}
+\label{alda7.1b}
+{
+  \varepsilon_{ij}  \overset{iid}{\sim} N(0, \sigma_{\varepsilon}^2)
+}
+\end{equation}
+
+The intercepts and slopes can be decomposed into fixed and random effects as
+
+\label{alda7.2a}
+$$
+\begin{aligned}
+  \pi_{0i} &= \gamma_{00} + \zeta_{0i} \\
+  \pi_{1i} &= \gamma_{10} + \zeta_{1i}
+\end{aligned}
+$$ 
+
+where the random effects are distributed
+
+$$
+\left[\begin{array}{c}
+ \zeta_{0i} \\
+ \zeta_{1i}
+\end{array}\right]
+\overset{iid}{\sim} N
+\left(
+\left[\begin{array}{c}
+0 \\ 0
+\end{array}\right]
+,
+\left[\begin{array}{cc}
+\sigma_0^2 & \sigma_{01} \\
+\sigma_10  & \sigma_1^2
+\end{array}\right]
+\right)
+$$
+
+The ICT model adds an effect for $PHASE$ and the $Phase \times Time$ interaction:
+
+\label{ict1}
+\begin{equation}
+{
+  Y_{ij} = \pi_{0i} + \pi_{1i} TIME_j + \pi_{2} PHASE_j + \pi_{3}(PHASE_j \times TIME_j) + \varepsilon_{ij}
+}
+\end{equation}
+
+Substituting the decomposed fixed and random effects gives us
+
+$$
+  Y_{ij} = (\gamma_{00} + \zeta_{0i}) + (\gamma_{10} + \zeta_{1i}) TIME_j + \pi_{2} PHASE_j + \pi_{3}(PHASE_j \times TIME_j) + \varepsilon_{ij}
+$$
+
+yielding the composite residual $r_{ij}$ 
+
+$$
+r_{ij} = \zeta_{0i} + \zeta_{1i} TIME_j + \varepsilon_{ij}
+$$
+
+Simplifying the ICT model yields
+
+$$
+  Y_{ij} = \gamma_{00}  + \gamma_{10} TIME_j + \pi_{2} PHASE_j + \pi_{3}(PHASE_j \times TIME_j) +  r_{ij}
+$$
+
+The variance can now be written as
+
+$$
+  V(Y_{ij}) =  \gamma_{10}^2 V(TIME_j) + \pi_{2}^2 V(PHASE_j) + \pi_{3}^2V(PHASE_j \times TIME_j) +  V(r_{ij})
+$$
+
+
+
+
+
+
+
+
+<!---
+# First draft of intro
+
+The standard ICT model is a multilevel model (MLM) with random intercepts, random slopes for linear $Time$ [^1], a $Phase$ effect (at a minimum pre- and post-intervention), and the $Phase \times Time$ interaction:
+
+$$y_{it} = \beta_{0i} + \beta_{1i} Time_t + \beta_2 Phase + \beta_3 Phase \times Time + \varepsilon_{it}$$
+
+where $i$ indexes the individual ($i=1, \dots, n$) and $t$ indexes $Time$ ($t=1, \dots, T$) and $Time_1=0$. The variance of the model is
+
+$$ V(y_{it}) = V(\beta_{0i}) + Time_t^2 V(\beta_{1i}) + 2 Time COV(\beta_{0i}, \beta_{1i}) + \beta_2^2 V(Phase) + \beta_3^2 V(Phase \times Time) + V(\varepsilon_{it}) $$
+
+[^1]: The model can be generalized to other functional forms of time, e.g., $Time^2$.
+
+--->
+
