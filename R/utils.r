@@ -41,7 +41,8 @@ makePhase <- function(nObsPerCondition = c(10,20,10) ,
 checkPolyICT <- function(effectSizes, corMat, randFxVar)
 {
   # check conformity of the elements in `effectSizes`
-  checkEffectSizesPoly(effectSizes)
+  effectSizes <<- effectSizes
+  nFx <- checkEffectSizesPoly(effectSizes)
 
   # check that `corMat` is a correlation matrix
   checkCorMat(corMat)
@@ -60,6 +61,9 @@ checkPolyICT <- function(effectSizes, corMat, randFxVar)
 
   # check that resulting covariance matrix is legit
   checkCorMat(cor2cov(corMat, randFxVar), FALSE)
+
+  # return the polynomial order
+  invisible( unname(unlist(nFx[1])) )
 }
 
 #' checkEffectSizes
@@ -78,6 +82,7 @@ checkEffectSizesPoly <- function(effectSizes)
   test2 <- nFx[[1]]==nFx[[2]]
   if(!test2) stop('`effectSizes$randFx` must have the same number of elements\n',
                   'as `effectSizes$fixdFx`.')
+  invisible(nFx)
 }
 
 #' checkCorMat
@@ -92,13 +97,73 @@ checkCorMat <- function(corMat, cor=TRUE)
   if(!is.matrix(corMat)) stop('`corMat` must be a numeric matrix.')
   if( is.matrix(corMat))
   {
-    isNum <- is.numeric(value)
-    isSym <- isSymmetric(value)
-    isCor <- all(diag(value)==1)
-    isSlv <- class(try(solve(value), silent = TRUE)) %in% 'matrix'
+    isNum <- is.numeric(corMat)
+    isSym <- isSymmetric(corMat)
+    isCor <- all(diag(corMat)==1)
+    isSlv <- class(try(solve(corMat), silent = TRUE)) %in% 'matrix'
     if(!isNum) stop('`', mNm, '` is not numeric')
     if(!isSym) stop('`', mNm, '` is not symmetric')
     if(cor & !isCor) stop('`corMat` does not have ones on the diagonal')
     if(!isSlv) stop('`', mNm, '` cannot be inverted')
   }
+}
+
+#' catMat - function to make a numeric matrix compatible with `cat`
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @keywords internal
+#'
+catMat <- function(x=matrix(1:4, 2, 2))
+{
+  xList <- data.frame(t(x))
+  xList <- paste(c('', rep(' ', length(xList)-1)), xList, '\n')
+  xCat  <- paste(xList, collapse='')
+  xCat
+}
+
+
+#' getICTdesign - create the fixed effects design matrix for n=1
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#' @keywords internal
+
+getICTdesign <- function(phases      = makePhase() ,
+                         polyOrder   = 2           ,
+                         design      = 'polyICT'
+)
+{
+  # get the number of observations
+  nObservations <- length(c(unlist((phases))))
+
+  if(design == 'polyICT')
+  {
+    # generate the times
+    times      <- list()
+    times[['time']] <- seq(0, nObservations-1, 1)
+    if(polyOrder>1)
+    {
+      for(i in 2:polyOrder)
+      {
+        times[[paste('time', i, sep='')]] <- times[['time']]^i
+      }
+    }
+    time    <- data.frame( do.call(cbind, times) )
+    #varTime <- apply(time, 2, var)
+
+    # clean up phases
+    phase <- as.numeric(factor( c(unlist(phases)) ) ) - 1
+
+    # generate interactions
+    phaseTime <- list()
+    for(i in seq_along(time))
+    {
+      phaseTime[[paste('phase', names(time)[i], sep='')]] <- phase * time[,i]
+    }
+    phaseTime    <- data.frame( do.call(cbind, phaseTime) )
+    #varPhaseTime <- apply(phaseTime, 2, var)
+
+    designMat <- cbind(phase, time, phaseTime)
+
+    return(designMat)
+  }
+
 }

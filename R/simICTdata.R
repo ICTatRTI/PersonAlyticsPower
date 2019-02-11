@@ -4,28 +4,125 @@
 library(MASS)
 library(tidyr)
 
-#' simICTdata
+#' simICTdata - this is a user interface function for one dataset,
+#' switching between different designs so the function can be updated
 #' @author Stephen Tueller \email{stueller@@rti.org}
 
-simICTdata <- function(design, errors)
+simICTdata <- function(design=polyICT$new(), randFxSeed=1, errorSeed=2,
+                       family=NO)
 {
 
-  # get the variances from the design inputs
-  theDesign <- getICTdesign()
+  # polynomial ICT
+  if('polyICT' %in% class(design))
+  {
+    data <- simPolyICT(design, randFxSeed, errorSeed)
+  }
 
-  # simulate the errors
-  errors <- ICTerror()
+  # TODO see ALDA pp 234-235 for implementing these, we may need to create a
+  # separate function for each ala `simPolyICT`, or we may be able to do
+  # some code injection via formula
 
-  # simulate the random effects
-  randFx <- ICTrandFx()
+  # hyperbolic
+  if('hyperICT' %in% class(design))
+  {
 
-  # construct the observed data
+  }
+
+  # inverse polynomial
+  if('invPolyICT' %in% class(design))
+  {
+
+  }
+
+  # exponential
+  if('expICT' %in% class(design))
+  {
+
+  }
+
+  # negative exponential
+  if('negExpICT' %in% class(design))
+  {
+
+  }
+
+  # logistic
+  if('logisticICT' %in% class(design))
+  {
+
+  }
+
+  return(data)
 
 }
 
-#' ICTdata
+
+#' simPolyICT
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
+#'
+
+simPolyICT <- function(design, randFxSeed, errorSeed, family)
+{
+
+}
+
+
+
+#' mvrFam - a function to simulate multivariate data from a gamlss family
+#' distribution
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' follow http://www.econometricsbysimulation.com/2014/02/easily-generate-correlated-variables.html
+mvrFam <- function(n, parms, corMat, FUN=qNO)
+{
+  # simple demo, move to @examples
+  n <- 10000
+  set.seed(1)
+  yMvrnorm <- mvrnorm(n, mu=rep(0, nrow(corMat)), corMat)
+  set.seed(2)
+  y1rnorm <- rnorm(n, mean=0, sd=1)
+  set.seed(3)
+  y2rnorm <- corMat[2,1]*y1rnorm + (1-corMat[2,1])*rnorm(n, 0, 1)
+  yrnorm  <- cbind(y1rnorm, y2rnorm)
+
+  all.equal(var(yMvrnorm), var(yrnorm))
+
+
+
+  FUN <- function(...){ FUN(...) }
+
+
+
+  corMat <- matrix(.5, nrow=3, ncol=3) + diag(3)*.5
+  corMat[1,3] <- corMat[3,1] <- .25
+
+  n <- 1000
+
+  Y <- mvrnorm(n, rep(0, 3), corMat)
+  psych::pairs.panels(Y) # TODO make the plots not run
+  all.equal(cor(Y), corMat, tolerance=.03)
+
+  YpNorm <- pnorm(Y)
+  psych::pairs.panels(YpNorm)
+  all.equal(cor(YpNorm), corMat, tolerance=.08)
+
+  YNO <- do.call(cbind, lapply(data.frame(YpNorm), FUN, mu=3, sigma=1, nu=2))
+  psych::pairs.panels(YNO)
+  all.equal(cor(YNO), corMat, tolerance=.08)
+
+  YLOGNO <- do.call(cbind, lapply(data.frame(YpNorm), qLOGNO, mu=3, sigma=1))
+  psych::pairs.panels(YLOGNO)
+  all.equal(cor(YLOGNO), corMat, tolerance=.08)
+
+  YBEINF <- do.call(cbind, lapply(data.frame(YpNorm), qBEINF, mu=.5, sigma=.35))
+  psych::pairs.panels(YBEINF)
+  all.equal(cor(YBEINF), corMat, tolerance=.08)
+
+
+
+
+}
 
 
 #TODO: the next step is to get the relative variances set, maybe work this
@@ -81,19 +178,11 @@ ICTdata <- function(theDesign = getICTdesign() ,
 # TODO:Document that the mean of the slopes is an effect size and should come
 # from the top-level simICTdata() function
 # TODO:Document that mu should be left 0 as means are added in ICTdesign()
-ICTrandFx <- function(n         = 9                          ,
-                      theDesign = getICTdesign()             ,
-                      mu        = c(0,0)                     ,
-                      corMat    = matrix(c(1,.2,.2,1), 2, 2) ,
-                      randFxVar = c(1, .1)                   ,
-                      randFxNms = c('Int', 'Slope')          ,
-                      muFUN     = function(x) x              ,
-                      SigmaFUN  = cor2cov                    ,
-                      seed      = 1                          )
+ICTrandFx <- function(design, randFxSeed)
 {
   # create the mu vector - mu currently added in ICTdata() function
   # with values stored in output of getICTdesign() function
-  mu <- muFUN(mu)
+  mu <- design$muFUN(design$effectSizes$randFx)
 
   # convert variance ratio to values summing to 1
   randFxVar <- (randFxVar/sum(randFxVar))
@@ -171,74 +260,7 @@ ICTerror <- function(n         = 9                       ,
 }
 
 
-#' getICTdesign
-#' @author Stephen Tueller \email{stueller@@rti.org}
 
-# currently limited to linear model, this may be a beast to generalize
-getICTdesign <- function(varRatio      = c(.5,.5)              ,
-                         effectSizes   = list(intercept =  0,
-                                              phase     = .5,
-                                              time      = .5,
-                                              phaseTime = .2)  ,
-                         propBaseline  = .25                   ,
-                         nObservations = 20                    )
-{
-  # check the variance ration
-  if(sum(varRatio)!=1) stop('`varRatio` must sum to 1;',
-                            '`varRatio` is the ratio of between variance to error variance.')
-
-  # generate the times
-  times <- seq(0, nObservations-1, 1)
-  ntimes <- length(times)
-  varTime <- var(times)
-
-  # generate phases
-  nBaseline <- ceiling(propBaseline*nObservations)
-  phases <- list(phase1=rep(0, nBaseline),
-                 phase2=rep(1, nObservations - nBaseline))
-  phases <- unlist(phases)
-  varPhase <- var(phases)
-
-  # generate interaction
-  phaseTime <- phases * times
-  varPhaseTime <- var(phaseTime)
-
-  # design linear predictors
-  Design <- data.frame(times=effectSizes$time * times,
-                       phases=effectSizes$phase * phases,
-                       phaseTime=effectSizes$phaseTime * phaseTime)
-  DesignTotal  <- apply(Design, 1, sum)
-  varDesignTotal <- var(DesignTotal)
-
-  # QC - does the variance of the total var(Total) equal the sum of the variances
-  # plus 2 X the covariances?
-  varDesign <- var(Design)
-  all.equal(varDesignTotal, sum(diag(varDesign)) + sum(2 * varDesign[lower.tri(varDesign)]))
-
-  # QC against inputs
-  all.equal(varDesign[1,1], effectSizes$time^2  * varTime)
-  all.equal(varDesign[2,2], effectSizes$phase^2 * varPhase)
-  all.equal(varDesign[3,3], effectSizes$phaseTime^2 * varPhaseTime)
-  all.equal(varDesign[2,1], effectSizes$phase * effectSizes$time * cov(phases, times))
-  all.equal(varDesign[3,1], effectSizes$phaseTime * effectSizes$time * cov(phaseTime, times))
-  all.equal(varDesign[3,2], effectSizes$phaseTime * effectSizes$phase * cov(phaseTime, phases))
-
-  # return
-  return(list(varRatio      = varRatio       ,
-              effectSizes   = effectSizes    ,
-              propBaseline  = propBaseline   ,
-              nObservations = nObservations  ,
-              nBaseline     = nBaseline      ,
-              ntimes        = ntimes         ,
-              times         = times          ,
-              phases        = phases         ,
-              phaseTime     = phaseTime      ,
-              varTime       = varTime        ,
-              varPhase      = varPhase       ,
-              varPhaseTime  = varPhaseTime   ,
-              varDesign     = varDesignTotal ,
-              DesignTotal   = DesignTotal    ))
-}
 
 
 
