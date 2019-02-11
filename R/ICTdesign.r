@@ -274,6 +274,7 @@ polyICT <- R6::R6Class("polyICT",
                  private$.randFxVar   <- randFxVar
                  private$.muFUN       <- muFUN
                  private$.SigmaFun    <- SigmaFun
+                 private$.polyOrder   <- polyOrder
                  private$.designMat   <- designMat
                },
 

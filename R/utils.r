@@ -167,3 +167,37 @@ getICTdesign <- function(phases      = makePhase() ,
   }
 
 }
+
+
+#' doIt - helper function for doLapply for ignoring extra arguments, written
+#' to allow calls to \code{\link{gamlss.family}} distributions but ignore unused
+#' parameters
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @param X a vector of probabilities to be based to a quantile function
+#' like \code{\link{qN0}} in \code{\link{gamlss}} or \code{\link{qnorm}}
+#' @param .fcn see \code{\link{doCall}} in the `R.utils` package
+#'
+#' @keywords internal
+doIt <- function(X, .fcn="qNO", ...)
+{
+  doCall(.fcn, p=X, ...)
+}
+
+#' doLapply - lapply with \code{\link{doCall}} to ignore extra arguments to
+#' \code{\link{gamlss.family}} distributions
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @param Yp X a vector of probabilities to be based to a quantile function
+#' @param .fcn A quantile function like \code{\link{qN0}} in \code{\link{gamlss}}
+#' or \code{\link{qnorm}}. See also \code{\link{doCall}} in the `R.utils` package
+#' @param ... other options passed to \code{\link{gamlss.family}} distribution
+#' functions, most commonly mu, sigma, nu, and tau.
+#'
+#' @keywords internal
+doLapply <- function(Yp, .fcn="qNO", ...)
+{
+  temp <- lapply(Yp, FUN=doIt, .fcn, ...)
+  do.call(cbind, temp)
+}
+

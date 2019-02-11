@@ -8,9 +8,20 @@ library(tidyr)
 #' switching between different designs so the function can be updated
 #' @author Stephen Tueller \email{stueller@@rti.org}
 
-simICTdata <- function(design=polyICT$new(), randFxSeed=1, errorSeed=2,
-                       family=NO)
+simICTdata <- function(design      = polyICT$new()           ,
+                       randFxParms = list(mu=.5 , sigma=1)   ,
+                       family      = "qNO"                   ,
+                       randFxSeed  = 1                       ,
+                       errorParms  = list(ar=c(.5), ma=c(0)) ,
+                       errorFUN    = arima.sim               ,
+                       errorSeed   = 2                       )
 {
+  # simulate random effects
+  randFx <- mvrFam(design, randFxParms, family, randFxSeed)
+
+  # simulate the errors
+  errors <- ICTerror(design, errorParms, errorFUN, randFxSeed)
+
 
   # polynomial ICT
   if('polyICT' %in% class(design))
@@ -60,10 +71,16 @@ simICTdata <- function(design=polyICT$new(), randFxSeed=1, errorSeed=2,
 #' simPolyICT
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
-#'
+#' @param parms A named list of parameters to be passed to a quantile function from
+#' \code{\link{gamlss.family}}, specifically mu, sigma, tau, and nu. If \code{family}
+#' doesn't use one of these parameters it will be ignored.
+#' @param family Default "qNO". A quoted \code{\link{gamlss.family}} quantile
+#' distribution.
+#' @param seed Default 1. A random seed for replication.
 
 simPolyICT <- function(design, randFxSeed, errorSeed, family)
 {
+
 
 }
 
@@ -74,186 +91,152 @@ simPolyICT <- function(design, randFxSeed, errorSeed, family)
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' follow http://www.econometricsbysimulation.com/2014/02/easily-generate-correlated-variables.html
-mvrFam <- function(n, parms, corMat, FUN=qNO)
+#'
+#' @param design An \code{\link{polyICT}} object, or its not yet implemented siblings
+#' \code{hyperICT}, \code{invPolyICT}, \code{expICT}, \code{negExpICT},
+#' \code{logisticICT}.
+#' @param parms A named list of parameters to be passed to a quantile function from
+#' \code{\link{gamlss.family}}, specifically mu, sigma, tau, and nu. If \code{family}
+#' doesn't use one of these parameters it will be ignored.
+#' @param family Default "qNO". A quoted \code{\link{gamlss.family}} quantile
+#' distribution.
+#' @param seed Default 1. A random seed for replication.
+#'
+#' @examples
+#' parms  <- list(mu=.5, sigma=.35, nu=.15, tau=.25)
+#' design = polyICT$new(n=1000)
+#' par(mfrow=c(2,2))
+#'
+#' # beta distribution
+#' YBEINF <- mvrFam(design = design, parms = parms, family="qBEINF")
+#'
+#' # use the same parameters for normal, ignoring nu and tau
+#' YNO    <- mvrFam(design = design, parms = parms, family="qNO")
+#'
+#' # visualize
+#' psych::pairs.panels(data.frame(YNO, YBEINF))
+#'
+#' # quantile functions not in gamlss.family also work
+#' norm <- mvrFam(design, parms=list(mean=0, sd=20, lower.tail=FALSE), "qnorm")
+#' #pois <- mvrFam(design, parms=list(lambda=.3, lower.tail=FALSE), "qpois") # not working
+#'
+#' # this example illustrates how mvrFam works under the hodo
+#' \dontrun{
+#' corMat <- matrix(.5, nrow=3, ncol=3) + diag(3)*.5
+#' corMat[1,3] <- corMat[3,1] <- .25
+#' effectSizes <- list(randFx=list(intercept=0, slope=.5, quad=.1),
+#'                     fixdFx=list(phase=.5, phaseTime=.5, phaseTime2=.04))
+#' randFxVar <- c(1,.2,.1)
+#'
+#'
+#' design <- polyICT$new(n=10000, corMat=corMat, effectSizes=effectSizes,
+#'                       randFxVar=randFxVar)
+#'
+#' # first simulate multivariate normal data
+#' Y <- mvrnorm( design$n, rep(0, design$polyOrder + 1),  design$corMat)
+#' psych::pairs.panels(Y) # TODO make the plots not run
+#' all.equal(cor(Y), corMat, tolerance=.03)
+#'
+#' # now get the propabilities
+#' YpNorm <- data.frame(pnorm(Y))
+#' psych::pairs.panels(YpNorm)
+#' all.equal(unname(cor(YpNorm)), design$corMat, tolerance=.08)
+#'
+#' # use the quantile functions on the probabilities to get non-normal data
+#' # with approximately the same correlation matrix
+#'
+#' # works well for symmetric distributions
+#' YBEINF <- doLapply(YpNorm, .fcn="qBEINF", mu=.5, sigma=.35)
+#' psych::pairs.panels(YBEINF)
+#' all.equal(unname(cor(YBEINF)), corMat, tolerance=.08)
+#'
+#' # does not work as well for skewed distributions
+#' YLOGNO <- doLapply(YpNorm, "qLOGNO", mu=3, sigma=1)
+#' psych::pairs.panels(YLOGNO)
+#' all.equal(unname(cor(YLOGNO)), corMat, tolerance=.08)
+#'
+#'
+#' }
+mvrFam <- function(design, parms, family="qNO", seed=1)
 {
-  # simple demo, move to @examples
-  n <- 10000
-  set.seed(1)
-  yMvrnorm <- mvrnorm(n, mu=rep(0, nrow(corMat)), corMat)
-  set.seed(2)
-  y1rnorm <- rnorm(n, mean=0, sd=1)
-  set.seed(3)
-  y2rnorm <- corMat[2,1]*y1rnorm + (1-corMat[2,1])*rnorm(n, 0, 1)
-  yrnorm  <- cbind(y1rnorm, y2rnorm)
+  # attach the parameters so they can be passed by name
+  attach(parms)
 
-  all.equal(var(yMvrnorm), var(yrnorm))
+  # first simulate multivariate normal data
+  set.seed(seed)
+  Y <- mvrnorm( design$n, rep(0, design$polyOrder + 1), design$corMat)
 
+  if(! family %in% c("qNo", "qnorm"))
+  {
+    # now get the propabilities
+    YpNorm <- data.frame(pnorm(Y))
 
+    # transform to the specified distribution
+    Y <- doLapply(YpNorm, family, mu=mu, sigma=sigma, nu=nu, tau=tau, ...)
+  }
 
-  FUN <- function(...){ FUN(...) }
-
-
-
-  corMat <- matrix(.5, nrow=3, ncol=3) + diag(3)*.5
-  corMat[1,3] <- corMat[3,1] <- .25
-
-  n <- 1000
-
-  Y <- mvrnorm(n, rep(0, 3), corMat)
-  psych::pairs.panels(Y) # TODO make the plots not run
-  all.equal(cor(Y), corMat, tolerance=.03)
-
-  YpNorm <- pnorm(Y)
-  psych::pairs.panels(YpNorm)
-  all.equal(cor(YpNorm), corMat, tolerance=.08)
-
-  YNO <- do.call(cbind, lapply(data.frame(YpNorm), FUN, mu=3, sigma=1, nu=2))
-  psych::pairs.panels(YNO)
-  all.equal(cor(YNO), corMat, tolerance=.08)
-
-  YLOGNO <- do.call(cbind, lapply(data.frame(YpNorm), qLOGNO, mu=3, sigma=1))
-  psych::pairs.panels(YLOGNO)
-  all.equal(cor(YLOGNO), corMat, tolerance=.08)
-
-  YBEINF <- do.call(cbind, lapply(data.frame(YpNorm), qBEINF, mu=.5, sigma=.35))
-  psych::pairs.panels(YBEINF)
-  all.equal(cor(YBEINF), corMat, tolerance=.08)
-
-
-
-
-}
-
-
-#TODO: the next step is to get the relative variances set, maybe work this
-#out in the main function and the pass, do a QC step
-ICTdata <- function(theDesign = getICTdesign() ,
-                    errors    = ICTerror()     ,
-                    randFx    = ICTrandFx()    )
-{
-  effectSizes <- theDesign$effectSizes
-  n <- nrow(errors)
-
-  # stack the data
-
-
-  #TODO: somewhere in here, rescale everything to have the right relative
-  #proportions for variances
-
-  # construct the non-error part of the model
-  yStar <-
-    # random intercepts
-    matrix((effectSizes$intercept + randFx$Int), n, theDesign$ntimes) +
-    # random slopes
-    (effectSizes$time + randFx$Slope) %*% t(theDesign$times) +
-    # phase
-    matrix((effectSizes$phase * theDesign$phases), n, theDesign$ntimes, byrow=TRUE) +
-    # phase x time interaction
-    matrix(effectSizes$phaseTime * theDesign$phases * theDesign$times,
-           n, theDesign$ntimes, byrow=TRUE)
-
-  # add errors
-  y <- yStar + errors
-
-  # create the dataset
-  data <- data.frame(
-    id    = sort(rep(1:n, theDesign$nObservations)) ,
-    y     = c(y)                                    ,
-    time  = rep(theDesign$times , n)                ,
-    phase = rep(theDesign$phases, n)
-  )
+  # rescale the data - this may be problamtic if the user specifies a
+  # discrete distribution for random effects, may add a warning here
+  Y <- scale(Y, FALSE, TRUE) * sqrt(1-design$propErrVar)
 
   # return the data
-  return(data)
+  return(Y)
 }
 
-#' ICTrandFx
-#' @author Stephen Tueller \email{stueller@@rti.org}
-#'
 
-# if n=1, should we be simulating values, or just use mu and rely on thy
-# error covariace matrix for person to person variability? No, still simulate
-# otherwise it is repeated observations of one person (or exchangeable persons).
-
-# TODO:Document that the mean of the slopes is an effect size and should come
-# from the top-level simICTdata() function
-# TODO:Document that mu should be left 0 as means are added in ICTdesign()
-ICTrandFx <- function(design, randFxSeed)
-{
-  # create the mu vector - mu currently added in ICTdata() function
-  # with values stored in output of getICTdesign() function
-  mu <- design$muFUN(design$effectSizes$randFx)
-
-  # convert variance ratio to values summing to 1
-  randFxVar <- (randFxVar/sum(randFxVar))
-
-  # create the sigma matrix
-  Sigma <- SigmaFUN(corMat, randFxVar)
-
-  # rescale total to unit TOTAL variance
-  Sigma <- Sigma/sum(Sigma)
-
-  # and rescale to the varRatio
-  Sigma <- theDesign$varRatio[1]*Sigma
-
-  # QC the rescale, does not require asymptotics
-  all.equal(sum(Sigma), theDesign$varRatio[1])
-
-  # simulate the random effects
-  set.seed(seed)
-  randFx        <- mvrnorm(n, mu, Sigma)
-  randFx        <- data.frame(randFx)
-  names(randFx) <- randFxNms
-
-  # QC - asymptotic, only true for large N
-  all.equal(c(Sigma), c(var(randFx)), tolerance = .05)
-
-  # QC
-  # definitional - the varance of a sum is sum of covariance matrix
-  all.equal(var(apply(randFx, 1, sum)), sum(var(randFx)))
-  # should be near 1, only holds asymptotically
-  all.equal(sum(var(randFx)), sum(Sigma), tolerance = .05)
-
-  # return
-  return(randFx)
-}
 
 #' ICTerror
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 
-ICTerror <- function(n         = 9                       ,
-                     parms     = list(ar=c(.5),ma=c(0))  ,
-                     theDesign = getICTdesign()          ,
-                     errorFUN  = arima.sim               ,
-                     seed      = 1                       ,
-                     ...                                     )
+ICTerror <- function(design     = polyICT$new()           ,
+                     errorParms = list(ar=c(.5),ma=c(0))  ,
+                     errorFUN   = arima.sim               ,
+                     seed       = 1                       ,
+                     ...                                  )
 {
+  # get the number of Observations
+  nObservations <- length(c(unlist((design$phases))))
+
   # get seeds
   set.seed(seed)
-  seeds <- as.list( ceiling(runif(n, 0, 9e6) ) )
+  seeds <- as.list( ceiling(runif(design$n, 0, 9e6) ) )
 
   # sim errors, use sd = 1 for now, it can be rescaled in other functions
-  FUN <- function(x, errorFUN, model, n, sd,
-                  ...)
+  FUN <- function(x, errorFUN, model, n=design$n, sd=1, ...)
   {
     set.seed(x)
     errorFUN(model = parms, n = n, sd = sd, ...)
   }
   errors <- lapply(seeds, FUN,
-                   errorFUN = errorFUN                   ,
-                   model    = parms                      ,
-                   n        = theDesign$nObservations ,
-                   sd       = 1                          ,
+                   errorFUN = errorFUN      ,
+                   model    = parms         ,
+                   n        = nObservations ,
+                   sd       = 1             ,
                    ...)
   errors <- data.frame(do.call(rbind, errors))
 
   # rescale to have unit variances within time points then multiply
-  # by the proportion of error variance
-  errorsr <- scale(errors, FALSE, TRUE) * sqrt(theDesign$varRatio[2])
+  # by the proportion of error variance; need to transpose twice so
+  # that the rescaling applies within person (which also gets the
+  # between person scaling right, but not vice versa in initial tests)
+  errorsr <- t(scale(t(errors), FALSE, TRUE)) * sqrt(design$propErrVar)
 
-  # QC, only holds assymptotically
-  all.equal(mean(apply(errorsr, 2, var)), theDesign$varRatio[2], tolerance = .05)
+  doQC <- FALSE
+  if(doQC)
+  {
+    # QC, only holds asymptotically
+    # within persons:
+    all.equal(mean(apply(errorsr, 1, var)), design$propErrVar, tolerance = .05)
+    # between persons:
+    all.equal(mean(apply(errorsr, 2, var)), design$propErrVar, tolerance = .05)
+    tseries <- lapply(data.frame(t(errorsr)), ts)
+    aFun <- function(x, order=c(1,0,0)) try(arima(x, order), silent = TRUE)
+    sigma2s <- lapply(lapply(tseries, aFun), function(x) x$sigma2)
+    # tends toward underestimation when nObservations are small, but very precise
+    # when large
+    hist(unlist(sigma2s))
+  }
 
   # return
   return(errorsr)
