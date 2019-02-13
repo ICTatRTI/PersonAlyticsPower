@@ -32,58 +32,6 @@ makePhase <- function(nObsPerCondition = c(10,20,10) ,
   return( phases )
 }
 
-#' checkPolyICT
-#' @author Stephen Tueller \email{stueller@@rti.org}
-#'
-#' @keywords internal
-#'
-
-checkPolyICT <- function(effectSizes, corMat, randFxVar)
-{
-  # check conformity of the elements in `effectSizes`
-  effectSizes <<- effectSizes
-  nFx <- checkEffectSizesPoly(effectSizes)
-
-  # check that `corMat` is a correlation matrix
-  checkCorMat(corMat)
-
-  # check conformity of `corMat` with `effectSizes`
-  test3 <- nrow(corMat) == nFx[[1]]
-  if(!test3) stop('The number of rows and columns in `corMat` is ', nrow(corMat),
-                  '\nbut it should equal the ', nFx[[1]], ' elements in\n',
-                  ' `effectSizes$randFx` and `effectSizes$fixdFx`.')
-
-  # check conformity of `randFxVar` with `effectSizes`
-  test4 <- length(randFxVar) == nFx[[1]]
-  if(!test4) stop('The number of elements in `randFxVar` is ', length(randFxVar),
-                  '\nbut it should equal the ', nFx[[1]], ' elements in\n',
-                  ' `effectSizes$randFx` and `effectSizes$fixdFx`.')
-
-  # check that resulting covariance matrix is legit
-  checkCorMat(cor2cov(corMat, randFxVar), FALSE)
-
-  # return the polynomial order
-  invisible( unname(unlist(nFx[1])) )
-}
-
-#' checkEffectSizes
-#' @author Stephen Tueller \email{stueller@@rti.org}
-#'
-#' @keywords internal
-#'
-checkEffectSizesPoly <- function(effectSizes)
-{
-  # check conformity of the elements in `effectSizes`
-  FxNames <- c( "randFx", "fixdFx")
-  test1   <- all( names(effectSizes) %in% FxNames)
-  if(!test1) stop('`effectSizes` must be a length 2 list with the names ',
-                  paste('`', FxNames, '`', collapse=', ', sep=''))
-  nFx   <- lapply(effectSizes, length)
-  test2 <- nFx[[1]]==nFx[[2]]
-  if(!test2) stop('`effectSizes$randFx` must have the same number of elements\n',
-                  'as `effectSizes$fixdFx`.')
-  invisible(nFx)
-}
 
 #' checkCorMat
 #' @author Stephen Tueller \email{stueller@@rti.org}
@@ -138,12 +86,12 @@ getICTdesign <- function(phases      = makePhase() ,
   {
     # generate the times
     times      <- list()
-    times[['time']] <- seq(0, nObservations-1, 1)
+    times[['Time']] <- seq(0, nObservations-1, 1)
     if(polyOrder>1)
     {
       for(i in 2:polyOrder)
       {
-        times[[paste('time', i, sep='')]] <- times[['time']]^i
+        times[[paste('Time', i, sep='')]] <- times[['Time']]^i
       }
     }
     time    <- data.frame( do.call(cbind, times) )

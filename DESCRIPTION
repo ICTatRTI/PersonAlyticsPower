@@ -20,7 +20,6 @@ Depends:
 	  R6 (>= 2.3.0),
 	  R.utils (>= 2.7.0),
 	  snow (>= 0.4-3),
-	  tidyr (>= 0.8.2),
 	  tryCatchLog (>= 1.0.2)
 RoxygenNote: 6.1.1
 Suggests: testthat,

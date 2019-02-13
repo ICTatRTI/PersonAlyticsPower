@@ -16,7 +16,10 @@
 
 
 
-# currently just AR(1)
+#' sigmaMaker -create an AR(1) error covariance matrix
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @keywords internal
 sigmaMaker <- function(n=20, phi=.5, sigma2=.75)
 {
   Sigma <- matrix(as.numeric(NA), n, n)
@@ -36,10 +39,14 @@ sigmaMaker <- function(n=20, phi=.5, sigma2=.75)
   return(Sigma)
 }
 
-# use sigmaMaker and simulate some MVN data
-library(MASS)
-
-
+#' ar1sim - a demonstration that simulating data using arima.sim and from
+#' the analogous error covariance matrix yields assymptotically equivalent
+#' results
+#'
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @examples
+#' Out <- ar1sim(20000)
 ar1sim <- function(B=20, n=20, phi=.5, sigma2=.75)
 {
   Out <- list()
@@ -77,4 +84,4 @@ ar1sim <- function(B=20, n=20, phi=.5, sigma2=.75)
   invisible(Out)
 }
 
-Out <- ar1sim(20000)
+

@@ -1,9 +1,5 @@
 # TODO: save data for use in SAS
 
-# TODO: to move to the description file imports
-library(MASS)
-library(tidyr)
-
 #' simICTdata - this is a user interface function for one dataset,
 #' switching between different designs so the function can be updated
 #' @author Stephen Tueller \email{stueller@@rti.org}
@@ -11,76 +7,72 @@ library(tidyr)
 simICTdata <- function(design      = polyICT$new()           ,
                        randFxParms = list(mu=.5 , sigma=1)   ,
                        family      = "qNO"                   ,
-                       randFxSeed  = 1                       ,
+                       randFxSeed  = 11                      ,
                        errorParms  = list(ar=c(.5), ma=c(0)) ,
                        errorFUN    = arima.sim               ,
-                       errorSeed   = 2                       )
+                       errorSeed   = 21                      ,
+                       designCheck = FALSE                   )
 {
-  # simulate random effects
-  randFx <- mvrFam(design, randFxParms, family, randFxSeed)
+  # parallelize here and detect design from class(design); better yet,
+  # we make polyICT, etc. methods for the class
 
-  # simulate the errors
-  errors <- ICTerror(design, errorParms, errorFUN, randFxSeed)
-
-
-  # polynomial ICT
-  if('polyICT' %in% class(design))
+  # do a design check with large N
+  # TODO: move to a function
+  if(designCheck)
   {
-    data <- simPolyICT(design, randFxSeed, errorSeed)
+    # message
+    message("\n\nStarting a design check with n=1000 participants\n",
+            "WARNING: this check is currently only done for the standard MLM")
+
+    # reset n temporarily, saving user specified n for later
+    userN <- design$n
+    design$n <- 1000
+
+    # simulate random effects
+    randFx <- mvrFam(design, randFxParms, family, randFxSeed)
+
+    # simulate the errors
+    errors <- ICTerror(design, errorParms, errorFUN, randFxSeed)
+
+    # construct the data
+    dat <- design$makeData(randFx, errors)
+
+    # compare expected to observed variances
+    expObsVar <- cbind( design$expectedVar(),
+                        aggregate(dat$y, by=list(dat$Time), var)$x)
+
+    # get the correlation of expected and observed variances
+    expObsCor <- round(cor(expObsVar)[1,2],4)
+    cat("The correlation between the expected variance and the observed\n",
+        "variances is ", expObsCor)
+
+    #
+    ggplot(dat[dat$id<=100,], aes(x=Time, y=y, group=id, col=phase)) +
+      geom_line() + geom_smooth(se = FALSE, size=.5) +
+      ggtitle('Raw data and smoothed average trajectories for first 100 participants')
+
+    # TODO: generalize the equation to the implied model, hmmm, need to generate
+    # that from the inputs, currently only works for slopes model
+    ctrl <- lmeControl(opt="optim")
+    mod0 <- lme(y~phase*Time, data=dat, random = ~ Time | id,
+                control=ctrl, correlation = corARMA(p=1,q=0))
+
+    cat("\n\nMODEL RESULTS\n")
+    print( round(rbind(summary(mod0)$tTable[,1]),3 ) )
+
+    cat("\nMODEL INPUTS\n")
+    print( c(unlist(design$effectSizes)) )
+
+    cat("\n\n\n")
   }
 
-  # TODO see ALDA pp 234-235 for implementing these, we may need to create a
-  # separate function for each ala `simPolyICT`, or we may be able to do
-  # some code injection via formula
 
-  # hyperbolic
-  if('hyperICT' %in% class(design))
-  {
-
-  }
-
-  # inverse polynomial
-  if('invPolyICT' %in% class(design))
-  {
-
-  }
-
-  # exponential
-  if('expICT' %in% class(design))
-  {
-
-  }
-
-  # negative exponential
-  if('negExpICT' %in% class(design))
-  {
-
-  }
-
-  # logistic
-  if('logisticICT' %in% class(design))
-  {
-
-  }
-
-  return(data)
-
-}
+  # parralelization
 
 
-#' simPolyICT
-#' @author Stephen Tueller \email{stueller@@rti.org}
-#'
-#' @param parms A named list of parameters to be passed to a quantile function from
-#' \code{\link{gamlss.family}}, specifically mu, sigma, tau, and nu. If \code{family}
-#' doesn't use one of these parameters it will be ignored.
-#' @param family Default "qNO". A quoted \code{\link{gamlss.family}} quantile
-#' distribution.
-#' @param seed Default 1. A random seed for replication.
 
-simPolyICT <- function(design, randFxSeed, errorSeed, family)
-{
 
+  #return(data)
 
 }
 
@@ -159,25 +151,31 @@ simPolyICT <- function(design, randFxSeed, errorSeed, family)
 #' }
 mvrFam <- function(design, parms, family="qNO", seed=1)
 {
-  # attach the parameters so they can be passed by name
-  attach(parms)
-
-  # first simulate multivariate normal data
+  # simulate multivariate normal data
   set.seed(seed)
-  Y <- mvrnorm( design$n, rep(0, design$polyOrder + 1), design$corMat)
+  Y <- mvrnorm( design$n, rep(0, design$polyOrder + 1), design$covMat)
 
-  if(! family %in% c("qNo", "qnorm"))
+  if(! family %in% c("qNO", "qnorm"))
   {
     # now get the propabilities
     YpNorm <- data.frame(pnorm(Y))
 
     # transform to the specified distribution
-    Y <- doLapply(YpNorm, family, mu=mu, sigma=sigma, nu=nu, tau=tau, ...)
+    Y <- doLapply(YpNorm, family, mu=parms$mu, sigma=parms$sigma,
+                  nu=parms$nu, tau=parms$tau, ...)
   }
 
   # rescale the data - this may be problamtic if the user specifies a
   # discrete distribution for random effects, may add a warning here
-  Y <- scale(Y, FALSE, TRUE) * sqrt(1-design$propErrVar)
+  # Note: zero mean is specified hear b/c the mean off the random effects
+  # is added later in the $makeData method of an ICTdesign child class. This
+  # may not be the best approach, especially with non-normal data, but I don't
+  # know whether the method of running pnorm through q* quantile functions
+  # preserves means at all
+  # -- Note: rescaling not done here, instead we sim according to design$covMat
+  # and choose the error variance commensurate to design$propErrVar
+
+  #Y <- scale(Y, TRUE, TRUE) * sqrt(1-design$propErrVar)
 
   # return the data
   return(Y)
@@ -195,24 +193,22 @@ ICTerror <- function(design     = polyICT$new()           ,
                      seed       = 1                       ,
                      ...                                  )
 {
-  # get the number of Observations
-  nObservations <- length(c(unlist((design$phases))))
 
   # get seeds
   set.seed(seed)
   seeds <- as.list( ceiling(runif(design$n, 0, 9e6) ) )
 
   # sim errors, use sd = 1 for now, it can be rescaled in other functions
-  FUN <- function(x, errorFUN, model, n=design$n, sd=1, ...)
+  FUN <- function(x, errorFUN, model, n, sd, ...)
   {
     set.seed(x)
-    errorFUN(model = parms, n = n, sd = sd, ...)
+    errorFUN(model = model, n = n, sd = sd, ...)
   }
   errors <- lapply(seeds, FUN,
-                   errorFUN = errorFUN      ,
-                   model    = parms         ,
-                   n        = nObservations ,
-                   sd       = 1             ,
+                   errorFUN = errorFUN             ,
+                   model    = errorParms           ,
+                   n        = design$nObservations ,
+                   sd       = 1                    ,
                    ...)
   errors <- data.frame(do.call(rbind, errors))
 
@@ -220,16 +216,16 @@ ICTerror <- function(design     = polyICT$new()           ,
   # by the proportion of error variance; need to transpose twice so
   # that the rescaling applies within person (which also gets the
   # between person scaling right, but not vice versa in initial tests)
-  errorsr <- t(scale(t(errors), FALSE, TRUE)) * sqrt(design$propErrVar)
+  errorsr <- t(scale(t(errors), FALSE, TRUE)) * sqrt(design$variances$errorVar)
 
   doQC <- FALSE
   if(doQC)
   {
     # QC, only holds asymptotically
     # within persons:
-    all.equal(mean(apply(errorsr, 1, var)), design$propErrVar, tolerance = .05)
+    all.equal(mean(apply(errorsr, 1, var)), errorVar, tolerance = .05)
     # between persons:
-    all.equal(mean(apply(errorsr, 2, var)), design$propErrVar, tolerance = .05)
+    all.equal(mean(apply(errorsr, 2, var)), errorVar, tolerance = .05)
     tseries <- lapply(data.frame(t(errorsr)), ts)
     aFun <- function(x, order=c(1,0,0)) try(arima(x, order), silent = TRUE)
     sigma2s <- lapply(lapply(tseries, aFun), function(x) x$sigma2)
@@ -241,6 +237,8 @@ ICTerror <- function(design     = polyICT$new()           ,
   # return
   return(errorsr)
 }
+
+
 
 
 

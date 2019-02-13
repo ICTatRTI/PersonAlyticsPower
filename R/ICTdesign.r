@@ -141,6 +141,39 @@ active <- function()
              ' creation of a\n`', class(self)[1], '` object and cannot',
              ' be updated.')
       }
+    },
+
+    covMat = function(value)
+    {
+      if( missing(value) ){ private$.covMat }
+      else
+      {
+        stop('`covMat` is constructed from other inputs during the',
+             ' creation of a\n`', class(self)[1], '` object and cannot',
+             ' be updated.')
+      }
+    },
+
+    nObservations = function(value)
+    {
+      if( missing(value) ){ private$.nObservations }
+      else
+      {
+        stop('`nObservations` is constructed from other inputs during the',
+             ' creation of a\n`', class(self)[1], '` object and cannot',
+             ' be updated.')
+      }
+    },
+
+    variances = function(value)
+    {
+      if( missing(value) ){ private$.variances }
+      else
+      {
+        stop('`variances` is constructed from other inputs during the',
+             ' creation of a\n`', class(self)[1], '` object and cannot',
+             ' be updated.')
+      }
     }
 
 
@@ -210,94 +243,6 @@ ICTdesign <- R6::R6Class("ICTdesign",
 
 # use inheritance to create specific instances of ICTdesign
 
-#' @field effectSizes A length 2 list with the names `randFx` and `fixdFx`. Each
-#' are themselves a list with the coefficients for a polynomial growth model.
-#' The length of `randFx` and `fixdFx` corresponds to the order of the model,
-#' where an order of 2 would be a linear model and an order of 3 would be a
-#' quadratic model. An example of a quadratic model would be
-#' list(randFx = list(intercept = 0, slope = .5, quad = .2),
-#'      fixdFx = list(phase = 1, phaseSlope = .2, phaseQuad = .1))
-#' @field corMat a symmetric correlation matrix with a dimension equal to the
-#' order of the model. For example, a quadratic model with correpspond to a 3x3
-#' matrix.
-#' @field randFxVar a vector of the same length as the order of the polynomial
-#' model containing the variances of the random effects. For example, in a
-#' quadratic model, `randFxVar` would be length three, the first element would
-#' be the intercept variance, the second element would be the slope variance,
-#' and the third element would be the variance of the quadratic term.
-
-polyICT <- R6::R6Class("polyICT",
-
-             inherit = ICTdesign,
-
-             private = list(
-               .n           = NULL,
-               .phases      = NULL,
-               .propErrVar  = NULL,
-               .effectSizes = NULL,
-               .corMat      = NULL,
-               .randFxVar   = NULL,
-               .muFUN       = NULL,
-               .SigmaFun    = NULL,
-               .polyOrder   = NULL,
-               .designMat   = NULL
-             ),
-
-             public  = list(
-               initialize = function
-               (
-                 n           = 10                                        ,
-                 phases      = makePhase()                               ,
-                 propErrVar  = .5                                        ,
-                 effectSizes = list(randFx=list(intercept=0, slope=.5),
-                                    fixdFx=list(phase=.5, phaseTime=.5)) ,
-                 corMat      = matrix(c(1,.2,.2,1), 2, 2)                ,
-                 randFxVar   = c(1, .1)                                  ,
-                 muFUN       = function(x) x                             ,
-                 SigmaFun    = cor2cov                                   ,
-                 polyOrder   = NULL                                      ,
-                 designMat   = NULL
-               )
-               {
-                 # general input validation
-                 polyOrder <- checkPolyICT(effectSizes, corMat, randFxVar) - 1
-
-                 # construct the fixed effects design matrix
-                 designMat <- getICTdesign(phases, polyOrder, 'polyICT')
-
-                 # populate private
-                 private$.n           <- n
-                 private$.phases      <- phases
-                 private$.propErrVar  <- propErrVar
-                 private$.effectSizes <- effectSizes
-                 private$.corMat      <- corMat
-                 private$.randFxVar   <- randFxVar
-                 private$.muFUN       <- muFUN
-                 private$.SigmaFun    <- SigmaFun
-                 private$.polyOrder   <- polyOrder
-                 private$.designMat   <- designMat
-               },
-
-               print = function(...)
-               {
-                 # use super to call the print function of the parent class
-                 super$print()
-
-                 # get the covariance matrix
-                 covMat <- round(cor2cov(self$corMat), 3)
-
-                 # add print options for the child class
-                 cat("\n\nEffect sizes:\n",
-                     paste(unlist(lapply(self$effectSizes, names)), '=',
-                           unlist(self$effectSizes), '\n'),
-                     "\nCorrelation matrix:\n", catMat(self$corMat),
-                     "\nCovariance matrix:\n",  catMat(covMat)
-                     )
-
-               }
-
-             )
-)
 
 
 
