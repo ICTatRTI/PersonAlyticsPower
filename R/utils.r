@@ -156,32 +156,37 @@ doLapply <- function(Yp, .fcn="qNO", ...)
 #' @keywords internal
 checkFile <- function(file)
 {
-  file    <- tolower(file)
-  isRData <- grepl('.rdata', file)
-  iscsv   <- grepl('.csv', file)
-  hasPath <- grepl(glob2rx("*/*"), file)
-
-  if(!hasPath) file <- paste(getwd(), file, sep='/')
-
-  if(!isRData & !iscsv)
+  sfile <- isRData <- iscsv <- NULL
+  if(length(file)>1)
   {
-    stop("The file name file=\n\n'", file, "'\n\n is not a *.csv or an *.RData file.")
-  }
+    iscsv   <- file[2] %in% c('csv', 'CSV', 'Csv')
+    isRData <- file[2] %in% c('RData', 'rdata', 'Rdata', 'RDATA')
 
-  fileExists <- file.exists(file)
+    sfile <- paste(file[1],file[2], sep='.')
 
-  if(fileExists)
-  {
-    message("The file\n\n", file, "\n\nexists and will be overwritten.")
+    hasPath <- grepl(glob2rx("*/*"), file[1])
+    if(!hasPath) sfile <- paste(getwd(), sfile, sep='/')
+
+    if(! iscsv & ! isRData)
+    {
+      stop("The file name file=\n\n'", file, "'\n\n is not a *.csv or an *.RData file.")
+    }
+
+    fileExists <- file.exists(sfile)
+
+    if(fileExists)
+    {
+      message("The file\n\n", sfile, "\n\nexists and will be overwritten.")
+    }
+    if(!fileExists)
+    {
+      # test if the file can be created
+      test=1
+      if(iscsv  ) write.csv(test, sfile)
+      if(isRData) save(test, file=sfile)
+    }
   }
-  if(!fileExists)
-  {
-    # test if the file can be created
-    test=1
-    if(iscsv)   write.csv(test, file)
-    if(isRData) save(test, file=file)
-  }
-  invisible( list(file=file, isRData=isRData, iscsv=iscsv))
+  invisible( list(file=file[1], isRData=isRData, iscsv=iscsv, sfile=sfile))
 }
 
 
@@ -189,15 +194,17 @@ checkFile <- function(file)
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @keywords internal
-designCheck <- function(design, family, randFxParms, randFxSeed,
+designCheck <- function(design, file, family, randFxParms, randFxSeed,
                         errorParms, errorFUN, errorFamily, errorSeed)
 {
   # message
   message("\n\nStarting a design check with n=1000 participants\n",
           "WARNING: this check is currently only done for the standard MLM")
 
-  # reset n
-  design$n <- 1000
+  # save and reset n, due to inheritance design will get overwritten, fix
+  # n below
+  originaln <- design$n
+  design$n  <- 1000
 
   # simulate random effects
   randFx <- mvrFam(design, randFxParms, family, randFxSeed)
@@ -215,18 +222,22 @@ designCheck <- function(design, family, randFxParms, randFxSeed,
   # get the correlation of expected and observed variances
   expObsCor <- round(cor(expObsVar)[1,2],4)
   cat("The correlation between the expected variance and the observed\n",
-      "variances is ", expObsCor)
+      "variances is ", expObsCor, "\n\n")
 
-  #
-  ggplot(dat[dat$id<=100,], aes(x=Time, y=y, group=id, col=phase)) +
+  # a plot
+  g <- ggplot(dat[dat$id<=10,], aes(x=Time, y=y, group=id, col=phase)) +
     geom_line() + geom_smooth(se = FALSE, size=.5) +
-    ggtitle('Raw data and smoothed average trajectories for first 100 participants')
+    ggtitle('Raw data and smoothed average trajectories for first 10 participants')
+  suppressMessages( print( g ) )
 
   # TODO: generalize the equation to the implied model, hmmm, need to generate
   # that from the inputs, currently only works for slopes model
   ctrl <- lmeControl(opt="optim")
   mod0 <- lme(y~phase*Time, data=dat, random = ~ Time | id,
               control=ctrl, correlation = corARMA(p=1,q=0))
+
+  save(mod0, file=paste(file, 'designCheck.RData', sep='_'))
+  print( mod0 )
 
   cat("\n\nMODEL RESULTS\n")
   print( round(rbind(summary(mod0)$tTable[,1]),3 ) )
@@ -235,4 +246,33 @@ designCheck <- function(design, family, randFxParms, randFxSeed,
   print( c(unlist(design$effectSizes)) )
 
   cat("\n\n\n")
+
+  design$n <- originaln
+}
+
+
+#' powerReport - print power results to screen and to a file
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @keywords internal
+powerReport <- function(paout, alpha, file)
+{
+  whichP <- names(paout)[ grepl('p.value', names(paout)) ]
+  powerL <- list()
+  for(i in whichP)
+  {
+    powerL[[i]] <- mean(paout[[i]] <= alpha)
+  }
+
+  # print the report to the screen
+  names(powerL) <- gsub('.p.value', '', names(powerL))
+  names(powerL) <- gsub("\\s", " ", format(names(powerL),
+                                           width=max(nchar(names(powerL)))) )
+  powerOutput <- paste(names(powerL), '\t', round(unlist(powerL),2), '\n' )
+  cat( powerOutput )
+
+
+  # save the report
+  powerfile <- paste(file, 'PowerReport.txt', sep='_')
+  cat( powerOutput, file = powerfile)
 }
