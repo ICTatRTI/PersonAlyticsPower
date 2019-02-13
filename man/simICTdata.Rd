@@ -7,7 +7,8 @@ switching between different designs so the function can be updated}
 \usage{
 simICTdata(design = polyICT$new(), randFxParms = list(mu = 0.5, sigma =
   1), family = "qNO", randFxSeed = 11, errorParms = list(ar = c(0.5),
-  ma = c(0)), errorFUN = arima.sim, errorSeed = 21,
+  ma = c(0)), errorFUN = arima.sim, errorSeed = 21, B = 100,
+  cores = parallel::detectCores() - 1, file = NULL,
   designCheck = FALSE)
 }
 \description{

@@ -37,7 +37,7 @@ polyICT <- R6::R6Class("polyICT",
      public  = list(
        initialize = function
        (
-         n             = 1000                                      ,
+         n             = 10                                        ,
          phases        = makePhase()                               ,
          propErrVar    = .75                                       ,
          effectSizes   = list(randFx=list(intercept=0, slope=.5),

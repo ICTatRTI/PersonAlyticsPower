@@ -149,3 +149,90 @@ doLapply <- function(Yp, .fcn="qNO", ...)
   do.call(cbind, temp)
 }
 
+
+#' checkFile - check whether a file is writable and a csv or Rdata file
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @keywords internal
+checkFile <- function(file)
+{
+  file    <- tolower(file)
+  isRData <- grepl('.rdata', file)
+  iscsv   <- grepl('.csv', file)
+  hasPath <- grepl(glob2rx("*/*"), file)
+
+  if(!hasPath) file <- paste(getwd(), file, sep='/')
+
+  if(!isRData & !iscsv)
+  {
+    stop("The file name file=\n\n'", file, "'\n\n is not a *.csv or an *.RData file.")
+  }
+
+  fileExists <- file.exists(file)
+
+  if(fileExists)
+  {
+    message("The file\n\n", file, "\n\nexists and will be overwritten.")
+  }
+  if(!fileExists)
+  {
+    # test if the file can be created
+    test=1
+    if(iscsv)   write.csv(test, file)
+    if(isRData) save(test, file=file)
+  }
+  invisible( list(file=file, isRData=isRData, iscsv=iscsv))
+}
+
+
+#' designCheck - check whether a file is writable and a csv or Rdata file
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @keywords internal
+designCheck <- function(design, family, randFxParms, randFxSeed,
+                        errorParms, errorFUN, errorFamily, errorSeed)
+{
+  # message
+  message("\n\nStarting a design check with n=1000 participants\n",
+          "WARNING: this check is currently only done for the standard MLM")
+
+  # reset n
+  design$n <- 1000
+
+  # simulate random effects
+  randFx <- mvrFam(design, randFxParms, family, randFxSeed)
+
+  # simulate the errors
+  errors <- ICTerror(design, errorParms, errorFUN, errorSeed)
+
+  # construct the data
+  dat <- design$makeData(randFx, errors)
+
+  # compare expected to observed variances
+  expObsVar <- cbind( design$expectedVar(),
+                      aggregate(dat$y, by=list(dat$Time), var)$x)
+
+  # get the correlation of expected and observed variances
+  expObsCor <- round(cor(expObsVar)[1,2],4)
+  cat("The correlation between the expected variance and the observed\n",
+      "variances is ", expObsCor)
+
+  #
+  ggplot(dat[dat$id<=100,], aes(x=Time, y=y, group=id, col=phase)) +
+    geom_line() + geom_smooth(se = FALSE, size=.5) +
+    ggtitle('Raw data and smoothed average trajectories for first 100 participants')
+
+  # TODO: generalize the equation to the implied model, hmmm, need to generate
+  # that from the inputs, currently only works for slopes model
+  ctrl <- lmeControl(opt="optim")
+  mod0 <- lme(y~phase*Time, data=dat, random = ~ Time | id,
+              control=ctrl, correlation = corARMA(p=1,q=0))
+
+  cat("\n\nMODEL RESULTS\n")
+  print( round(rbind(summary(mod0)$tTable[,1]),3 ) )
+
+  cat("\nMODEL INPUTS\n")
+  print( c(unlist(design$effectSizes)) )
+
+  cat("\n\n\n")
+}

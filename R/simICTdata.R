@@ -1,78 +1,182 @@
-# TODO: save data for use in SAS
+# TODO: add defualts to documentation
 
-#' simICTdata - this is a user interface function for one dataset,
-#' switching between different designs so the function can be updated
+#' ICTpower - get simulated power for an ICT design using parametric bootstrap.
+#'
 #' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @param file The file name for saving power analysis results.
+#' It may be a full path. The simulated data are to be saved by including the
+#' file extension in a list. For example,
+#' \code{file=c('n10_medSlopeEffect', 'csv')}
+#' or \code{file=c('condition2', 'Rdata')}. Only `csv` and `RData` are supported.
+#'
+#' @param design An \code{\link{ICTdesign}} object such as
+#' \code{\link{polyICT}}.
+#'
+#' @param B The number of simulated dataset (or parametric bootstrap replications).
+#'
+#' @param checkDesign Logical. Default is \code{FALSE}. If \code{TRUE}, an
+#' initial sumulated dataset with n=1,000 participants will be simulated and the
+#' model fit to the data. This will show whether the design inputs in \code{design}
+#' are recovered under large sample. The data for the 1st 100 participants will
+#' also be plotted. This allows users to check their inputs.
+#'
+#' @param randFxFamily A quantile function such as those in
+#' \code{\link{gamlss.family}}.
+#' If \code{family} is not "qNO" or "qnorm", multivariate normal random effects
+#' are first simulated, then transformed using the quantile function.
+#'
+#' @param randFxParms Ignored unless \code{family} is not "qNO" or "qnorm".
+#' Parameters to be passed to a quantile function given in \code{family}. For
+#' \code{\link{gamlss.family}} quantile functions, the parameters are mu,
+#' sigma, nu, and tau.
+#'
+#' @param randFxSeed A random seed for generating random effects.
+#'
+#' @param errorParms Parameters for simulating random errors. Currently only
+#' supports \code{\link{arima.sim}}.
+#'
+#' @param errorFUN A function for simulating errors. Currently only
+#' \code{\link{arima.sim}} is supported.
+#'
+#' @param errorFamily A quantile function fo simulating non-normal errors. Not
+#' currently implemented.
+#'
+#' @param errorseed A random seed for generating errors.
+#'
+#' @param cores The number of cores used in parralelized simulation. The default
+#' is to use one few cores than are detected on the computer. Do not exceed the
+#' maximum available cores or unexpect results may occur or R may crash.
+#'
+#' @param ... Further arguments to be passed to \code{\link{PersonAlytics}}.
 
-simICTdata <- function(design      = polyICT$new()           ,
-                       randFxParms = list(mu=.5 , sigma=1)   ,
-                       family      = "qNO"                   ,
-                       randFxSeed  = 11                      ,
-                       errorParms  = list(ar=c(.5), ma=c(0)) ,
-                       errorFUN    = arima.sim               ,
-                       errorSeed   = 21                      ,
-                       designCheck = FALSE                   )
+ICTpower <- function(file                                    ,
+                     design       = polyICT$new()             ,
+                     B            = 100                       ,
+                     checkDesign  = FALSE                     ,
+                     randFxFamily = "qNO"                     ,
+                     randFxParms  = list(mu=.5 , sigma=1)     ,
+                     randFxSeed   = 11                        ,
+                     errorParms   = list(ar=c(.5), ma=c(0))   ,
+                     errorFUN     = arima.sim                 ,
+                     errorFamily  = NULL                      ,
+                     errorSeed    = 21                        ,
+                     cores        = parallel::detectCores()-1 ,
+                     ...
+                     )
 {
   # parallelize here and detect design from class(design); better yet,
   # we make polyICT, etc. methods for the class
 
+  #...........................................................................
   # do a design check with large N
-  # TODO: move to a function
-  if(designCheck)
-  {
-    # message
-    message("\n\nStarting a design check with n=1000 participants\n",
-            "WARNING: this check is currently only done for the standard MLM")
+  #...........................................................................
+  if(checkDesign)  designCheck(design, randFxFamily, randFxParms, randFxSeed,
+                               errorParms, errorFUN, errorFamily, errorSeed)
 
-    # reset n temporarily, saving user specified n for later
-    userN <- design$n
-    design$n <- 1000
+
+  #...........................................................................
+  # parralelization
+  #...........................................................................
+
+  # generate seeds
+  set.seed(randFxSeed)
+  randFxSeeds <- ceiling(runif(B, 0, 9e6) )
+  set.seed(errorSeed)
+  errorSeeds <- ceiling(runif(B, 0, 9e6) )
+
+  # check file name
+  if(!is.null(file)) file <- checkFile(file)
+
+  # message and timing
+  message("\nStarting simulation of B=", B, " data sets.\n",
+          ifelse(!is.null(file),
+                 paste("Data will be saved in the file:\n\n", file,
+                       "\n\nwhere the outcome for each replicate will be",
+                       " labeled y1, ..., y", B,
+                       "\n\n", sep=""),
+                 '\n\n')
+          )
+  DIM <- 1:B
+  start <- Sys.time()
+
+  # parralelization set up
+  pkgs     <- c("gamlss", "nlme", "foreach")
+  pb       <- txtProgressBar(max = length(DIM), style = 3)
+  progress <- function(n) setTxtProgressBar(pb, n)
+  opts     <- list(progress = progress)
+  cl       <- snow::makeCluster(cores, type="SOCK", outfile="")
+  snow::clusterExport(cl, c())
+  doSNOW::registerDoSNOW(cl)
+
+  Data <- foreach( b=DIM, .packages = pkgs, .options.snow = opts) %dopar%
+  {
 
     # simulate random effects
-    randFx <- mvrFam(design, randFxParms, family, randFxSeed)
+    randFx <- mvrFam(design, randFxParms, randFxFamily, randFxSeeds[b])
 
     # simulate the errors
-    errors <- ICTerror(design, errorParms, errorFUN, randFxSeed)
+    errors <- ICTerror(design, errorParms, errorFUN, errorSeeds[b])
 
     # construct the data
     dat <- design$makeData(randFx, errors)
 
-    # compare expected to observed variances
-    expObsVar <- cbind( design$expectedVar(),
-                        aggregate(dat$y, by=list(dat$Time), var)$x)
+    # rename for merging
+    names(dat)[2] <- paste('y', b, sep='')
 
-    # get the correlation of expected and observed variances
-    expObsCor <- round(cor(expObsVar)[1,2],4)
-    cat("The correlation between the expected variance and the observed\n",
-        "variances is ", expObsCor)
+    # return
+    return(dat)
+  }
+  # stop the cluster
+  parallel::stopCluster(cl)
 
-    #
-    ggplot(dat[dat$id<=100,], aes(x=Time, y=y, group=id, col=phase)) +
-      geom_line() + geom_smooth(se = FALSE, size=.5) +
-      ggtitle('Raw data and smoothed average trajectories for first 100 participants')
+  #...........................................................................
+  # data clean up and save
+  #...........................................................................
+  # merge data in Data
+  by   <- names(Data[[1]])
+  by   <- by[by != 'y1']
+  Data <- Reduce(function(df1, df2) merge(df1, df2, by=by, all = TRUE), Data)
 
-    # TODO: generalize the equation to the implied model, hmmm, need to generate
-    # that from the inputs, currently only works for slopes model
-    ctrl <- lmeControl(opt="optim")
-    mod0 <- lme(y~phase*Time, data=dat, random = ~ Time | id,
-                control=ctrl, correlation = corARMA(p=1,q=0))
-
-    cat("\n\nMODEL RESULTS\n")
-    print( round(rbind(summary(mod0)$tTable[,1]),3 ) )
-
-    cat("\nMODEL INPUTS\n")
-    print( c(unlist(design$effectSizes)) )
-
-    cat("\n\n\n")
+  # if requested, save the data
+  if(length(file)>1)
+  {
+    sfile <- paste(file[1],file[2], sep='.')
+    if(file[2] %in% c('RData', 'rdata', 'Rdata', 'RDATA'))
+    {
+      save(Data, file=sfile)
+    }
+    if(file[2] %in% c('csv', 'CSV', 'Csv'))
+    {
+      write.csv(Data, file=sfile)
+    }
   }
 
+  #...........................................................................
+  # process inputs in `...` that may be passed to `PersonAlytic`
+  #...........................................................................
+  # get the ARMA order from
+  if(!exists('correlation'))
+  {
+    ar <- length(errorParms$ar[errorParms$ar!=0])
+    ma <- length(errorParms$ar[errorParms$ma!=0])
+    correlation <- paste('corARMA(p=', ar, ', q=', ma, ')', sep='')
+  }
 
-  # parralelization
+  #...........................................................................
+  # analyze the data using PersonAlytics, treating y1,...,yB
+  # as separate outcomes
+  #...........................................................................
+  PersonAlytic(output     = file[1]                          ,
+               data       = Data                             ,
+               ids        = 'id'                             ,
+               dvs        = as.list(paste('y', 1:B, sep='')) ,
+               time       = 'Time'                           ,
+               phase      = 'phase'                          ,
+               time_power = design$polyOrder                 ,
 
-
-
-
-  #return(data)
+               ...
+               )
 
 }
 
