@@ -1,5 +1,7 @@
 #' ICTpowerSim
 #'
+#' @export
+#'
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @param designs A named list of designs.

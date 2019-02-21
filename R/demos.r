@@ -16,7 +16,7 @@
 
 
 
-#' sigmaMaker -create an AR(1) error covariance matrix
+#' sigmaMaker - create an AR(1) error covariance matrix
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @keywords internal

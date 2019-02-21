@@ -215,14 +215,31 @@ designCheck <- function(design, file, family, randFxParms, randFxSeed,
   # construct the data
   dat <- design$makeData(randFx, errors)
 
-  # compare expected to observed variances
-  expObsVar <- cbind( design$expectedVar(),
-                      aggregate(dat$y, by=list(dat$Time), var)$x)
+  # get expected means and variances
+  expectedVar <- design$expectedVariances
 
+  # compare expected to observed variances
+  expObsVar   <- cbind( expectedVar$Variances,
+                        aggregate(dat$y, by=list(dat$Time), var)$x)
   # get the correlation of expected and observed variances
-  expObsCor <- round(cor(expObsVar)[1,2],4)
-  cat("The correlation between the expected variance and the observed\n",
-      "variances is ", expObsCor, "\n\n")
+  expObsVcor <- round(cor(expObsVar)[1,2],4)
+  cat("The correlation between the expected variances and the observed\n",
+      "variances are ", expObsVcor, "\n\n")
+
+  # compare expected to observed means
+  expObsMean <- cbind( expectedVar$Means,
+                       aggregate(dat$y, by=list(dat$Time), mean)$x)
+  expObsMcor <- round(cor(expObsMean)[1,2],4)
+  cat("The correlation between the expected means and the observed\n",
+      "means are ", expObsMcor, "\n\n")
+
+  # compare expected to observed total
+  TotalMean <- mean(dat$y)
+  TotalVar  <- var(dat$y)
+  cat("The observed total mean is ", TotalMean,
+      "\nThe expected total mean is ", expectedVar$TotalMean,
+      "\nThe observed total variance is ", TotalVar,
+      "\nThe expected total variance is ", expectedVar$TotalVar, "\n\n")
 
   # a plot
   g <- ggplot(dat[dat$id<=10,], aes(x=Time, y=y, group=id, col=phase)) +

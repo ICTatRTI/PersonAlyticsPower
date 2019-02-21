@@ -174,14 +174,40 @@ active <- function()
              ' creation of a\n`', class(self)[1], '` object and cannot',
              ' be updated.')
       }
-    }
+    },
 
+    expectedVariances = function(value)
+    {
+      if( missing(value) ){ private$.expectedVariances }
+      else
+      {
+        stop('`expectedVariances` is constructed from other inputs during the',
+             ' creation of a\n`', class(self)[1], '` object and cannot',
+             ' be updated.')
+      }
+    },
+
+    unStdEffects = function(value)
+    {
+      if( missing(value) ){ private$.unStdEffects }
+      else
+      {
+        stop('`unStdEffects` is constructed from other inputs during the',
+             ' creation of a\n`', class(self)[1], '` object and cannot',
+             ' be updated.')
+      }
+    }
 
   )
 }
 
 
-#' ICTdesign
+#' \code{ICTdesign} class generator
+#'
+#' @docType class
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @export
 #'
 #' @examples
 #' # create a basic ABA design

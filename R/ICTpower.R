@@ -2,6 +2,12 @@
 
 #' ICTpower - get simulated power for an ICT design using parametric bootstrap.
 #'
+#' @export
+#' @import gamlss
+#' @import nlme
+#' @import foreach
+#' @import snow
+#'
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @param file The file name for saving power analysis results.
@@ -57,7 +63,10 @@
 #' @examples
 #'
 #' # TODO change to dontrun
-#' ICTpower(c('testICTpower', 'csv'), B=10, checkDesign='only')
+#' ICTpower(c('testICTpower10', 'csv'), B=10, checkDesign='only')
+#' ICTpower(c('testICTpower20', 'csv'), B=10, checkDesign='only')
+#' ICTpower(c('testICTpower20_2', 'csv'), polyICT$new(randFxVar=c(5,2)),
+#' B=10, checkDesign='only', randFxSeed=20342, errorSeed=4202)
 
 ICTpower <- function(file                                     ,
                      design       = polyICT$new()             ,

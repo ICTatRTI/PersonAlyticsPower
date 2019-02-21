@@ -2,12 +2,12 @@
 % Please edit documentation in R/demos.r
 \name{sigmaMaker}
 \alias{sigmaMaker}
-\title{sigmaMaker -create an AR(1) error covariance matrix}
+\title{sigmaMaker - create an AR(1) error covariance matrix}
 \usage{
 sigmaMaker(n = 20, phi = 0.5, sigma2 = 0.75)
 }
 \description{
-sigmaMaker -create an AR(1) error covariance matrix
+sigmaMaker - create an AR(1) error covariance matrix
 }
 \author{
 Stephen Tueller \email{stueller@rti.org}
