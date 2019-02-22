@@ -4,10 +4,11 @@
 \alias{ICTpowerSim}
 \title{ICTpowerSim}
 \usage{
-ICTpowerSim(designs, save = NULL, B = 1000, seed = 1, alpha = 0.05,
-  randFxFamily = "qNO", randFxParms = list(mu = 0.5, sigma = 1),
-  errorParms = list(ar = c(0.5), ma = c(0)), errorFUN = arima.sim,
-  errorFamily = NULL, cores = parallel::detectCores() - 1, ...)
+ICTpowerSim(designs, pReportName = "ICTpowerSimResults", save = NULL,
+  B = 1000, seed = 1, alpha = 0.05, randFxFamily = "qNO",
+  randFxParms = list(mu = 0.5, sigma = 1), errorParms = list(ar =
+  c(0.5), ma = c(0)), errorFUN = arima.sim, errorFamily = NULL,
+  cores = parallel::detectCores() - 1, ...)
 }
 \arguments{
 \item{designs}{A named list of designs.

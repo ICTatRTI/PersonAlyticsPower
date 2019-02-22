@@ -13,4 +13,3 @@ makePhase - a function to create the phase variable
 \author{
 Stephen Tueller \email{stueller@rti.org}
 }
-\keyword{internal}

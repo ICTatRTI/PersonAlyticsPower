@@ -214,10 +214,10 @@ ICTpower <- function(file                                     ,
     #...........................................................................
     # power analysis specific summary of results
     #...........................................................................
-    powerReport(paout, alpha, file=file$file)
+    powerL <- powerReport(paout, alpha, file=file$file)
+    return(powerL)
 
   }
-
 }
 
 

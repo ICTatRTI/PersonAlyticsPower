@@ -25,6 +25,7 @@
 #'
 
 ICTpowerSim <- function(designs                                  ,
+                        pReportName  = 'ICTpowerSimResults'      ,
                         save         = NULL                      ,
                         B            = 1000                      ,
                         seed         = 1                         ,
@@ -43,8 +44,10 @@ ICTpowerSim <- function(designs                                  ,
   set.seed(seed)
   seeds <- ceiling(runif(2, 0, 9e6) )
 
+  powerL <- list()
   for(i in seq_along(designs))
   {
+    powerL[[i]] <-
     ICTpower(file         = c(fnames[i]  , save) ,
              design       = designs[[i]]         ,
              B            = B                    ,
@@ -61,4 +64,9 @@ ICTpowerSim <- function(designs                                  ,
              ...
              )
   }
+  powerL <- do.call(rbind, powerL)
+  row.names(powerL) <- fnames
+  reportName <- paste(pReportName, 'PAP', packageVersion('PersonAlyticsPower'),
+                      'PA', packageVersion('PersonAlytics'), '.csv', sep='_')
+  write.csv(powerL, file=reportName)
 }

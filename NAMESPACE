@@ -3,6 +3,7 @@
 export(ICTdesign)
 export(ICTpower)
 export(ICTpowerSim)
+export(makePhase)
 export(polyICT)
 import(foreach)
 import(gamlss)

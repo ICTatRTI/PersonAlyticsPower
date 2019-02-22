@@ -16,10 +16,11 @@ cor2cov <- function(corMat    = matrix(c(1,.2,.2,1), 2, 2) ,
   return(Sigma)
 }
 
+
 #' makePhase - a function to create the phase variable
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
-#' @keywords internal
+#' @export
 
 makePhase <- function(nObsPerCondition = c(10,20,10) ,
                        conditions = c("A", "B", "A")  )
@@ -292,4 +293,7 @@ powerReport <- function(paout, alpha, file)
   # save the report
   powerfile <- paste(file, 'PowerReport.txt', sep='_')
   cat( powerOutput, file = powerfile)
+
+  # return results
+  return( unlist(powerL) )
 }
