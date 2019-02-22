@@ -273,7 +273,7 @@ designCheck <- function(design, file, family, randFxParms, randFxSeed,
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @keywords internal
-powerReport <- function(paout, alpha, file)
+powerReport <- function(paout, alpha, file, saveReport=TRUE)
 {
   whichP <- names(paout)[ grepl('p.value', names(paout)) ]
   powerL <- list()
@@ -289,10 +289,12 @@ powerReport <- function(paout, alpha, file)
   powerOutput <- paste(names(powerL), '\t', round(unlist(powerL),2), '\n' )
   cat( powerOutput )
 
-
   # save the report
-  powerfile <- paste(file, 'PowerReport.txt', sep='_')
-  cat( powerOutput, file = powerfile)
+  if(saveReport)
+  {
+   powerfile <- paste(file, 'PowerReport.txt', sep='_')
+    cat( powerOutput, file = powerfile)
+  }
 
   # return results
   return( unlist(powerL) )

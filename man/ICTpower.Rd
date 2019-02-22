@@ -8,7 +8,7 @@ ICTpower(file, design = polyICT$new(), B = 100, checkDesign = "no",
   alpha = 0.05, randFxFamily = "qNO", randFxParms = list(mu = 0.5,
   sigma = 1), randFxSeed = 11, errorParms = list(ar = c(0.5), ma =
   c(0)), errorFUN = arima.sim, errorFamily = NULL, errorSeed = 21,
-  cores = parallel::detectCores() - 1, ...)
+  cores = parallel::detectCores() - 1, savePowerReport = TRUE, ...)
 }
 \arguments{
 \item{file}{The file name for saving power analysis results.
@@ -56,6 +56,11 @@ currently implemented.}
 \item{cores}{The number of cores used in parralelized simulation. The default
 is to use one few cores than are detected on the computer. Do not exceed the
 maximum available cores or unexpect results may occur or R may crash.}
+
+\item{savePowerReport}{Should the power report be saved using the \code{file}
+name? If \code{TRUE}, a `txt` file is saved in the working directory. This
+option is set to \code{FALSE} in the function \code{\link{ICTpowerSim}} which
+instead saves the reports from several conditions in a `csv` file.}
 
 \item{...}{Further arguments to be passed to \code{\link{PersonAlytics}}.}
 
