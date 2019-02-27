@@ -3,7 +3,10 @@
 #' cor2cov - a version of this function was in the deprecated package `stremo`
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
-#' @keywords internal
+#' @export
+#'
+#' @param corMat Numeric matrix. An invertible correlation matrix.
+#' @param variances Numeric vector. The variances.
 
 cor2cov <- function(corMat    = matrix(c(1,.2,.2,1), 2, 2) ,
                     variances = c(1, .1)                   )

@@ -4,8 +4,8 @@
 \alias{ICTpowerSim}
 \title{ICTpowerSim}
 \usage{
-ICTpowerSim(designs, pReportName = "ICTpowerSimResults", save = NULL,
-  B = 1000, seed = 1, alpha = 0.05, randFxFamily = "qNO",
+ICTpowerSim(designs, pReportName = "ICTpowerSimResults", B = 1000,
+  seed = 1, save = NULL, alpha = 0.05, randFxFamily = "qNO",
   randFxParms = list(mu = 0.5, sigma = 1), errorParms = list(ar =
   c(0.5), ma = c(0)), errorFUN = arima.sim, errorFamily = NULL,
   cores = parallel::detectCores() - 1, ...)
@@ -15,12 +15,22 @@ ICTpowerSim(designs, pReportName = "ICTpowerSimResults", save = NULL,
 in \code{\link{ICTpower}}. The names in the named list will be passed to
 the parameter \code{file} in \code{\link{ICTpower}}.}
 
-\item{save}{Should the data be saved? If NULL (the default) raw data will not be
-saved. Other options include \code{save='csv'} and \code{save='RData'}. This will be
-combined with the names of \code{designs} to pass to the \code{file} option in
-\code{\link{ICTpower}}.
+\item{pReportName}{Character. A name used to create output files. The default
+is \code{"ICTpowerSimResults"}}
+
+\item{B}{Numeric (integer). The number of replicated data sets per \code{design}
+in \code{designs}.}
+
+\item{save}{\code{NULL} or character. Should the data be saved? If NULL
+(the default) raw data will not be saved. Other
+options include \code{save='csv'} and \code{save='RData'}. This will be
+combined with the names of \code{designs} to pass to the \code{file} option
+in \code{\link{ICTpower}}.
 
 The remaining parameters are as explained in \code{\link{ICTpower}}.}
+
+\item{Seed}{Numeric (integer). The random seed for ensuring the simulation
+can be replicated.}
 }
 \description{
 ICTpowerSim

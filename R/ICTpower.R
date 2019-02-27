@@ -135,7 +135,8 @@ ICTpower <- function(file                                        ,
 
     # parralelization set up
     pkgs     <- c("gamlss", "nlme", "foreach")
-    pb       <- txtProgressBar(max = length(DIM), style = 3)
+    capture.output( pb <- txtProgressBar(max = length(DIM), style = 3),
+                    file='NUL')
     # TODO: why is this printing before it gets called?
     progress <- function(n) setTxtProgressBar(pb, n)
     opts     <- list(progress = progress)
@@ -263,7 +264,7 @@ ICTpower <- function(file                                        ,
 #' norm <- mvrFam(design, parms=list(mean=0, sd=20, lower.tail=FALSE), "qnorm")
 #' #pois <- mvrFam(design, parms=list(lambda=.3, lower.tail=FALSE), "qpois") # not working
 #'
-#' # this example illustrates how mvrFam works under the hodo
+#' # this example illustrates how mvrFam works under the hood
 #' \dontrun{
 #' corMat <- matrix(.5, nrow=3, ncol=3) + diag(3)*.5
 #' corMat[1,3] <- corMat[3,1] <- .25
