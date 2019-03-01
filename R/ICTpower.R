@@ -1,5 +1,3 @@
-# TODO: add defualts to documentation
-
 #' ICTpower - get simulated power for an ICT design using parametric bootstrap.
 #'
 #' @export
@@ -68,10 +66,19 @@
 #' @examples
 #'
 #' # TODO change to dontrun
-#' ICTpower(c('testICTpower10', 'csv'), B=10, checkDesign='only')
-#' ICTpower(c('testICTpower20', 'csv'), B=10, checkDesign='only')
+#' \dontrun{
+#' ICTpower(c('testICTpower10', 'csv'),
+#'   polyICT$new(n=10),
+#'   randFxSeed = 54, errorSeed=89496,
+#'   checkDesign='only')
+#' ICTpower(c('testICTpower10', 'csv'),
+#'   polyICT$new(n=200),
+#'   randFxSeed = 23, errorSeed=923,
+#'   checkDesign='only')
 #' ICTpower(c('testICTpower20_2', 'csv'), polyICT$new(randFxVar=c(5,2)),
-#' B=10, checkDesign='only', randFxSeed=20342, errorSeed=4202)
+#'   B=10, checkDesign='only', randFxSeed=20342, errorSeed=4202)
+#' }
+
 
 ICTpower <- function(file                                        ,
                      design          = polyICT$new()             ,
@@ -104,9 +111,16 @@ ICTpower <- function(file                                        ,
   }
   if(checkDesign %in% c('yes', 'only'))
   {
-    designCheck(design, file$file,
-                randFxFamily, randFxParms, randFxSeed,
-                errorParms, errorFUN, errorFamily, errorSeed)
+    designCheck(design      = design       ,
+                file        = file$file    ,
+                family      = randFxFamily ,
+                randFxParms = randFxParms  ,
+                randFxSeed  = randFxSeed   ,
+                errorParms  = errorParms   ,
+                errorFUN    = errorFUN     ,
+                errorFamily = errorFamily  ,
+                errorSeed   = errorSeed
+                )
   }
 
   if(checkDesign != 'only')
@@ -137,8 +151,7 @@ ICTpower <- function(file                                        ,
     pkgs     <- c("gamlss", "nlme", "foreach")
     capture.output( pb <- txtProgressBar(max = length(DIM), style = 3),
                     file='NUL')
-    # TODO: why is this printing before it gets called?
-    progress <- function(n) setTxtProgressBar(pb, n)
+	  progress <- function(n) setTxtProgressBar(pb, n)
     opts     <- list(progress = progress)
     cl       <- snow::makeCluster(cores, type="SOCK", outfile="")
     snow::clusterExport(cl, c())
@@ -223,18 +236,131 @@ ICTpower <- function(file                                        ,
     #...........................................................................
     powerL <- powerReport(paout, alpha, file=file$file,
                           saveReport=savePowerReport)
+
+
+    #...........................................................................
+    # distribution of the
+    #...........................................................................
+
+
+    #...........................................................................
     return(powerL)
 
   }
 }
 
 
-
-#' mvrFam - a function to simulate multivariate data from a gamlss family
-#' distribution
+#' samplingDist - function to plot the sampling distributions of
+#' \code{\link{PersonAlytic}} output produce by \code{\link{ICTpower}}.
+#'
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
-#' follow http://www.econometricsbysimulation.com/2014/02/easily-generate-correlated-variables.html
+#' @export
+samplingDist <- function(file, design)
+{
+  paout <- read.csv(file, stringsAsFactors = FALSE)
+
+  # get needed parameters
+  nPhases <- length(design$phases) #TODO delete if not used, remove design too
+
+  # parse statNames
+  statNames <- names(paout)[ grepl('statName', names(paout)) ]
+  statsAre  <- list()
+  for(i in seq_along(statNames))
+  {
+    statsAre[[statNames[i]]] <- statNameParse(paout[[statNames[i]]])
+  }
+
+  # plot statValues
+  if(statsAre[[1]] == 'Correlations Between Y and Time')
+  {
+    statValues <- names(paout)[ grepl('statValue', names(paout)) ]
+    hist(paout[[statValues[1]]], main=statsAre[[1]], xlab='Correlation')
+    m <- paste('Mean =', round(mean(paout[[statValues[1]]], na.rm=TRUE),2))
+    s <- paste('SD   =', round(  sd(paout[[statValues[1]]], na.rm=TRUE),2))
+    legend("topright", legend = c(m, s))
+  }
+
+  # TODO delete, this distorts when unequal variance
+  #xlim <- range( paout[, statValues[2:length(statValues)]], na.rm=TRUE )
+  ##TODO - generalized list to any number of phases
+  #cols <- c(rgb(1,0,0,0.5), rgb(0,0,1,0.5))
+  #
+  #for(i in seq_along(statsAre)[-1])
+  #{
+  #  hist(paout[[statValues[i]]], col=cols[i-1], xlim=xlim,
+  #       add=ifelse(i==2, FALSE, TRUE), main='', xlab='Mean of Y')
+  #  if(i==2)
+  #  {
+  #    title("Histogram of data means by phase")
+  #  }
+  #}
+  #box()
+  #legend("topright", legend=statsAre[2:length(statsAre)], col=cols, lty=1,
+  #       lwd=6)
+
+
+  # ggplot approach
+  long <- list()
+  wc   <- statValues[2:length(statValues)]
+  for(i in seq_along(wc))
+  {
+    long[[i]] <- data.frame(Phase = i-1, Ymeans = paout[,wc[i]])
+  }
+  long <- do.call(rbind, long)
+  long$Phase <- factor(long$Phase)
+  ggplot(long, aes(x=Ymeans, fill=Phase)) + geom_density(alpha=0.25)
+
+
+  ggplot(paout, aes(x=phase1.Value, fill=factor(phase1.p.value<=.05))) +
+    geom_density(alpha=0.25) +
+    guides(fill=guide_legend(title="P <= .05")) +
+    xlab("Estimated Phase Effect")
+
+  ggplot(paout, aes(x=Time.Value, fill=factor(Time.p.value<=.05))) +
+    geom_density(alpha=0.25) +
+    guides(fill=guide_legend(title="P <= .05")) +
+    xlab("Estimated Time Effect")
+
+}
+
+statNameParse <- function(statName)
+{
+
+  # correlations
+  if( all(grepl('correlation', statName)) )
+  {
+    statIs <- 'Correlations Between Y and Time'
+  }
+
+  # means
+  if( all(grepl('mean', statName)) )
+  {
+    phase  <- strsplit(statName[1], "\\=")[[1]][2]
+    statIs <- paste('Means of Phase =', phase)
+  }
+
+  # error
+  if( ! exists('statIs') )
+  {
+    stop("The type of descriptive statistic cannot be determined.")
+  }
+
+  # return
+  return(statIs)
+}
+
+
+
+#' mvrFam - a function to simulate multivariate data from a gamlss family
+#' distribution, following
+#' "http://www.econometricsbysimulation.com/2014/02/easily-generate-correlated-variables.html"
+#'
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @export
+#'
+#'
 #'
 #' @param design An \code{\link{polyICT}} object, or its not yet implemented siblings
 #' \code{hyperICT}, \code{invPolyICT}, \code{expICT}, \code{negExpICT},
@@ -266,6 +392,7 @@ ICTpower <- function(file                                        ,
 #'
 #' # this example illustrates how mvrFam works under the hood
 #' \dontrun{
+#' # requires library(psych), not required by PersonAlyticsPower
 #' corMat <- matrix(.5, nrow=3, ncol=3) + diag(3)*.5
 #' corMat[1,3] <- corMat[3,1] <- .25
 #' effectSizes <- list(randFx=list(intercept=0, slope=.5, quad=.1),
@@ -278,7 +405,7 @@ ICTpower <- function(file                                        ,
 #'
 #' # first simulate multivariate normal data
 #' Y <- mvrnorm( design$n, rep(0, design$polyOrder + 1),  design$corMat)
-#' psych::pairs.panels(Y) # TODO make the plots not run
+#' psych::pairs.panels(Y)
 #' all.equal(cor(Y), corMat, tolerance=.03)
 #'
 #' # now get the propabilities

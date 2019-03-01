@@ -69,7 +69,8 @@ ICTpowerSim <- function(designs                                  ,
   fnames <- names(designs)
 
   set.seed(seed)
-  seeds <- ceiling(runif(2, 0, 9e6) )
+  nDesigns <- length(designs)
+  seeds    <- matrix(ceiling(runif(2*nDesigns, 0, 9e6)), nDesigns, 2)
 
   msgDelim <- paste('\n\n', paste(rep('*', 80), collapse = ''), '\n\n')
 
@@ -88,11 +89,11 @@ ICTpowerSim <- function(designs                                  ,
              alpha           = alpha                ,
              randFxFamily    = randFxFamily         ,
              randFxParms     = randFxParms          ,
-             randFxSeed      = seeds[1]             ,
+             randFxSeed      = seeds[i, 1]          ,
              errorParms      = errorParms           ,
              errorFUN        = errorFUN             ,
              errorFamily     = errorFamily          ,
-             errorSeed       = seeds[2]             ,
+             errorSeed       = seeds[i, 2]          ,
              cores           = cores                ,
              savePowerReport = FALSE                , # if there is a crash, this is bad
              ...

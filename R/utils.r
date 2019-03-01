@@ -202,13 +202,13 @@ designCheck <- function(design, file, family, randFxParms, randFxSeed,
                         errorParms, errorFUN, errorFamily, errorSeed)
 {
   # message
-  message("\n\nStarting a design check with n=1000 participants\n",
+  message("\n\nStarting a design check with n=5000 participants\n",
           "WARNING: this check is currently only done for the standard MLM")
 
   # save and reset n, due to inheritance design will get overwritten, fix
   # n below
   originaln <- design$n
-  design$n  <- 1000
+  design$n  <- 5000
 
   # simulate random effects
   randFx <- mvrFam(design, randFxParms, family, randFxSeed)
@@ -252,19 +252,19 @@ designCheck <- function(design, file, family, randFxParms, randFxSeed,
   suppressMessages( print( g ) )
 
   # TODO: generalize the equation to the implied model, hmmm, need to generate
-  # that from the inputs, currently only works for slopes model
-  ctrl <- lmeControl(opt="optim")
-  mod0 <- lme(y~phase*Time, data=dat, random = ~ Time | id,
-              control=ctrl, correlation = corARMA(p=1,q=0))
+  # that from the inputs, currently only works for slopes model with AR(1)
+  pa   <- Palytic$new(data=dat, ids='id', dv='y', time='Time', phase='phase')
+  mod0 <- pa$lme()
 
-  save(mod0, file=paste(file, 'designCheck.RData', sep='_'))
+  save(mod0, file=paste(file[1], 'designCheck.RData', sep='_'))
   print( mod0 )
 
-  cat("\n\nMODEL RESULTS\n")
-  print( round(rbind(summary(mod0)$tTable[,1]),3 ) )
-
-  cat("\nMODEL INPUTS\n")
-  print( c(unlist(design$effectSizes)) )
+  #TODO this only works for linear models
+  #TODO needs better matching, force name matching in polyICT
+  Estimates <- round(rbind(summary(mod0)$tTable[,1]),3 )
+  Inputs    <- round(c(unlist(design$unStdEffects))[c(1,3,2,4)],3)
+  cat('\n\nCheck the effect size estimates against inputs:\n')
+  print( data.frame(Inputs=Inputs, Estimates=t(Estimates)) )
 
   cat("\n\n\n")
 
@@ -282,7 +282,7 @@ powerReport <- function(paout, alpha, file, saveReport=TRUE)
   powerL <- list()
   for(i in whichP)
   {
-    powerL[[i]] <- mean(paout[[i]] <= alpha)
+    powerL[[i]] <- mean(paout[[i]] <= alpha, na.rm = TRUE)
   }
 
   # print the report to the screen

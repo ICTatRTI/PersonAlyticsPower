@@ -3,7 +3,8 @@
 \name{mvrFam}
 \alias{mvrFam}
 \title{mvrFam - a function to simulate multivariate data from a gamlss family
-distribution}
+distribution, following
+"http://www.econometricsbysimulation.com/2014/02/easily-generate-correlated-variables.html"}
 \usage{
 mvrFam(design, parms, family = "qNO", seed = 1)
 }
@@ -23,7 +24,8 @@ distribution.}
 }
 \description{
 mvrFam - a function to simulate multivariate data from a gamlss family
-distribution
+distribution, following
+"http://www.econometricsbysimulation.com/2014/02/easily-generate-correlated-variables.html"
 }
 \examples{
 parms  <- list(mu=.5, sigma=.35, nu=.15, tau=.25)
@@ -45,6 +47,7 @@ norm <- mvrFam(design, parms=list(mean=0, sd=20, lower.tail=FALSE), "qnorm")
 
 # this example illustrates how mvrFam works under the hood
 \dontrun{
+# requires library(psych), not required by PersonAlyticsPower
 corMat <- matrix(.5, nrow=3, ncol=3) + diag(3)*.5
 corMat[1,3] <- corMat[3,1] <- .25
 effectSizes <- list(randFx=list(intercept=0, slope=.5, quad=.1),
@@ -57,7 +60,7 @@ design <- polyICT$new(n=10000, corMat=corMat, effectSizes=effectSizes,
 
 # first simulate multivariate normal data
 Y <- mvrnorm( design$n, rep(0, design$polyOrder + 1),  design$corMat)
-psych::pairs.panels(Y) # TODO make the plots not run
+psych::pairs.panels(Y)
 all.equal(cor(Y), corMat, tolerance=.03)
 
 # now get the propabilities
@@ -83,6 +86,4 @@ all.equal(unname(cor(YLOGNO)), corMat, tolerance=.08)
 }
 \author{
 Stephen Tueller \email{stueller@rti.org}
-
-follow http://www.econometricsbysimulation.com/2014/02/easily-generate-correlated-variables.html
 }
