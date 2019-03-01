@@ -97,6 +97,10 @@ ICTpower <- function(file                                        ,
                      ...
 )
 {
+  #argList <-  as.list(match.call(expand.dots = TRUE)[-1]) # only explicitly passed
+  argList <- mget(names(formals()),sys.frame(sys.nframe()))
+  print(argList)
+
   # check file name
   if(!is.null(file)) file <- checkFile(file)
 
@@ -239,9 +243,13 @@ ICTpower <- function(file                                        ,
 
 
     #...........................................................................
-    # distribution of the
+    # distributions of the estimates
     #...........................................................................
-
+    plotDists <- FALSE
+    if(plotDists)
+    {
+      samplingDist(paout)
+    }
 
     #...........................................................................
     return(powerL)
@@ -256,13 +264,8 @@ ICTpower <- function(file                                        ,
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @export
-samplingDist <- function(file, design)
+samplingDist <- function(paout)
 {
-  paout <- read.csv(file, stringsAsFactors = FALSE)
-
-  # get needed parameters
-  nPhases <- length(design$phases) #TODO delete if not used, remove design too
-
   # parse statNames
   statNames <- names(paout)[ grepl('statName', names(paout)) ]
   statsAre  <- list()
@@ -321,7 +324,6 @@ samplingDist <- function(file, design)
     geom_density(alpha=0.25) +
     guides(fill=guide_legend(title="P <= .05")) +
     xlab("Estimated Time Effect")
-
 }
 
 statNameParse <- function(statName)

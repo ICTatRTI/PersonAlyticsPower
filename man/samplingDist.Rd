@@ -5,7 +5,7 @@
 \title{samplingDist - function to plot the sampling distributions of
 \code{\link{PersonAlytic}} output produce by \code{\link{ICTpower}}.}
 \usage{
-samplingDist(file, design)
+samplingDist(paout)
 }
 \description{
 samplingDist - function to plot the sampling distributions of
