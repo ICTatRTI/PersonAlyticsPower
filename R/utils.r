@@ -36,6 +36,171 @@ makePhase <- function(nObsPerCondition = c(10,20,10) ,
   return( phases )
 }
 
+#' readinteger - helper function for studySetup
+#' @author adapted from http://www.rexamples.com/4/Reading%20user%20input
+#' @keywords internal
+
+readinteger <- function(prompt, nth="")
+{
+  n <- readline(prompt=paste(prompt, " ", nth, " : ", sep=""))
+  if(!grepl("^[0-9]+$",n))
+  {
+    return(readinteger())
+  }
+  return(as.integer(n))
+}
+
+readnumeric <- function(prompt, nth="")
+{
+  n <- readline(prompt=paste(prompt, " ", nth, " : ", sep=""))
+  n <- as.numeric(n)
+  if(!is.numeric(n))
+  {
+    return(readinteger())
+  }
+  return(n)
+}
+
+readcharacter <- function(prompt, nth="")
+{
+  string <- readline(prompt=paste(prompt, " ", nth, " : ", sep=""))
+  if(!is.character(string))
+  {
+    return(readcharacter())
+  }
+  return(as.character(string))
+}
+
+
+#' studySetup - function to help users set up a study design matrix
+#'
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#' @export
+#'
+#' @param phases List. The length of phases is the number of phases. Each
+#' item in the list is a vector repeating the phase name or number as many
+#' times as there are time points within that phase. See \code{\link{makePhase}}.
+#'
+#' @param nGroups Integer. The number of groups.
+#'
+#' \value{
+#' A data.frame with a `time` and `phase` variable, plus the following pairs of
+#' variables each group:
+#'   \itemize{
+#'     \item lower. The lower bound at each time point.
+#'     \item upper. The upper bound at each time point.
+#'   }
+#' Lower/upper bounds give the truncated range of the parent distribution
+#' from which observed values are sampled. ICTs often look at subpopulations whose
+#' scores lie on one end of the distribution, and a study intervetion aims to move
+#' them toward scores that are more normal.
+#'
+#' For example, in a three phase study with 5 time points in each phase. The first
+#' phase is a static baseline, the second phase occurs after an intervention which
+#' raises scores, and the third phase shows linear decay back to the original
+#' bounds after the removal of the intervention:
+#'
+#' time phase lower_Group1 upper_Group1
+#'    1    A            -2            0
+#'    2    A            -2            0
+#'    3    A            -2            0
+#'    4    A            -2            0
+#'    5    A            -2            0
+#'    6    B            -1            1
+#'    7    B            -1            1
+#'    8    B            -1            1
+#'    9    B            -1            1
+#'   10    B            -1            1
+#'   11    A            -1            1
+#'   12    A         -1.25         0.75
+#'   13    A         -1.50         0.50
+#'   14    A         -1.75         0.25
+#'   15    A            -2            0
+#' }
+#'
+#' In this example, the modal value will be halfway between the lower and upper
+#' bound. The mean and median will be determined by the distribution selected
+#' by the user for data sampling and the truncated range of that distribution
+#' defined by the lower and upper bounds.
+#'
+#' This matrix can be constructed by the user, the studySetup function simply
+#' creates a shell for the user to fill in.
+#'
+#' @examples
+#'
+#' # two phase example with 5 time points each
+#' designMatrix <- studySetup(makePhase(c(5,5), c("A","B")), nGroup=1)
+#'
+#' # view the empty matrix
+#' designMatrix
+#'
+#' # visualize an observed data distribution density plot
+#' ICTviz()
+#'
+#' # now the user needs to manually fill in the design matrix, values for
+#' # the lower/upper bounds are taken from the x-axis of the
+#' # density plot
+#' \dontrun{
+#' designMatrix <- edit(designMatrix)
+#' }
+
+studySetup <- function(phases = makePhase(), nGroups=1)
+{
+  phases <- unlist(phases)
+  designMatrix <- data.frame(time  = 0:(length(phases)-1),
+                             phase = phases )
+  for(g in 1:nGroups)
+  {
+    designMatrix[[paste('means_Group', g, sep='')]] <- as.numeric(NA)
+    designMatrix[[paste('lower_Group', g, sep='')]] <- as.numeric(NA)
+    designMatrix[[paste('upper_Group', g, sep='')]] <- as.numeric(NA)
+  }
+  return(designMatrix)
+}
+
+
+#' ICTviz - a function to create the phase variable
+#' and select mean values
+#'
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @export
+
+ICTviz <- function(designMatrix=NULL,
+  DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2))
+{
+  ddist <- paste('d', DIST, sep='')
+  x <- seq(-4,4, length=1000)
+  dY <- doCall(ddist, x=x,
+               mu=parms$mu,
+               sigma=parms$sigma,
+               nu=parms$nu, tau=parms$tau)
+  plot(x, dY, type='l')
+
+  ## get user inputs
+  ## TODO: we need error handling and restarts here!!
+  #
+  #cat('\n')
+  #nGroups <- readinteger("Enter the number of groups")
+  #groupSizes <- list()
+  #for(g in 1:nGroups)
+  #{
+  #  groupName <- readcharacter("Enter the name of group", g)
+  #  groupSizes[[groupName]] <- readinteger("Enter the # of participants in group",
+  #                                     groupName)
+  #}
+  #
+  #nPhases <- readinteger("Enter the number of phases: ")
+  #phaseLengths <- list()
+  #for(p in 1:nPhases)
+  #{
+  #  phaseName <- readcharacter("Enter the name of phase", p)
+  #  phaseLengths[[ phaseName ]] <- readinteger( "Enter the # of timepoints in phase",
+  #                                              phaseName    )
+  #}
+  #
+  #locator(type = 'p', col = 'red')
+}
 
 #' checkCorMat
 #' @author Stephen Tueller \email{stueller@@rti.org}
@@ -126,7 +291,7 @@ getICTdesign <- function(phases      = makePhase() ,
 #' parameters
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
-#' @param X a vector of probabilities to be based to a quantile function
+#' @param X a vector of probabilities to be passed to a quantile function
 #' like \code{\link{qN0}} in \code{\link{gamlss}} or \code{\link{qnorm}}
 #' @param .fcn see \code{\link{doCall}} in the `R.utils` package
 #'
@@ -140,7 +305,7 @@ doIt <- function(X, .fcn="qNO", ...)
 #' \code{\link{gamlss.family}} distributions
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
-#' @param Yp X a vector of probabilities to be based to a quantile function
+#' @param Yp X a vector of probabilities to be passed to a quantile function
 #' @param .fcn A quantile function like \code{\link{qN0}} in \code{\link{gamlss}}
 #' or \code{\link{qnorm}}. See also \code{\link{doCall}} in the `R.utils` package
 #' @param ... other options passed to \code{\link{gamlss.family}} distribution
