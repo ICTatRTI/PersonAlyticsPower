@@ -24,57 +24,29 @@ cor2cov <- function(corMat    = matrix(c(1,.2,.2,1), 2, 2) ,
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @export
+#'
+#' @param nObsPerPhase Numeric vector. The length is the number of phases
+#' and each entry is the number of observations per phase.
+#'
+#' @param phaseNames Numeric or character vector. The names of the phases,
+#' e.g., phase 0 and phase 1, or phases "A", "B", and "C".
 
-makePhase <- function(nObsPerCondition = c(10,20,10) ,
-                       conditions = c("A", "B", "A")  )
+makePhase <- function(nObsPerPhase = c(10,20,10) ,
+                       phaseNames = c("A", "B", "A")  )
 {
   phases <- list()
-  for(i in seq_along(nObsPerCondition))
+  for(i in seq_along(nObsPerPhase))
   {
-    phases[[i]] <- rep(conditions[i], nObsPerCondition[i])
+    phases[[i]] <- rep(phaseNames[i], nObsPerPhase[i])
   }
   return( phases )
-}
-
-#' readinteger - helper function for studySetup
-#' @author adapted from http://www.rexamples.com/4/Reading%20user%20input
-#' @keywords internal
-
-readinteger <- function(prompt, nth="")
-{
-  n <- readline(prompt=paste(prompt, " ", nth, " : ", sep=""))
-  if(!grepl("^[0-9]+$",n))
-  {
-    return(readinteger())
-  }
-  return(as.integer(n))
-}
-
-readnumeric <- function(prompt, nth="")
-{
-  n <- readline(prompt=paste(prompt, " ", nth, " : ", sep=""))
-  n <- as.numeric(n)
-  if(!is.numeric(n))
-  {
-    return(readinteger())
-  }
-  return(n)
-}
-
-readcharacter <- function(prompt, nth="")
-{
-  string <- readline(prompt=paste(prompt, " ", nth, " : ", sep=""))
-  if(!is.character(string))
-  {
-    return(readcharacter())
-  }
-  return(as.character(string))
 }
 
 
 #' studySetup - function to help users set up a study design matrix
 #'
 #' @author Stephen Tueller \email{stueller@@rti.org}
+#'
 #' @export
 #'
 #' @param phases List. The length of phases is the number of phases. Each
@@ -83,13 +55,17 @@ readcharacter <- function(prompt, nth="")
 #'
 #' @param nGroups Integer. The number of groups.
 #'
-#' \value{
+#' @return
+#'
 #' A data.frame with a `time` and `phase` variable, plus the following pairs of
 #' variables each group:
 #'   \itemize{
-#'     \item lower. The lower bound at each time point.
-#'     \item upper. The upper bound at each time point.
+#'     \item lower_Group#. The lower bound at each time point.
+#'     \item upper_Group#. The upper bound at each time point.
 #'   }
+#' where the `#` is replaced by the group number. This naming convention is required
+#' for other functions in the package.
+#'
 #' Lower/upper bounds give the truncated range of the parent distribution
 #' from which observed values are sampled. ICTs often look at subpopulations whose
 #' scores lie on one end of the distribution, and a study intervetion aims to move
@@ -100,22 +76,23 @@ readcharacter <- function(prompt, nth="")
 #' raises scores, and the third phase shows linear decay back to the original
 #' bounds after the removal of the intervention:
 #'
-#' time phase lower_Group1 upper_Group1
-#'    1    A            -2            0
-#'    2    A            -2            0
-#'    3    A            -2            0
-#'    4    A            -2            0
-#'    5    A            -2            0
-#'    6    B            -1            1
-#'    7    B            -1            1
-#'    8    B            -1            1
-#'    9    B            -1            1
-#'   10    B            -1            1
-#'   11    A            -1            1
-#'   12    A         -1.25         0.75
-#'   13    A         -1.50         0.50
-#'   14    A         -1.75         0.25
-#'   15    A            -2            0
+#' \tabular{rrrr}{
+#' time \tab phase \tab lower_Group1 \tab upper_Group1 \cr
+#'    1 \tab     A \tab           -2 \tab            0 \cr
+#'    2 \tab     A \tab           -2 \tab            0 \cr
+#'    3 \tab     A \tab           -2 \tab            0 \cr
+#'    4 \tab     A \tab           -2 \tab            0 \cr
+#'    5 \tab     A \tab           -2 \tab            0 \cr
+#'    6 \tab     B \tab           -1 \tab            1 \cr
+#'    7 \tab     B \tab           -1 \tab            1 \cr
+#'    8 \tab     B \tab           -1 \tab            1 \cr
+#'    9 \tab     B \tab           -1 \tab            1 \cr
+#'   10 \tab     B \tab           -1 \tab            1 \cr
+#'   11 \tab     A \tab           -1 \tab            1 \cr
+#'   12 \tab     A \tab        -1.25 \tab         0.75 \cr
+#'   13 \tab     A \tab        -1.50 \tab         0.50 \cr
+#'   14 \tab     A \tab        -1.75 \tab         0.25 \cr
+#'   15 \tab     A \tab           -2 \tab            0
 #' }
 #'
 #' In this example, the modal value will be halfway between the lower and upper
@@ -128,6 +105,15 @@ readcharacter <- function(prompt, nth="")
 #'
 #' @examples
 #'
+#' # view an example study design matrix that could have been initiated
+#' # with `studySetup`
+#' g2exampleDesignMatrix
+#'
+#' # visualize this design using truncated standard normal
+#' ICTviz(DIST = 'NO', parms=list(mu=0, sigma=1),
+#'        designMatrix = g2exampleDesignMatrix)
+#'
+#' \dontrun{
 #' # two phase example with 5 time points each
 #' designMatrix <- studySetup(makePhase(c(5,5), c("A","B")), nGroup=1)
 #'
@@ -139,8 +125,6 @@ readcharacter <- function(prompt, nth="")
 #'
 #' # now the user needs to manually fill in the design matrix, values for
 #' # the lower/upper bounds are taken from the x-axis of the
-#' # density plot
-#' \dontrun{
 #' designMatrix <- edit(designMatrix)
 #' }
 
@@ -178,19 +162,32 @@ ICTviz <- function(DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
   dY <- data.frame(x=x, y=dY)
   g1 <- ggplot(dY, aes(x=x, y=y)) + geom_line() + ylab('Density') + xlab('Outcome')
 
+  if( is.null(designMatrix)) g1
+
   if(!is.null(designMatrix))
   {
     # get # groups
     nGroups <- sum(grepl('Group', names(designMatrix))/2)
 
+    # wide to long
+    varying <- names(designMatrix)[ grep("Group", names(designMatrix)) ]
+    times   <- expand.grid(c("lower", "upper"), paste("Group", 1:nGroups, sep=""))
+    times   <- paste(times$Var2, times$Var1, sep = "_")
+    designMatrixL <- reshape(designMatrix, varying, v.names = "Y", direction = 'long',
+                             timevar = "Group", times = times)
+    group_ul <- do.call(rbind, strsplit(designMatrixL$Group, "_"))
+    designMatrixL$Group_ul <- designMatrixL$Group
+    designMatrixL$ul <- group_ul[,2]
+    designMatrixL$Group <- group_ul[,1]
+
     # find start points of phases
     # TODO make this its own function if used elsewhere
-    phases <- designMatrixLong$phase
-    nTimes <- max(designMatrixLong$time)
+    phases <- designMatrixL$phase
+    nTimes <- max(designMatrixL$time)
     wphases <- which(phases[1:(nTimes-1)] != phases[2:nTimes])
-    rects <- designMatrixLong[wphases,]
-    rects <- rbind(rects, designMatrixLong[nTimes,])
-    rects$xstart <- c(min(designMatrixLong$time), rects$time[1:(nrow(rects)-1)])
+    rects <- designMatrixL[wphases,]
+    rects <- rbind(rects, designMatrixL[nTimes,])
+    rects$xstart <- c(min(designMatrixL$time), rects$time[1:(nrow(rects)-1)])
 
     # set up phase colors
     cols <- RColorBrewer::brewer.pal(length(table(rects$phase))+1, 'Accent')
@@ -199,28 +196,6 @@ ICTviz <- function(DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
     {
       rects$cols[rects$phase==i] <- cols[j]; j <- j+1
     }
-
-    # check for overlapping points and jitter
-    # TODO: not finished
-    for(i in 1:nGroups)
-    {
-      if(i < nGroups)
-      {
-        gNames <- names(designMatrix)[ grep(paste("Group", i, sep=""), names(designMatrix)) ]
-
-      }
-    }
-
-    # wide to long
-    varying <- names(designMatrix)[ grep("Group", names(designMatrix)) ]
-    times   <- expand.grid(c("lower", "upper"), paste("Group", 1:nGroups, sep=""))
-    times   <- paste(times$Var2, times$Var1, sep = "_")
-    designMatrixL <- reshape(designMatrix, varying, v.names = "Y", direction = 'long',
-            timevar = "Group", times = times)
-    group_ul <- do.call(rbind, strsplit(designMatrixL$Group, "_"))
-    designMatrixL$Group_ul <- designMatrixL$Group
-    designMatrixL$ul <- group_ul[,2]
-    designMatrixL$Group <- group_ul[,1]
 
     # design plot
     g2 <- ggplot(designMatrixL, aes(x=time, y=Y, col=Group, group=Group_ul)) +
@@ -239,29 +214,6 @@ ICTviz <- function(DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
     gridExtra::grid.arrange(g1, g2, nrow=1, ncol=2, widths = c(1,4))
   }
 
-  ## get user inputs
-  ## TODO: we need error handling and restarts here!!
-  #
-  #cat('\n')
-  #nGroups <- readinteger("Enter the number of groups")
-  #groupSizes <- list()
-  #for(g in 1:nGroups)
-  #{
-  #  groupName <- readcharacter("Enter the name of group", g)
-  #  groupSizes[[groupName]] <- readinteger("Enter the # of participants in group",
-  #                                     groupName)
-  #}
-  #
-  #nPhases <- readinteger("Enter the number of phases: ")
-  #phaseLengths <- list()
-  #for(p in 1:nPhases)
-  #{
-  #  phaseName <- readcharacter("Enter the name of phase", p)
-  #  phaseLengths[[ phaseName ]] <- readinteger( "Enter the # of timepoints in phase",
-  #                                              phaseName    )
-  #}
-  #
-  #locator(type = 'p', col = 'red')
 }
 
 #' checkCorMat
@@ -269,6 +221,7 @@ ICTviz <- function(DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
 #'
 #' @keywords internal
 #'
+
 checkCorMat <- function(corMat, cor=TRUE)
 {
   mNm <- 'corMat'
@@ -354,10 +307,12 @@ getICTdesign <- function(phases      = makePhase() ,
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @param X a vector of probabilities to be passed to a quantile function
-#' like \code{\link{qN0}} in \code{\link{gamlss}} or \code{\link{qnorm}}
-#' @param .fcn see \code{\link{doCall}} in the `R.utils` package
+#' like \code{\link{qN0}} in \code{\link{gamlss}} or \code{\link{qnorm}}.
+#'
+#' @param .fcn see \code{\link{doCall}} in the `R.utils` package.
 #'
 #' @keywords internal
+
 doIt <- function(X, .fcn="qNO", ...)
 {
   doCall(.fcn, p=X, ...)
@@ -368,12 +323,15 @@ doIt <- function(X, .fcn="qNO", ...)
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @param Yp X a vector of probabilities to be passed to a quantile function
+#'
 #' @param .fcn A quantile function like \code{\link{qN0}} in \code{\link{gamlss}}
 #' or \code{\link{qnorm}}. See also \code{\link{doCall}} in the `R.utils` package
+#'
 #' @param ... other options passed to \code{\link{gamlss.family}} distribution
 #' functions, most commonly mu, sigma, nu, and tau.
 #'
 #' @keywords internal
+
 doLapply <- function(Yp, .fcn="qNO", ...)
 {
   temp <- lapply(Yp, FUN=doIt, .fcn, ...)

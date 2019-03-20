@@ -1,4 +1,4 @@
-#' \code{polyICT} class generator
+#' @title polyICT class generator
 #'
 #' @docType class
 #' @author Stephen Tueller \email{stueller@@rti.org}
@@ -201,8 +201,6 @@ polyICT <- R6::R6Class("polyICT",
 
        makeData = function(randFx, errors=NULL, y=NULL, ymean=NULL, yvar=NULL)
        {
-
-
          # TODO: consider having filename option and saving here
 
          # return the data

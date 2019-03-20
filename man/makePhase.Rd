@@ -4,8 +4,14 @@
 \alias{makePhase}
 \title{makePhase - a function to create the phase variable}
 \usage{
-makePhase(nObsPerCondition = c(10, 20, 10), conditions = c("A", "B",
-  "A"))
+makePhase(nObsPerPhase = c(10, 20, 10), phaseNames = c("A", "B", "A"))
+}
+\arguments{
+\item{nObsPerPhase}{Numeric vector. The length is the number of phases
+and each entry is the number of observations per phase.}
+
+\item{phaseNames}{Numeric or character vector. The names of the phases,
+e.g., phase 0 and phase 1, or phases "A", "B", and "C".}
 }
 \description{
 makePhase - a function to create the phase variable

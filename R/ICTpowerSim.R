@@ -204,22 +204,22 @@ simStatus <- function(studyName, studyDirectory=getwd())
 #' @param seed Numeric. A random seed for this simulation.
 #'
 #' @param nL Numeric list. A list of sample sizes. See \code{n} in
-#' \code{\link{ployICT}}.
+#' \code{\link{polyICT}}.
 #'
 #' @param phasesL A list of phases. See \code{n} in
-#' \code{\link{ployICT}}.
+#' \code{\link{polyICT}}.
 #'
 #' @param propErrVarL Numeric List. See \code{n} in
-#' \code{\link{ployICT}}.
+#' \code{\link{polyICT}}.
 #'
 #' @param effectSizesL A list of effect sizes. See \code{n} in
-#' \code{\link{ployICT}}.
+#' \code{\link{polyICT}}.
 #'
 #'  @param corMatL A list of numeric correlation matrices. See \code{n} in
-#' \code{\link{ployICT}}.
+#' \code{\link{polyICT}}.
 #'
 #' @param randFxVarL A list of numeric vectors. See \code{n} in
-#' \code{\link{ployICT}}.
+#' \code{\link{polyICT}}.
 #'
 #' @param nFolders Numeric. The number of folders to divide the simulation into.
 #' The default is \code{NULL}, in which case the user is prompted for input at

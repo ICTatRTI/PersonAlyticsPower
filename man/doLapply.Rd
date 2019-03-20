@@ -8,7 +8,7 @@
 doLapply(Yp, .fcn = "qNO", ...)
 }
 \arguments{
-\item{Yp}{X a vector of probabilities to be based to a quantile function}
+\item{Yp}{X a vector of probabilities to be passed to a quantile function}
 
 \item{.fcn}{A quantile function like \code{\link{qN0}} in \code{\link{gamlss}}
 or \code{\link{qnorm}}. See also \code{\link{doCall}} in the `R.utils` package}

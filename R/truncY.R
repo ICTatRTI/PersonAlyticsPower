@@ -75,4 +75,28 @@ if(1==2)
 
 }
 
+  ## get user inputs
+  ## TODO: we need error handling and restarts here!!
+  #
+  #cat('\n')
+  #nGroups <- readinteger("Enter the number of groups")
+  #groupSizes <- list()
+  #for(g in 1:nGroups)
+  #{
+  #  groupName <- readcharacter("Enter the name of group", g)
+  #  groupSizes[[groupName]] <- readinteger("Enter the # of participants in group",
+  #                                     groupName)
+  #}
+  #
+  #nPhases <- readinteger("Enter the number of phases: ")
+  #phaseLengths <- list()
+  #for(p in 1:nPhases)
+  #{
+  #  phaseName <- readcharacter("Enter the name of phase", p)
+  #  phaseLengths[[ phaseName ]] <- readinteger( "Enter the # of timepoints in phase",
+  #                                              phaseName    )
+  #}
+  #
+  #locator(type = 'p', col = 'red')
+
 
