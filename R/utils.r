@@ -166,8 +166,8 @@ studySetup <- function(phases = makePhase(), nGroups=1)
 #'
 #' @export
 
-ICTviz <- function(designMatrix=NULL,
-  DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2))
+ICTviz <- function(DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
+                   designMatrix=NULL)
 {
   ddist <- paste('d', DIST, sep='')
   x <- seq(-4,4, length=1000)
@@ -175,7 +175,69 @@ ICTviz <- function(designMatrix=NULL,
                mu=parms$mu,
                sigma=parms$sigma,
                nu=parms$nu, tau=parms$tau)
-  plot(x, dY, type='l')
+  dY <- data.frame(x=x, y=dY)
+  g1 <- ggplot(dY, aes(x=x, y=y)) + geom_line() + ylab('Density') + xlab('Outcome')
+
+  if(!is.null(designMatrix))
+  {
+    # get # groups
+    nGroups <- sum(grepl('Group', names(designMatrix))/2)
+
+    # find start points of phases
+    # TODO make this its own function if used elsewhere
+    phases <- designMatrixLong$phase
+    nTimes <- max(designMatrixLong$time)
+    wphases <- which(phases[1:(nTimes-1)] != phases[2:nTimes])
+    rects <- designMatrixLong[wphases,]
+    rects <- rbind(rects, designMatrixLong[nTimes,])
+    rects$xstart <- c(min(designMatrixLong$time), rects$time[1:(nrow(rects)-1)])
+
+    # set up phase colors
+    cols <- RColorBrewer::brewer.pal(length(table(rects$phase))+1, 'Accent')
+    rects$cols <- NA; j <- 1
+    for(i in unique(rects$phase))
+    {
+      rects$cols[rects$phase==i] <- cols[j]; j <- j+1
+    }
+
+    # check for overlapping points and jitter
+    # TODO: not finished
+    for(i in 1:nGroups)
+    {
+      if(i < nGroups)
+      {
+        gNames <- names(designMatrix)[ grep(paste("Group", i, sep=""), names(designMatrix)) ]
+
+      }
+    }
+
+    # wide to long
+    varying <- names(designMatrix)[ grep("Group", names(designMatrix)) ]
+    times   <- expand.grid(c("lower", "upper"), paste("Group", 1:nGroups, sep=""))
+    times   <- paste(times$Var2, times$Var1, sep = "_")
+    designMatrixL <- reshape(designMatrix, varying, v.names = "Y", direction = 'long',
+            timevar = "Group", times = times)
+    group_ul <- do.call(rbind, strsplit(designMatrixL$Group, "_"))
+    designMatrixL$Group_ul <- designMatrixL$Group
+    designMatrixL$ul <- group_ul[,2]
+    designMatrixL$Group <- group_ul[,1]
+
+    # design plot
+    g2 <- ggplot(designMatrixL, aes(x=time, y=Y, col=Group, group=Group_ul)) +
+      geom_line(aes(linetype=ul), size=2) +
+      geom_rect(data=rects, aes(xmin=xstart, xmax=time, ymin=-Inf, ymax=Inf, fill=phase),
+                alpha=0.4, color = NA, inherit.aes = F) +
+      scale_fill_manual(values = rects$cols, name='phase') +
+      ylim(range(x)) + ylab('') +
+      scale_linetype_manual(values = c("solid", "twodash"),
+                            name = "bounds",
+                            guide = guide_legend(reverse = TRUE) ) +
+      theme(legend.key.width=unit(2,"line"))
+
+    g1 <- g1 + coord_flip() + scale_y_reverse()
+
+    gridExtra::grid.arrange(g1, g2, nrow=1, ncol=2, widths = c(1,4))
+  }
 
   ## get user inputs
   ## TODO: we need error handling and restarts here!!
