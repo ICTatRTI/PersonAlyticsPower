@@ -1,4 +1,4 @@
-#' @title polyICT class generator
+#' \code{polyICT} class generator
 #'
 #' @docType class
 #' @author Stephen Tueller \email{stueller@@rti.org}
@@ -89,218 +89,197 @@
 
 polyICT <- R6::R6Class("polyICT",
 
-     inherit = ICTdesign,
+                       inherit = ICTdesign,
 
-     private = list(
-       .n                 = NULL,
-       .phases            = NULL,
-       .propErrVar        = NULL,
-       .effectSizes       = NULL,
-       .corMat            = NULL,
-       .randFxVar         = NULL,
-       .muFUN             = NULL,
-       .SigmaFun          = NULL,
-       .polyOrder         = NULL,
-       .designMat         = NULL,
-       .covMat            = NULL,
-       .nObservations     = NULL,
-       .variances         = NULL,
-       .expectedVariances = NULL,
-       .unStdEffects      = NULL
-     ),
+                       private = list(
+                         .n                 = NULL,
+                         .phases            = NULL,
+                         .propErrVar        = NULL,
+                         .effectSizes       = NULL,
+                         .corMat            = NULL,
+                         .randFxVar         = NULL,
+                         .muFUN             = NULL,
+                         .SigmaFun          = NULL,
+                         .polyOrder         = NULL,
+                         .designMat         = NULL,
+                         .covMat            = NULL,
+                         .nObservations     = NULL,
+                         .variances         = NULL,
+                         .expectedVariances = NULL,
+                         .unStdEffects      = NULL
+                       ),
 
-     public  = list(
-       initialize = function
-       (
-         n                 = 10                                        ,
-         phases            = makePhase()                               ,
-         propErrVar        = .75                                       ,
-         effectSizes       = list(randFx=list(intercept=0, slope=.5),
-                                  fixdFx=list(phase=.5, phaseTime=.25)),
-         corMat            = matrix(c(1,.2,.2,1), 2, 2)                ,
-         randFxVar         = c(1, .1)                                  ,
-         muFUN             = function(x) x                             ,
-         SigmaFun          = cor2cov                                   ,
-         polyOrder         = NULL                                      ,
-         designMat         = NULL                                      ,
-         covMat            = NULL                                      ,
-         nObservations     = NULL                                      ,
-         variances         = NULL                                      ,
-         expectedVariances = NULL                                      ,
-         unStdEffects      = NULL
-       )
-       {
-         # general input validation
-         polyOrder <- checkPolyICT(effectSizes, corMat, randFxVar) - 1
+                       public  = list(
+                         initialize = function
+                         (
+                           n                 = 10                                        ,
+                           phases            = makePhase()                               ,
+                           propErrVar        = .75                                       ,
+                           effectSizes       = list(randFx=list(intercept=0, slope=.5),
+                                                    fixdFx=list(phase=.5, phaseTime=.25)),
+                           corMat            = matrix(c(1,.2,.2,1), 2, 2)                ,
+                           randFxVar         = c(1, .1)                                  ,
+                           muFUN             = function(x) x                             ,
+                           SigmaFun          = cor2cov                                   ,
+                           polyOrder         = NULL                                      ,
+                           designMat         = NULL                                      ,
+                           covMat            = NULL                                      ,
+                           nObservations     = NULL                                      ,
+                           variances         = NULL                                      ,
+                           expectedVariances = NULL                                      ,
+                           unStdEffects      = NULL
+                         )
+                         {
+                           # general input validation
+                           polyOrder <- checkPolyICT(effectSizes, corMat, randFxVar) - 1
 
-         # construct the fixed effects design matrix
-         designMat <- getICTdesign(phases, polyOrder, 'polyICT')
+                           # construct the fixed effects design matrix
+                           designMat <- getICTdesign(phases, polyOrder, 'polyICT')
 
-         # get the covariance matrix
-         covMat <- cor2cov(corMat, randFxVar)
+                           # get the covariance matrix
+                           covMat <- cor2cov(corMat, randFxVar)
 
-         # rescale the randFx effect sizes (on Cohen's d scale) to raw scale units
-         randFxSD <- sqrt(diag(covMat))
-         unStdEffects <- effectSizes
-         for(i in seq_along(effectSizes[[1]]))
-         {
-           unStdEffects[[1]][[i]] <- effectSizes[[1]][[i]]*randFxSD[i]
-         }
+                           # rescale the randFx effect sizes (on Cohen's d scale) to raw scale units
+                           randFxSD <- sqrt(diag(covMat))
+                           unStdEffects <- effectSizes
+                           for(i in seq_along(effectSizes[[1]]))
+                           {
+                             unStdEffects[[1]][[i]] <- effectSizes[[1]][[i]]*randFxSD[i]
+                           }
 
-         # get the number of observations
-         nObservations <- length(c(unlist(phases)))
+                           # get the number of observations
+                           nObservations <- length(c(unlist(phases)))
 
-         # get the total variance and the error variance @ time = 1
-         totalVar  <- sum(covMat)/(1-propErrVar)
-         errorVar  <- propErrVar * totalVar
-         variances <- list(totalVar = totalVar,
-                           errorVar = errorVar,
-                           randFxVar = totalVar - errorVar)
+                           # get the total variance and the error variance @ time = 1
+                           totalVar  <- sum(covMat)/(1-propErrVar)
+                           errorVar  <- propErrVar * totalVar
+                           variances <- list(totalVar = totalVar,
+                                             errorVar = errorVar,
+                                             randFxVar = totalVar - errorVar)
 
-         # get the expected varariances
-         # initial values
-         expectedVariances <- expectedVar(covMat, designMat, variances,
-                                          effectSizes, nObservations, n)
-         unStdEffects      <- expectedVariances$effectSizes
+                           # get the expected varariances
+                           # initial values
+                           expectedVariances <- expectedVar(covMat, designMat, variances,
+                                                            effectSizes, nObservations, n)
+                           unStdEffects      <- expectedVariances$effectSizes
 
-         # populate private
-         private$.n                 <- n
-         private$.phases            <- phases
-         private$.propErrVar        <- propErrVar
-         private$.effectSizes       <- effectSizes
-         private$.corMat            <- corMat
-         private$.randFxVar         <- randFxVar
-         private$.muFUN             <- muFUN
-         private$.SigmaFun          <- SigmaFun
-         private$.polyOrder         <- polyOrder
-         private$.designMat         <- designMat
-         private$.covMat            <- covMat
-         private$.nObservations     <- nObservations
-         private$.variances         <- variances
-         private$.expectedVariances <- expectedVariances
-         private$.unStdEffects      <- unStdEffects
+                           # populate private
+                           private$.n                 <- n
+                           private$.phases            <- phases
+                           private$.propErrVar        <- propErrVar
+                           private$.effectSizes       <- effectSizes
+                           private$.corMat            <- corMat
+                           private$.randFxVar         <- randFxVar
+                           private$.muFUN             <- muFUN
+                           private$.SigmaFun          <- SigmaFun
+                           private$.polyOrder         <- polyOrder
+                           private$.designMat         <- designMat
+                           private$.covMat            <- covMat
+                           private$.nObservations     <- nObservations
+                           private$.variances         <- variances
+                           private$.expectedVariances <- expectedVariances
+                           private$.unStdEffects      <- unStdEffects
 
-       },
+                         },
 
-       print = function(...)
-       {
-         # use super to call the print function of the parent class
-         super$print()
+                         print = function(...)
+                         {
+                           # use super to call the print function of the parent class
+                           super$print()
 
 
-         # add print options for the child class
-         cat("\n\nEffect sizes:\n",
-             paste(unlist(lapply(self$effectSizes, names)), '=',
-                   unlist(self$effectSizes), '\n'),
-             "\nRandom Effects\n",
-             "\nCorrelation matrix:\n", catMat(self$corMat),
-             "\nCovariance matrix:\n",  catMat(round(self$covMat,3))
-         )
+                           # add print options for the child class
+                           cat("\n\nEffect sizes:\n",
+                               paste(unlist(lapply(self$effectSizes, names)), '=',
+                                     unlist(self$effectSizes), '\n'),
+                               "\nRandom Effects\n",
+                               "\nCorrelation matrix:\n", catMat(self$corMat),
+                               "\nCovariance matrix:\n",  catMat(round(self$covMat,3))
+                           )
 
-       },
+                         },
 
-       makeData = function(randFx, errors=NULL, y=NULL, ymean=NULL, yvar=NULL)
-       {
-         # TODO: consider having filename option and saving here
+                         makeData = function(randFx, errors, ymean=NULL, yvar=NULL)
+                         {
+                           # make each component into a matrix of dimension
+                           # n by nObservations
 
-         # return the data
-         invisible(data)
+                           # fixed and random effects
+                           fe <- re <- list()
+                           fev <- rev <- list()
+                           for(i in seq_along(self$unStdEffects[[1]]))
+                           {
+                             # fixed effects
+                             feName  <- names(self$unStdEffects$fixdFx)[i]
+                             fe[[i]] <- matrix((self$unStdEffects$fixdFx[[feName]] *
+                                                  self$designMat[[feName]]),
+                                               self$n, self$nObservations, byrow=TRUE)
 
-       }
+                             # intercepts
+                             if(i==1)
+                             {
+                               re[[i]] <- matrix((self$unStdEffects$randFx[[i]] + randFx[,i]),
+                                                 self$n, self$nObservations)
+                             }
+                             # slopes and higher
+                             if(i>1)
+                             {
+                               re[[i]] <- matrix(self$unStdEffects$randFx[[i]] + randFx[,i]) %*%
+                                 t(self$designMat$Time^(i-1))
+                               # QC - should be strictly linear for i==2
+                               #longCatEDA::longContPlot(re[[i]])
+                             }
 
-     )
+                             # variance QC
+                             fev[[i]] <- apply(fe[[i]], 2, var)
+                             rev[[i]] <- apply(re[[i]], 2, var)
+                           }
+
+                           # sum non-error components
+                           Ystar <- Reduce(`+`, fe) + Reduce(`+`, re)
+
+                           # sum together the effects
+                           Y <- Ystar + errors
+
+                           # QC
+                           #apply(Ystar, 2, var)
+                           #apply(Y, 2, var)
+
+                           # construct a long dataset
+                           data <- data.frame(
+                             id    = sort(rep(1:self$n, self$nObservations)) ,
+                             y     = c(t(Y))                                 ,
+                             do.call(rbind, replicate(self$n,
+                                                      self$designMat, simplify = FALSE))
+                           )
+
+                           # QC
+                           all.equal(aggregate(data$y, list(data$Time), mean)$x,
+                                     unname(apply(Y, 2, mean)))
+                           all.equal(aggregate(data$y, list(data$Time), var)$x,
+                                     unname(apply(Y, 2, var)))
+
+                           # make phase a factor (for later analysis and plotting)
+                           data$phase <- factor(data$phase)
+
+                           # rescale the y variance if !is.null
+                           if(!is.null(yvar) | !is.null(ymean))
+                           {
+                             if(is.null(ymean)) ymean <- FALSE
+                             if(is.null(yvar))  yvar  <- 1
+                             data$y <- scale(yvar, ymean, TRUE) * sqrt(yvar)
+                           }
+
+                           # TODO: consider having filename option and saving here
+
+                           # return the data
+                           invisible(data)
+
+                         }
+
+                       )
 )
 
-# This approach takes simulated y and subtracts out its components
-deconstructY <- function(randFx, y, ymean, yvar)
-{
-
-  # step 1: simulate y
-
-  # step 2: sample from the specified regions of y
-
-  # step 3:
-}
-
-# This approach builds y from its components
-#'
-buildY <- function(randFx, errors, ymean, yvar)
-{
-  # make each component into a matrix of dimension
-  # n by nObservations
-
-  # fixed and random effects
-  fe <- re <- list()
-  fev <- rev <- list()
-  for(i in seq_along(self$unStdEffects[[1]]))
-  {
-    # fixed effects
-    feName  <- names(self$unStdEffects$fixdFx)[i]
-    fe[[i]] <- matrix((self$unStdEffects$fixdFx[[feName]] *
-                         self$designMat[[feName]]),
-                      self$n, self$nObservations, byrow=TRUE)
-
-    # intercepts
-    if(i==1)
-    {
-      re[[i]] <- matrix((self$unStdEffects$randFx[[i]] + randFx[,i]),
-                        self$n, self$nObservations)
-    }
-    # slopes and higher
-    if(i>1)
-    {
-      re[[i]] <- matrix(self$unStdEffects$randFx[[i]] + randFx[,i]) %*%
-        t(self$designMat$Time^(i-1))
-      # QC - should be strictly linear for i==2
-      #longCatEDA::longContPlot(re[[i]])
-    }
-
-    # variance QC
-    fev[[i]] <- apply(fe[[i]], 2, var)
-    rev[[i]] <- apply(re[[i]], 2, var)
-  }
-
-  # sum non-error components
-  Ystar <- Reduce(`+`, fe) + Reduce(`+`, re)
-
-  # sum together the effects
-  Y <- Ystar + errors
-
-  # QC
-  #apply(Ystar, 2, var)
-  #apply(Y, 2, var)
-
-  # construct a long dataset
-  data <- data.frame(
-    id    = sort(rep(1:self$n, self$nObservations)) ,
-    y     = c(t(Y))                                 ,
-    do.call(rbind, replicate(self$n,
-                             self$designMat, simplify = FALSE))
-  )
-
-  # QC
-  all.equal(aggregate(data$y, list(data$Time), mean)$x,
-            unname(apply(Y, 2, mean)))
-  all.equal(aggregate(data$y, list(data$Time), var)$x,
-            unname(apply(Y, 2, var)))
-
-  # make phase a factor (for later analysis and plotting)
-  data$phase <- factor(data$phase)
-
-  # rescale the y variance if !is.null
-  if(!is.null(yvar) | !is.null(ymean))
-  {
-    if(is.null(ymean)) ymean <- FALSE
-    if(is.null(yvar))  yvar  <- 1
-    data$y <- scale(yvar, ymean, TRUE) * sqrt(yvar)
-  }
-
-  # TODO: consider having filename option and saving here
-
-  # return the data
-  invisible(data)
-
-}
 
 # TODO:need to generalize beyond slopes
 #' expectedVar
@@ -331,9 +310,9 @@ expectedVar <- function(covMat, designMat, variances,
 
   # mean at each time point
   mt <-  (effectSizes$randFx$intercept                       +
-          effectSizes$randFx$slope     * designMat$Time      +
-          effectSizes$fixdFx$phase     * designMat$phase     +
-          effectSizes$fixdFx$phaseTime * designMat$phaseTime
+            effectSizes$randFx$slope     * designMat$Time      +
+            effectSizes$fixdFx$phase     * designMat$phase     +
+            effectSizes$fixdFx$phaseTime * designMat$phaseTime
   )
 
   # overall mean

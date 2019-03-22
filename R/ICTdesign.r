@@ -75,6 +75,25 @@ active <- function()
       }
     },
 
+    effectSizes2 = function(value)
+    {
+      if( missing(value) ){ private$.effectSizes }
+      else
+      {
+        if( !is.list(value) )
+        {
+          stop('`effectSizes2` should be a named list, not the provided value\n',
+               value)
+        }
+        if("polyICT" %in% class(self))
+        {
+          checkEffectSizesPoly(value)
+        }
+        private$.effectSizes <- value
+        self
+      }
+    },
+
     corMat = function(value)
     {
       if( missing(value) ){ private$.corMat}

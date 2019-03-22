@@ -65,7 +65,6 @@
 #'
 #' @examples
 #'
-#' # TODO change to dontrun
 #' \dontrun{
 #' ICTpower(c('testICTpower10', 'csv'),
 #'   polyICT$new(n=10),

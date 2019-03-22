@@ -29,11 +29,18 @@ cor2cov <- function(corMat    = matrix(c(1,.2,.2,1), 2, 2) ,
 #' and each entry is the number of observations per phase.
 #'
 #' @param phaseNames Numeric or character vector. The names of the phases,
-#' e.g., phase 0 and phase 1, or phases "A", "B", and "C".
+#' e.g., phase 0 and phase 1, or phases "A", "B", and "C". Phase names must
+#' be unique, i.e., even if your design is ABA, you should use 1, 2, 3, or
+#' "A", "B", "C".
 
 makePhase <- function(nObsPerPhase = c(10,20,10) ,
-                       phaseNames = c("A", "B", "A")  )
+                       phaseNames = c("phase1", "phase2", "phase3")  )
 {
+  if(any(duplicated(phaseNames)))
+  {
+    stop("`phaseNames` must be unique, see ?makePhase")
+  }
+
   phases <- list()
   for(i in seq_along(nObsPerPhase))
   {
@@ -54,6 +61,9 @@ makePhase <- function(nObsPerPhase = c(10,20,10) ,
 #' times as there are time points within that phase. See \code{\link{makePhase}}.
 #'
 #' @param nGroups Integer. The number of groups.
+#'
+#' @param effectSizes See \link{\code{polyICT2}}. If \code{effectSizes} is
+#' provided, \code{nGroups} will be set to \code{length(effectSizes)}.
 #'
 #' @return
 #'
@@ -128,18 +138,73 @@ makePhase <- function(nObsPerPhase = c(10,20,10) ,
 #' designMatrix <- edit(designMatrix)
 #' }
 
-studySetup <- function(phases = makePhase(), nGroups=1)
+studySetup <- function(phases = makePhase(), nGroups = 1, effectSizes = NULL)
 {
+  # TODO: add a check that phases and effectSizes conform, see checkPolyICT2()
+
+  # if effectSizes is provided, override nGroups
+  if(!is.null(effectSizes))
+  {
+    if(nGroups != length(effectSizes))
+    {
+      message('`effectSizess` was provided, `nGroups` is being changed to ', nGroups)
+    }
+    nGroups <- length(effectSizes)
+    gNames <- names(effectSizes)
+  }
+  if( is.null(effectSizes))
+  {
+    gNames <- paste('Group', 1:nGroups, sep='')
+  }
+
+  nPhases <- length(phases)
   phases <- unlist(phases)
   designMatrix <- data.frame(time  = 0:(length(phases)-1),
                              phase = phases )
   for(g in 1:nGroups)
   {
-    designMatrix[[paste('means_Group', g, sep='')]] <- as.numeric(NA)
-    designMatrix[[paste('lower_Group', g, sep='')]] <- as.numeric(NA)
-    designMatrix[[paste('upper_Group', g, sep='')]] <- as.numeric(NA)
+    designMatrix[[paste('means_', gNames[g], sep='')]] <- as.numeric(NA)
+    designMatrix[[paste('lower_', gNames[g], sep='')]] <- as.numeric(NA)
+    designMatrix[[paste('upper_', gNames[g], sep='')]] <- as.numeric(NA)
   }
+
+  # if effectSizes are provided, populate the mean_ columns of designMatrix
+  if(!is.null(effectSizes))
+  {
+    phaseNames <- unique(phases)
+    for(g in 1:nGroups)
+    {
+      wc <- paste('means_', gNames[g], sep='')
+      for(p in phaseNames)
+      {
+        temp <- designMatrix[[wc]][designMatrix$phase==p]
+        temp <- makeMeans(effectSizes[[gNames[g]]][[p]],  length(temp))
+        designMatrix[[wc]][designMatrix$phase==p] <- temp
+      }
+    }
+  }
+
   return(designMatrix)
+}
+
+#' makeMeans - a function to create mean values given within-phase
+#' growth model parameters (i, s, q, etc.; see \code{effectSizes} in
+#' \link{\code{polyICT2}}).
+#'
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @export
+makeMeans <- function(phaseParms=c(100, .5, -.25), nObs=10)
+{
+  # set up growth model factor loadings
+  times     <- 0:(nObs-1)
+  times     <- times %*% t( 0:(length(phaseParms)-1) )
+  times[,1] <- 1
+
+  # compute the means at each time point
+  means <- times * matrix(phaseParms, nrow(times), length(phaseParms), byrow = TRUE)
+  means <- apply(means, 1, sum)
+  return(means)
 }
 
 
@@ -153,16 +218,33 @@ studySetup <- function(phases = makePhase(), nGroups=1)
 ICTviz <- function(DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
                    designMatrix=NULL)
 {
-  ddist <- paste('d', DIST, sep='')
-  x <- seq(-4,4, length=1000)
+  # clean up parms for lazy people
+  if(is.null(names(parms))) names(parms) <- c('mu', 'sigma', 'nu', 'tau')
+
+  # set up items for plot title
+  faminfo <- gamlss.dist::gamlss.family(DIST)
+  family  <- paste(faminfo$family[2], 'family')
+  wparms  <- names(parms) %in% names(faminfo$parameters)
+  pparms  <- paste(names(parms[wparms]), parms[wparms], sep="=")
+  pparms  <- paste(pparms, collapse = "; ")
+
+  # find the theoretical limits of the distribution given the parameters
+  qdist <- paste('q', DIST, sep='')
+  xmin  <- doCall(qdist, p=1/9e9)
+  xmax  <- doCall(qdist, p=9e9/(9e9+1))
+  x     <- seq(xmin, xmax, length=1000)
+
+  # get the density
+  ddist  <- paste('d', DIST, sep='')
   dY <- doCall(ddist, x=x,
                mu=parms$mu,
                sigma=parms$sigma,
                nu=parms$nu, tau=parms$tau)
   dY <- data.frame(x=x, y=dY)
-  g1 <- ggplot(dY, aes(x=x, y=y)) + geom_line() + ylab('Density') + xlab('Outcome')
+  g1 <- ggplot(dY, aes(x=x, y=y)) + geom_line() + ylab('Density') +
+    xlab('Outcome') + ggtitle(paste(family, pparms, sep=" with: "))
 
-  if( is.null(designMatrix)) g1
+  if( is.null(designMatrix)) print( g1 )
 
   if(!is.null(designMatrix))
   {
