@@ -9,10 +9,11 @@ truncY <- function(N, parms=list(mu=0, sigma=1, nu=2, tau=2),
 {
   if(a > b) stop('`b` must be > `a`')
 
-  #TODO check that pdist is a valid gamlss probability distribution function, weak check for now:
-  if(substr(pdist, 1, 1) != 'p') stop("`pdist` must be a probability distribution from ",
-                                      "`gamlss.dist` starting with `p`.\n",
-                                      "The value provided was pdist = '", pdist, "'.\n")
+  # TODO this check is also in ICTviz, consider moving common checks to one function
+  if( ! is(gamlss.dist::gamlss.family(DIST)) == "gamlss.family")
+  {
+    stop("The value of `DIST`=", DIST, " is not a `gamlss.family` distribution.")
+  }
 
   pdist <- paste('p', DIST, sep='')
   qdist <- paste('q', DIST, sep='')

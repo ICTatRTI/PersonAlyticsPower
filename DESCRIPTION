@@ -17,6 +17,7 @@ Imports:
     forecast (>= 8.4),
     foreach (>= 1.4.4),
     gamlss (>= 5.1-2),
+    gamlss.tr (>= 5.1.0),
     ggplot2 (>= 3.1.0),
     gridExtra (>= 2.3),
     MASS (>= 7.3-51.1),
