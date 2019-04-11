@@ -1,4 +1,4 @@
-#' @title polyICT class generator
+#' @title polyICT2 class generator
 #'
 #' @docType class
 #' @author Stephen Tueller \email{stueller@@rti.org}
@@ -42,7 +42,7 @@
 #'
 #' The length of effectSizes \code{length(effectSizes)} is the number of groups
 #' and can take on any arbitrary name without quotes as long as it is a valid
-#' variable name, see \link{\code{make.names}}. In the example above, the group
+#' variable name, see \code{\link{make.names}}. In the example above, the group
 #' names are `group1` and `group2`, given without quotes.
 #'
 #' Each group is itself a list whose length is the number of phases. The phase
@@ -125,7 +125,7 @@
 #'
 #'
 
-polyICT <- R6::R6Class("polyICT",
+polyICT2 <- R6::R6Class("polyICT",
 
      inherit = ICTdesign,
 

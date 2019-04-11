@@ -4,7 +4,7 @@
 # transforming data
 
 # note, we use doCall from R.utils to allow for ignore arguments (e.g., nu, tau)
-truncY <- function(N, parms=list(mu=0, sigma=1, nu=2, tau=2),
+truncY0 <- function(N, parms=list(mu=0, sigma=1, nu=2, tau=2),
                    DIST='NO', a = -Inf, b = Inf, seed=123)
 {
   if(a > b) stop('`b` must be > `a`')
@@ -34,6 +34,18 @@ truncY <- function(N, parms=list(mu=0, sigma=1, nu=2, tau=2),
          sigma=parms$sigma,
          nu=parms$nu, tau=parms$tau)
 
+}
+
+# TODO this needs to be a method for a class, we're moving the same
+# parameters around too much
+UL <- designMatrix[,4:5]
+truncY <- function(N, UL, DIST='NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
+                   seed = 123)
+{
+  # this approach can't handle varying...so we'll have to loop or lapply?
+  trCall <- paste("gamlss.tr::gen.trun(par = UL, family = ", DIST,
+                  ", type = 'both', varying = TRUE)")
+  eval(parse(text=trCall))
 }
 
 

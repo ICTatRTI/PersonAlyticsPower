@@ -25,7 +25,7 @@
 #' be unique, i.e., even if your design is ABA, you should use 1, 2, 3, or
 #' "A", "B", "C".
 #'
-#' @param designMatrix Matrix. See \link{\code{polyICTsetup}}.
+#' @param designMatrix Matrix. See \code{\link{polyICTsetup}}.
 #'
 #' @param phases List. The length of phases is the number of phases. Each
 #' item in the list is a vector repeating the phase name or number as many
@@ -33,10 +33,10 @@
 #'
 #' @param nGroups Integer. The number of groups.
 #'
-#' @param effectSizes See \link{\code{polyICT2}}. If \code{effectSizes} is
+#' @param effectSizes See \code{polyICT2}. If \code{effectSizes} is
 #' provided, \code{nGroups} will be set to \code{length(effectSizes)}.
 #'
-#' @param DIST Character. A \link{\code{gamlss.family}} distribution.
+#' @param DIST Character. A \code{\link{gamlss.family}} distribution.
 #'
 #' @param parms Named list. The parameters for \code{DIST}. \code{parms} should
 #' be from length 1 to 4 with possible names including 'mu', 'sigma', 'nu', and
@@ -48,8 +48,8 @@
 
 #' @rdname ICTsetup
 #' @export
-#' @return A list of phase names replicated by the number of observations per
-#' phase
+#' @return For \code{makePhase}, a list of phase names replicated by the number
+#' of observations per phase.
 #'
 #' @examples
 #' makePhase()
@@ -75,7 +75,8 @@ makePhase <- function(nObsPerPhase = c(10,20,10) ,
 #'
 #' @return
 #'
-#' A data.frame with a `time` and `phase` variable, plus the following pairs of
+#' For \code{polyICTsetup},
+#' a data.frame with a `time` and `phase` variable, plus the following pairs of
 #' variables each group:
 #'   \itemize{
 #'     \item lower_Group#. The lower bound at each time point.
@@ -145,6 +146,25 @@ makePhase <- function(nObsPerPhase = c(10,20,10) ,
 #' # the lower/upper bounds are taken from the x-axis of the
 #' designMatrix <- edit(designMatrix)
 #' }
+#'
+#'  effectSizes = list(
+#'    group1 = list(
+#'      phase1 = c(i=0.0, s=0.0, q=0.0),
+#'      phase2 = c(i=0.2, s=0.0, q=0.0),
+#'      phase3 = c(i=0.0, s=0.0, q=0.0)
+#'    ),
+#'    group2 = list(
+#'      phase1 = c(i=0.0, s=0.0, q=0.0),
+#'      phase2 = c(i=0.0, s=0.0, q=0.0),
+#'      phase3 = c(i=0.0, s=0.0, q=0.0)
+#'    )
+#'    )
+#' designMatrix <- polyICTsetup(phases = makePhase(), effectSizes=effectSizes,
+#'   DIST = 'NO')
+#' # TODO really need a portable method of moving items around, probably need to
+#' # make this an R6 class with methods.
+#' ICTviz(DIST="NO", parms = list(mu=0, sigma=1), designMatrix=designMatrix,
+#' BLrange=c(-3,-2))
 
 polyICTsetup <- function(phases = makePhase(), nGroups = 1, effectSizes = NULL,
                        DIST = 'NO', parms = list(mu=0, sigma=1),
@@ -160,7 +180,7 @@ polyICTsetup <- function(phases = makePhase(), nGroups = 1, effectSizes = NULL,
       message('`effectSizess` was provided, `nGroups` is being changed to ', nGroups)
     }
     nGroups <- length(effectSizes)
-    gNames <- names(effectSizes)
+    gNames  <- names(effectSizes)
   }
   if( is.null(effectSizes))
   {
@@ -168,7 +188,7 @@ polyICTsetup <- function(phases = makePhase(), nGroups = 1, effectSizes = NULL,
   }
 
   nPhases <- length(phases)
-  phases <- unlist(phases)
+  phases  <- unlist(phases)
   designMatrix <- data.frame(time  = 0:(length(phases)-1),
                              phase = phases )
   for(g in 1:nGroups)
@@ -200,13 +220,12 @@ polyICTsetup <- function(phases = makePhase(), nGroups = 1, effectSizes = NULL,
 }
 
 
-
-
 #' @rdname ICTsetup
 #'
 #' @export
 #'
-#' @return If \code{DIST} and \code{parms} are given (and optionally,
+#' @return For \code{ICTviz}, if \code{DIST} and \code{parms} are given
+#' (and optionally,
 #' \code{BLrange}), a density plot for the \code{DIST} is plotted. If
 #' \code{BLrange} is given, lines indicating the truncated part of the distribution
 #' from which baseline values will be sampled are shown.
@@ -300,16 +319,17 @@ ICTviz <- function(DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
   if(!is.null(designMatrix))
   {
     # get # groups
-    nGroups <- sum(grepl('Group', names(designMatrix))/2)
+    nGroups <- sum(grepl('group', names(designMatrix))/3)
 
     # wide to long
-    varying <- names(designMatrix)[ grep("Group", names(designMatrix)) ]
-    times   <- expand.grid(c("lower", "upper"), paste("Group", 1:nGroups, sep=""))
+    # TODO: 'group' 'Group' - this cannot take arbitray group names!!
+    varying <- names(designMatrix)[ grep("er_group", names(designMatrix)) ]
+    times   <- expand.grid(c("lower", "upper"), paste("group", 1:nGroups, sep=""))
     times   <- paste(times$Var2, times$Var1, sep = "_")
     designMatrixL <- reshape(designMatrix, varying, v.names = "Y", direction = 'long',
-                             timevar = "Group", times = times)
-    group_ul <- do.call(rbind, strsplit(designMatrixL$Group, "_"))
-    designMatrixL$Group_ul <- designMatrixL$Group
+                             timevar = "group", times = times)
+    group_ul <- do.call(rbind, strsplit(designMatrixL$group, "_"))
+    designMatrixL$Group_ul <- designMatrixL$group
     designMatrixL$ul <- group_ul[,2]
     designMatrixL$Group <- group_ul[,1]
 
@@ -331,6 +351,7 @@ ICTviz <- function(DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
     }
 
     # design plot
+    # TODO: names will be affected here too, cannot be arbitrary
     g2 <- ggplot(designMatrixL, aes(x=time, y=Y, col=Group, group=Group_ul)) +
       geom_line(aes(linetype=ul), size=2) +
       geom_rect(data=rects, aes(xmin=xstart, xmax=time, ymin=-Inf, ymax=Inf, fill=phase),
@@ -356,9 +377,7 @@ ICTviz <- function(DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
 
 }
 
-################################################################################
-# internal utility functions below this line
-################################################################################
+# internal utility functions below this line ###################################
 
 
 #' makeBounds - function to get the bounds from the baseline bounds and
@@ -370,17 +389,51 @@ ICTviz <- function(DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @keywords internal
-
 makeBounds <- function(designMatrix, DIST, parms, BLrange)
 {
+  # check that DIST is a gamlss.family distribution, esp. since eval(parse())
+  # used below
+  if( ! is(gamlss.dist::gamlss.family(DIST)) == "gamlss.family")
+  {
+    stop("The value of `DIST`=", DIST, " is not a `gamlss.family` distribution.")
+  }
 
-  # define the truncated distribution
-  trDIST <- gamlss.tr::gen.trun(par = BLrange,
-                                family = NO, # TODO should be DIST, not taking it directly
-                                type = "both")
+  ### this code is preserved to prevent future developers from trying and failing
+  #   to use these approaches
+  # the following returns the function value, not the function
+  #DISTg <- get(DIST)()
+  #eval(call(DIST))
+  #DISTg <- eval(expression(DIST))
+  #eval(quote(DIST))
+  ### this fails b/c if DIST='NO', DISTn still calls itself 'NO' internally which
+  #   fails to create DISTntr etc., instead producing NOtr etc.
+  # to make the names useable later, copy the distribution, density,
+  # distribution function, quantile function, and random generation functions
+  # to the internal distribution DISTn
+  #DISTn  <- eval(parse(text=DIST))
+  #dDISTn <- eval(parse(text=paste("d", DIST, sep='')))
+  #pDISTn <- eval(parse(text=paste("p", DIST, sep='')))
+  #qDISTn <- eval(parse(text=paste("q", DIST, sep='')))
+  #rDISTn <- eval(parse(text=paste("r", DIST, sep='')))
+  #gamlss.tr::gen.trun(par = BLrange, family = "DISTn", type = 'both')
+
+  # eval-parse is frowned upon, but gamlss use of 'inherits' in 'as.gamlss.family'
+  # as used in 'gen.trun()' passes 'DIST' instead of its value. To prevent
+  # unsafe code, there is a check that DIST is a gamlss.family object. I tried
+  # the options presented here, but none worked
+  # https://stackoverflow.com/questions/1743698/evaluate-expression-given-as-a-string
+  trCall <- paste("gamlss.tr::gen.trun(par = BLrange, family = ", DIST,
+                  ", type = 'both')")
+  eval(parse(text=trCall))
+  # now create doCall -able names (just rDIST for now)
+  # TODO - this should be passed so it doesn't need to be recreated!
+  # maybe not...we have several values for a,b across the study...
+  # see `varying` in ?gen.trun
+  rDISTtr <- paste("r", DIST, "tr", sep="")
 
   # find the trucated distributions mean and variance via approximate asymptotics
-  y <- rNOtr(100000)  # TODO we need to refer to rNOtr dynamically
+  set.seed(111) # TODO should we make this user controllable??
+  y     <- doCall(rDISTtr, n=100000)   # TODO we need to refer to rNOtr dynamically
   segM  <- mean(y)
   segSD <- sd(y)
 
@@ -398,19 +451,18 @@ makeBounds <- function(designMatrix, DIST, parms, BLrange)
     designMatrixNew[[uppCols[i]]] <- BLrange[2] + designMatrix[[meanCols[i]]]*segSD
   }
   return(designMatrixNew)
+
+  # test simulation/this will be move to its own function/method
+  truncY
 }
-
-
-
 
 #' makeMeans - a function to create mean values given within-phase
 #' growth model parameters (i, s, q, etc.; see \code{effectSizes} in
-#' \link{\code{polyICT2}}).
+#' \code{polyICT2}).
 #'
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @keywords internal
-
 makeMeans <- function(phaseParms=c(100, .5, -.25), nObs=10)
 {
   # set up growth model factor loadings

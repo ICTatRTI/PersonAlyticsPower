@@ -71,7 +71,6 @@ ICTpower - get simulated power for an ICT design using parametric bootstrap.
 }
 \examples{
 
-# TODO change to dontrun
 \dontrun{
 ICTpower(c('testICTpower10', 'csv'),
   polyICT$new(n=10),
