@@ -319,11 +319,11 @@ ICTviz <- function(DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
   if(!is.null(designMatrix))
   {
     # get # groups
-    nGroups <- sum(grepl('group', names(designMatrix))/3)
+    nGroups <- sum(grepl('group', tolower(names(designMatrix))))/2
 
     # wide to long
     # TODO: 'group' 'Group' - this cannot take arbitray group names!!
-    varying <- names(designMatrix)[ grep("er_group", names(designMatrix)) ]
+    varying <- names(designMatrix)[ grep("er_group", tolower(names(designMatrix))) ]
     times   <- expand.grid(c("lower", "upper"), paste("group", 1:nGroups, sep=""))
     times   <- paste(times$Var2, times$Var1, sep = "_")
     designMatrixL <- reshape(designMatrix, varying, v.names = "Y", direction = 'long',

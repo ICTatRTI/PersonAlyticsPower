@@ -38,7 +38,7 @@ truncY0 <- function(N, parms=list(mu=0, sigma=1, nu=2, tau=2),
 
 # TODO this needs to be a method for a class, we're moving the same
 # parameters around too much
-UL <- designMatrix[,4:5]
+# UL <- designMatrix[,4:5]
 truncY <- function(N, UL, DIST='NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
                    seed = 123)
 {

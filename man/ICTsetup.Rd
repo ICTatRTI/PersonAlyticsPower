@@ -142,6 +142,25 @@ ICTviz()
 # the lower/upper bounds are taken from the x-axis of the
 designMatrix <- edit(designMatrix)
 }
+
+ effectSizes = list(
+   group1 = list(
+     phase1 = c(i=0.0, s=0.0, q=0.0),
+     phase2 = c(i=0.2, s=0.0, q=0.0),
+     phase3 = c(i=0.0, s=0.0, q=0.0)
+   ),
+   group2 = list(
+     phase1 = c(i=0.0, s=0.0, q=0.0),
+     phase2 = c(i=0.0, s=0.0, q=0.0),
+     phase3 = c(i=0.0, s=0.0, q=0.0)
+   )
+   )
+designMatrix <- polyICTsetup(phases = makePhase(), effectSizes=effectSizes,
+  DIST = 'NO')
+# TODO really need a portable method of moving items around, probably need to
+# make this an R6 class with methods.
+ICTviz(DIST="NO", parms = list(mu=0, sigma=1), designMatrix=designMatrix,
+BLrange=c(-3,-2))
 # standard normal distribution with baseline values sampled from -3 to -2
 ICTviz(DIST = 'NO', parms=list(mu=0, sigma=1), BLrange = c(-3, -2))
 
