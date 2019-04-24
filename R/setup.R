@@ -358,9 +358,9 @@ ICTviz <- function(DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
                 alpha=0.4, color = NA, inherit.aes = F) +
       scale_fill_manual(values = rects$cols, name='phase') +
       ylim(range(x)) + ylab('') +
-      scale_linetype_manual(values = c("solid", "twodash"),
-                            name = "bounds",
-                            guide = guide_legend(reverse = TRUE) ) +
+        scale_linetype_manual(values = c("solid", "twodash"),
+                              name = "bounds",
+                              guide = guide_legend(reverse = TRUE) ) +
       theme(legend.key.width=unit(2,"line"))
 
     g1 <- g1 + coord_flip() + scale_y_reverse()
@@ -372,7 +372,7 @@ ICTviz <- function(DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
              "")
     )
 
-    gridExtra::grid.arrange(g1, g2, nrow=1, ncol=2, widths = c(2,4), top=top)
+    gridExtra::marrangeGrob(g1, g2, nrow=1, ncol=2, widths = c(2,4), top=top)
   }
 
 }

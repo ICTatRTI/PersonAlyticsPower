@@ -234,11 +234,6 @@ designCheck <- function(design, file, family, randFxParms, randFxSeed,
       "\nThe observed total variance is ", TotalVar,
       "\nThe expected total variance is ", expectedVar$TotalVar, "\n\n")
 
-  # a plot
-  g <- ggplot(dat[dat$id<=10,], aes(x=Time, y=y, group=id, col=phase)) +
-    geom_line() + geom_smooth(se = FALSE, size=.5) +
-    ggtitle('Raw data and smoothed average trajectories for first 10 participants')
-  suppressMessages( print( g ) )
 
   # TODO: generalize the equation to the implied model, hmmm, need to generate
   # that from the inputs, currently only works for slopes model with AR(1)
@@ -247,6 +242,9 @@ designCheck <- function(design, file, family, randFxParms, randFxSeed,
 
   save(mod0, file=paste(file[1], 'designCheck.RData', sep='_'))
   print( mod0 )
+
+  # a better plot
+  print( pa$plot() )
 
   #TODO this only works for linear models
   #TODO needs better matching, force name matching in polyICT
