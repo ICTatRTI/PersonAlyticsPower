@@ -243,7 +243,7 @@ designCheck <- function(design, file, family, randFxParms, randFxSeed,
   save(mod0, file=paste(file[1], 'designCheck.RData', sep='_'))
   print( mod0 )
 
-  # a better plot
+  # plot
   print( pa$plot() )
 
   #TODO this only works for linear models
