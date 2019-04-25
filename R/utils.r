@@ -61,7 +61,8 @@ catMat <- function(x=matrix(1:4, 2, 2))
 #' getICTdesign - create the fixed effects design matrix for n=1
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #' @keywords internal
-
+# TODO consider making this a method for ICTdesign that is passed by inheritence
+# to polyICT, etc.
 getICTdesign <- function(phases      = makePhase() ,
                          polyOrder   = 2           ,
                          design      = 'polyICT'
@@ -88,22 +89,23 @@ getICTdesign <- function(phases      = makePhase() ,
     # clean up phases
     phase <- as.numeric(factor( c(unlist(phases)) ) ) - 1
 
-    # generate interactions
-    phaseTime <- list()
-    for(i in seq_along(time))
-    {
-      phaseTime[[paste('phase', names(time)[i], sep='')]] <- phase * time[,i]
-    }
-    phaseTime    <- data.frame( do.call(cbind, phaseTime) )
-    #varPhaseTime <- apply(phaseTime, 2, var)
-
-    designMat <- cbind(phase, time, phaseTime)
+    designMat <- cbind(phase, time)
 
     return(designMat)
   }
 
 }
 
+#' totalVar - get the total variance for simulated data
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#' @keywords internal
+# TODO consider making this a method for ICTdesign that is passed by inheritence
+# to polyICT, etc.
+totalVar <- function(covMat, propErrVar, designMat, effectSizes,
+                     nObservations, n)
+{
+
+}
 
 #' doIt - helper function for doLapply for ignoring extra arguments, written
 #' to allow calls to \code{\link{gamlss.family}} distributions but ignore unused
@@ -288,4 +290,45 @@ powerReport <- function(paout, alpha, file, saveReport=TRUE)
 
   # return results
   return( unlist(powerL) )
+}
+
+
+#' corMatPop - correlation matrix populator, see \link{\code{checkPolyICT}}
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @keywords internal
+corMatPop <- function(phaseNames, groupNames, corMat, wn=c('p', 'g', 'n'))
+{
+  corMatL <- list()
+  for(p in seq_along(phaseNames))
+  {
+    for(g in seq_along(groupNames))
+    {
+      if(wn=='p') returnMat <- corMat[[p]]
+      if(wn=='g') returnMat <- corMat[[g]]
+      if(wn=='n') returnMat <- corMat
+      corMatL[[phaseNames[p]]][[groupNames[g]]] <- returnMat
+    }
+  }
+  return(corMatL)
+}
+
+#' randFxVarPop - random effects variance populator, see \link{\code{checkPolyICT}}
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @keywords internal
+randFxVarPop <- function(phaseNames, groupNames, randFxVar, wn=c('p', 'g', 'n'))
+{
+  randFxVarL <- list()
+  for(p in seq_along(phaseNames))
+  {
+    for(g in seq_along(groupNames))
+    {
+      if(wn=='p') returnMat <- randFxVar[[p]]
+      if(wn=='g') returnMat <- randFxVar[[g]]
+      if(wn=='n') returnMat <- randFxVar
+      randFxVarL[[phaseNames[p]]][[groupNames[g]]] <- returnMat
+    }
+  }
+  return(randFxVarL)
 }

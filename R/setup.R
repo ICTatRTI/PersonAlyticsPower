@@ -62,9 +62,9 @@ makePhase <- function(nObsPerPhase = c(10,20,10) ,
   }
 
   phases <- list()
-  for(i in seq_along(nObsPerPhase))
+  for(p in seq_along(nObsPerPhase))
   {
-    phases[[i]] <- rep(phaseNames[i], nObsPerPhase[i])
+    phases[[phaseNames[p]]] <- rep(phaseNames[p], nObsPerPhase[p])
   }
   return( phases )
 }

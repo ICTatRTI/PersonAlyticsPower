@@ -15,8 +15,10 @@
 #' rep("A", 5))}. See also the function \code{\link{makePhase}}. Default is
 #' \code{makePhase()}.
 #'
-#' @field propErrVar Numeric. The propotion of total variance that is error
-#' variance. Default is .75.
+#' @field propErrVar Length 3 numeric vector. Default is \code{c(.5,.25,.25)}.#'
+#' Proporotion of the total variance
+#' that is due to [1] random effects, [2] residual autocorrelation, and
+#' [3] measurement error. The values in \code{propErrVar} must sum to one.
 #'
 #' @field effectSizes A length 2 list with the names `randFx` and `fixdFx`. Each
 #' are themselves a list with the coefficients for a polynomial growth model.
@@ -114,9 +116,13 @@ polyICT <- R6::R6Class("polyICT",
                          (
                            n                 = 10                                        ,
                            phases            = makePhase()                               ,
-                           propErrVar        = .75                                       ,
-                           effectSizes       = list(randFx=list(intercept=0, slope=.5),
-                                                    fixdFx=list(phase=.5, phaseTime=.25)),
+                           propErrVar        = c(.5,.25,.25)                             ,
+                           effectSizes       = list(phase1=list(group1=c(0,0),
+                                                                group2=c(0,0)),
+                                                    phase2=list(group1=c(0,0),
+                                                                group2=c(.3,0)),
+                                                    phase3=list(group1=c(0,0),
+                                                                group2=c(.3,-.1)))       ,
                            corMat            = matrix(c(1,.2,.2,1), 2, 2)                ,
                            randFxVar         = c(1, .1)                                  ,
                            muFUN             = function(x) x                             ,
@@ -131,25 +137,31 @@ polyICT <- R6::R6Class("polyICT",
                          )
                          {
                            # general input validation
-                           polyOrder <- checkPolyICT(effectSizes, corMat, randFxVar) - 1
+                           # TODO replace polyOrder which used to live here
+                           polyInputs <- checkPolyICT(effectSizes, phases,
+                                                      corMat, randFxVar)
+                           cormat           <- polyInputs$corMat
+                           covmat           <- polyInputs$covMat
+                           randFxVar        <- polyInputs$randFxVar
+                           phaseNames       <- polyInputs$phaseNames
+                           groupNames       <- polyInputs$groupNames
+                           maxRandFx        <- polyInputs$maxRandFx
+                           unStdEffectSizes <- polyInputs$unStdEffectSizes
+                           rm(polyInputs)
 
-                           # construct the fixed effects design matrix
-                           designMat <- getICTdesign(phases, polyOrder, 'polyICT')
-
-                           # get the covariance matrix
-                           covMat <- cor2cov(corMat, randFxVar)
-
-                           # rescale the randFx effect sizes (on Cohen's d scale) to raw scale units
-                           randFxSD <- sqrt(diag(covMat))
-                           unStdEffects <- effectSizes
-                           for(i in seq_along(effectSizes[[1]]))
-                           {
-                             unStdEffects[[1]][[i]] <- effectSizes[[1]][[i]]*randFxSD[i]
-                           }
+                           # construct the fixed effects design matrix, only one
+                           # is needed across all combinations of group and phase
+                           # by using maxRandFx, any unneeded columns will be
+                           # ignored when constructing data
+                           designMat <- getICTdesign(phases, maxRandFx, 'polyICT')
 
                            # get the number of observations
                            nObservations <- length(c(unlist(phases)))
 
+                           # RESUME HERE: this needs to be moved to the make data
+                           # loops b/c it is phase/group specific; or, move it
+                           # to checkPolyICT; also propErrVar should be allowed to be
+                           # phase and group specific
                            # get the total variance and the error variance @ time = 1
                            totalVar  <- sum(covMat)/(1-propErrVar)
                            errorVar  <- propErrVar * totalVar
@@ -201,80 +213,11 @@ polyICT <- R6::R6Class("polyICT",
 
                          makeData = function(randFx, errors, ymean=NULL, yvar=NULL)
                          {
-                           # make each component into a matrix of dimension
-                           # n by nObservations
 
-                           # fixed and random effects
-                           fe <- re <- list()
-                           fev <- rev <- list()
-                           for(i in seq_along(self$unStdEffects[[1]]))
+                           for(p in seq_along(self$phases))
                            {
-                             # fixed effects
-                             feName  <- names(self$unStdEffects$fixdFx)[i]
-                             fe[[i]] <- matrix((self$unStdEffects$fixdFx[[feName]] *
-                                                  self$designMat[[feName]]),
-                                               self$n, self$nObservations, byrow=TRUE)
 
-                             # intercepts
-                             if(i==1)
-                             {
-                               re[[i]] <- matrix((self$unStdEffects$randFx[[i]] + randFx[,i]),
-                                                 self$n, self$nObservations)
-                             }
-                             # slopes and higher
-                             if(i>1)
-                             {
-                               re[[i]] <- matrix(self$unStdEffects$randFx[[i]] + randFx[,i]) %*%
-                                 t(self$designMat$Time^(i-1))
-                               # QC - should be strictly linear for i==2
-                               #longCatEDA::longContPlot(re[[i]])
-                             }
-
-                             # variance QC
-                             fev[[i]] <- apply(fe[[i]], 2, var)
-                             rev[[i]] <- apply(re[[i]], 2, var)
                            }
-
-                           # sum non-error components
-                           Ystar <- Reduce(`+`, fe) + Reduce(`+`, re)
-
-                           # sum together the effects
-                           Y <- Ystar + errors
-
-                           # QC
-                           #apply(Ystar, 2, var)
-                           #apply(Y, 2, var)
-
-                           # construct a long dataset
-                           data <- data.frame(
-                             id    = sort(rep(1:self$n, self$nObservations)) ,
-                             y     = c(t(Y))                                 ,
-                             do.call(rbind, replicate(self$n,
-                                                      self$designMat, simplify = FALSE))
-                           )
-
-                           # QC
-                           all.equal(aggregate(data$y, list(data$Time), mean)$x,
-                                     unname(apply(Y, 2, mean)))
-                           all.equal(aggregate(data$y, list(data$Time), var)$x,
-                                     unname(apply(Y, 2, var)))
-
-                           # make phase a factor (for later analysis and plotting)
-                           data$phase <- factor(data$phase)
-
-                           # rescale the y variance if !is.null
-                           if(!is.null(yvar) | !is.null(ymean))
-                           {
-                             if(is.null(ymean)) ymean <- FALSE
-                             if(is.null(yvar))  yvar  <- 1
-                             data$y <- scale(yvar, ymean, TRUE) * sqrt(yvar)
-                           }
-
-                           # TODO: consider having filename option and saving here
-
-                           # return the data
-                           invisible(data)
-
                          }
 
                        )
@@ -338,33 +281,170 @@ expectedVar <- function(covMat, designMat, variances,
 #'
 #' @keywords internal
 #'
-
-checkPolyICT <- function(effectSizes, corMat, randFxVar)
+# TODO: if anything in this function is useful for polyICT2, export to functions
+# or make it part of ICTdesign to pass by inheritance
+checkPolyICT <- function(effectSizes, phases, corMat, randFxVar)
 {
   # check conformity of the elements in `effectSizes`
   effectSizes <<- effectSizes
-  nFx <- checkEffectSizesPoly(effectSizes)
+  effectSizeLengths <- lapply(effectSizes, length)
+  if(!all(unlist(effectSizeLengths)==effectSizeLengths[[1]]))
+  {
+    stop('There are unequal numbers of groups within each phase in `effectSizes`.\n',
+         paste(names(effectSizeLengths), 'has', unlist(effectSizeLengths), 'groups.\n'))
+  }
+  groupNames <- lapply(effectSizes, names)
+  groupNamesEqual <- outer(groupNames, groupNames, Vectorize(all.equal))
+  if(!all(groupNamesEqual))
+  {
+    stop('The group names in `effectSizes` are not the same for all phases.\n',
+         paste(names(effectSizes), ':', groupNames, '.\n'))
+  }
+  groupNames <- groupNames[[1]]
+  if(length(effectSizes) != length(phases))
+  {
+    stop('`effectSizess` is length ', length(effectSizes),
+         ' while `phases` is length ', length(phase), '.\n',
+         'The two should be equal length, i.e., `effectSizess` has one\n',
+         'set of parameters for each phase in `phases`.')
+  }
+  phaseNames <- names(phases)
+  if(!all(names(effectSizes)==phaseNames))
+  {
+    stop('The phase names in `effectSizes` are not the same as the \n',
+         'phase names in `phases`.\n',
+         paste(names(effectSizes), 'vs.', names(phases), '.\n'))
+  }
 
-  # check that `corMat` is a correlation matrix
-  checkCorMat(corMat)
+  # check conformity of correlation matrices, must be per phase, per group
+  if(is.list(corMat))
+  {
+    corMatLengths <- lapply(corMat, length)
+    # if corMat only given for phases, assume equal across groups
+    if(all(names(corMat) %in% phaseNames) & !any(corMatLengths > 1))
+    {
+      corMatL <- corMatPop(phaseNames, groupNames, corMat, 'p')
+    }
+    # if corMat only given for groups, assume equal across phases
+    if(all(names(corMat) %in% groupNames) & !any(corMatLengths > 1))
+    {
+      corMatL <- corMatPop(phaseNames, groupNames, corMat, 'g')
+    }
+    # if corMat given for both phases and groups, check dimension conformity
+    if(all(names(corMat) %in% phaseNames) & all(corMatLengths > 1))
+    {
+      if(! all.equal(unlist(corMatLengths), unlist(effectSizeLengths)) )
+      {
+        stop('The list of correlation matrices in `corMat` do not have the same\n',
+             'number of groups and/or phases as in `effectSizes`. You can specify\n',
+             'a list with just one correlation matrix per phase which will be\n',
+             'applied to each group. Or you can specify one correlation matrix per\n',
+             'group which will be applied to each phase. See the examples in ?polyICT.')
+      }
+    }
+  }
 
-  # check conformity of `corMat` with `effectSizes`
-  test3 <- nrow(corMat) == nFx[[1]]
-  if(!test3) stop('The number of rows and columns in `corMat` is ', nrow(corMat),
-                  '\nbut it should equal the ', nFx[[1]], ' elements in\n',
-                  ' `effectSizes$randFx` and `effectSizes$fixdFx`.')
+  # if only one corMat is given, repeat it for all phases and groups
+  if(!is.list(corMat))
+  {
+    corMatL <- corMatPop(phaseNames, groupNames, corMat, 'n')
+  }
 
-  # check conformity of `randFxVar` with `effectSizes`
-  test4 <- length(randFxVar) == nFx[[1]]
-  if(!test4) stop('The number of elements in `randFxVar` is ', length(randFxVar),
-                  '\nbut it should equal the ', nFx[[1]], ' elements in\n',
-                  ' `effectSizes$randFx` and `effectSizes$fixdFx`.')
+  # check conformity of random effects variances, must be per phase, per group
+  if(is.list(randFxVar))
+  {
+    randFxVarLengths <- lapply(randFxVar, length)
+    # if randFxVar only given for phases, assume equal across groups
+    if(all(names(randFxVar) %in% phaseNames) & !any(randFxVarLengths > 1))
+    {
+      randFxVarL <- randFxVarPop(phaseNames, groupNames, randFxVar, 'p')
+    }
+    # if randFxVar only given for groups, assume equal across phases
+    if(all(names(randFxVar) %in% groupNames) & !any(randFxVarLengths > 1))
+    {
+      randFxVarL <- randFxVarPop(phaseNames, groupNames, randFxVar, 'g')
+    }
+    # if randFxVar given for both phases and groups, check dimension conformity
+    if(all(names(randFxVar) %in% phaseNames) & all(randFxVarLengths > 1))
+    {
+      if(! all.equal(unlist(randFxVarLengths), unlist(effectSizeLengths)) )
+      {
+        stop('The list of correlation matrices in `randFxVar` do not have the same\n',
+             'number of groups and/or phases as in `effectSizes`. You can specify\n',
+             'a list with just one correlation matrix per phase which will be\n',
+             'applied to each group. Or you can specify one correlation matrix per\n',
+             'group which will be applied to each phase. See the examples in ?polyICT.')
+      }
+    }
+  }
 
-  # check that resulting covariance matrix is legit
-  checkCorMat(cor2cov(corMat, randFxVar), FALSE)
+  # if only one randFxVar is given, repeat it for all phases and groups
+  if(!is.list(randFxVar))
+  {
+    randFxVarL <- randFxVarPop(phaseNames, groupNames, randFxVar, 'n')
+  }
 
-  # return the polynomial order
-  invisible( unname(unlist(nFx[1])) )
+  # update corMat and randFxVar
+  # TODO add error if for some reason corMatL or randFxVarL don't exist
+  corMat <- corMatL
+  randFxVar <- randFxVarL
+
+  # check conformity of `corMat` with `effectSizes`, get covMat, and
+  # get unstandardized effect sizes
+  covMatL <- list()
+  unStdEffectSizesL <- list()
+  for(p in seq_along(phaseNames))
+  {
+    for(g in seq_along(groupNames))
+    {
+      # check by name instead of index for situations where the user doesn't
+      # index consistently but still has consistent names
+      tP <- phaseNames[p]
+      tG <- groupNames[g]
+      # are the random effect means in effectSizes the same dimension as
+      # the corresponding corMat?
+      if( length(effectSizes[[tP]][[tG]]) != dim(corMat[[tP]][[tG]])[1] )
+      {
+        stop('There are ', length(effectSizes[[tP]][[tG]]), ' random effect means\n',
+             'for ', tP, ' and ', tG, ' in `effectSizes`, but the corresponding\n',
+             'correlation matrix in `corMat` has dimension ', dim(corMat[[tP]][[tG]])[1],
+             '.')
+      }
+      # are the dimensions of corMat consitent with the number of variances
+      # in
+      if( dim(corMat[[tP]][[tG]])[1] != length(randFxVar[[tP]][[tG]]) )
+      {
+        stop('The correlation matrix in `corMat` has dimension ',
+             dim(corMat[[tP]][[tG]])[1], ' for ', tP, ' and ', tG,
+             '\n but there are ', length(randFxVar[[tP]][[tG]]),
+             ' correpsonding variances in `randFxVar`.')
+      }
+
+      # check that `corMat` is a correlation matrix
+      checkCorMat(corMat[[tP]][[tG]])
+
+      # check that resulting covariance matrix is legit
+      covMatL[[tP]][[tG]] <- SigmaFun(corMat[[tP]][[tG]], randFxVar[[tP]][[tG]])
+      checkCorMat(covMatL[[tP]][[tG]], FALSE)
+
+      # get unstandardized effects
+      randFxSD <- sqrt(diag(covMatL[[tP]][[tG]]))
+      unStdEffectSizesL[[tP]][[tG]] <- effectSizes[[tP]][[tG]]*randFxSD
+
+    }
+  }
+
+  # get the maximum number of random effects
+  maxRandFx <- max( unlist( effectSizeLengths) )
+
+
+  return( list(phaseNames       = phaseNames        ,
+               groupNames       = groupNames        ,
+               corMat           = corMat            ,
+               covMat           = covMatL           ,
+               randFxVar        = randFxVar         ,
+               maxRandFx        = maxRandFx         ,
+               unStdEffectSizes = unStdEffectSizesL ) )
 }
 
 #' checkEffectSizes
@@ -385,3 +465,5 @@ checkEffectSizesPoly <- function(effectSizes)
                   'as `effectSizes$fixdFx`.')
   invisible(nFx)
 }
+
+
