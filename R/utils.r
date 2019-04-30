@@ -5,17 +5,17 @@
 #'
 #' @export
 #'
-#' @param corMat Numeric matrix. An invertible correlation matrix.
+#' @param randFxCorMat Numeric matrix. An invertible correlation matrix.
 #' @param variances Numeric vector. The variances.
 
-cor2cov <- function(corMat    = matrix(c(1,.2,.2,1), 2, 2) ,
+cor2cov <- function(randFxCorMat    = matrix(c(1,.2,.2,1), 2, 2) ,
                     variances = c(1, .1)                   )
 {
   sds <- sqrt(variances)
   b <- sds %*% t(sds)
-  Sigma <- b * corMat
+  Sigma <- b * randFxCorMat
   # if QC is wanted use
-  # all.equal(cov2cor(Sigma), corMat)
+  # all.equal(cov2cor(Sigma), randFxCorMat)
   return(Sigma)
 }
 
@@ -26,20 +26,20 @@ cor2cov <- function(corMat    = matrix(c(1,.2,.2,1), 2, 2) ,
 #' @keywords internal
 #'
 
-checkCorMat <- function(corMat, cor=TRUE)
+checkCorMat <- function(randFxCorMat, cor=TRUE)
 {
-  mNm <- 'corMat'
+  mNm <- 'randFxCorMat'
   if(!cor) mNm <- 'varMat'
-  if(!is.matrix(corMat)) stop('`corMat` must be a numeric matrix.')
-  if( is.matrix(corMat))
+  if(!is.matrix(randFxCorMat)) stop('`randFxCorMat` must be a numeric matrix.')
+  if( is.matrix(randFxCorMat))
   {
-    isNum <- is.numeric(corMat)
-    isSym <- isSymmetric(corMat)
-    isCor <- all(diag(corMat)==1)
-    isSlv <- class(try(solve(corMat), silent = TRUE)) %in% 'matrix'
+    isNum <- is.numeric(randFxCorMat)
+    isSym <- isSymmetric(randFxCorMat)
+    isCor <- all(diag(randFxCorMat)==1)
+    isSlv <- class(try(solve(randFxCorMat), silent = TRUE)) %in% 'matrix'
     if(!isNum) stop('`', mNm, '` is not numeric')
     if(!isSym) stop('`', mNm, '` is not symmetric')
-    if(cor & !isCor) stop('`corMat` does not have ones on the diagonal')
+    if(cor & !isCor) stop('`randFxCorMat` does not have ones on the diagonal')
     if(!isSlv) stop('`', mNm, '` cannot be inverted')
   }
 }
@@ -64,10 +64,14 @@ catMat <- function(x=matrix(1:4, 2, 2))
 # TODO consider making this a method for ICTdesign that is passed by inheritence
 # to polyICT, etc.
 getICTdesign <- function(phases      = makePhase() ,
-                         polyOrder   = 2           ,
+                         phaseNames  = NULL        ,
+                         maxRandFx   = 2           ,
                          design      = 'polyICT'
 )
 {
+  # make names if null
+  if(is.null(phaseNames)) phaseNames <- paste('phase', 1:length(phases))
+
   # get the number of observations
   nObservations <- length(c(unlist((phases))))
 
@@ -76,9 +80,9 @@ getICTdesign <- function(phases      = makePhase() ,
     # generate the times
     times      <- list()
     times[['Time']] <- seq(0, nObservations-1, 1)
-    if(polyOrder>1)
+    if(maxRandFx>1)
     {
-      for(i in 2:polyOrder)
+      for(i in 2:maxRandFx)
       {
         times[[paste('Time', i, sep='')]] <- times[['Time']]^i
       }
@@ -88,6 +92,7 @@ getICTdesign <- function(phases      = makePhase() ,
 
     # clean up phases
     phase <- as.numeric(factor( c(unlist(phases)) ) ) - 1
+    phase <- factor(phase, labels=phaseNames)
 
     designMat <- cbind(phase, time)
 
@@ -101,7 +106,7 @@ getICTdesign <- function(phases      = makePhase() ,
 #' @keywords internal
 # TODO consider making this a method for ICTdesign that is passed by inheritence
 # to polyICT, etc.
-totalVar <- function(covMat, propErrVar, designMat, effectSizes,
+totalVar <- function(randFxCovMat, propErrVar, designMat, randFxMean,
                      nObservations, n)
 {
 
@@ -251,7 +256,7 @@ designCheck <- function(design, file, family, randFxParms, randFxSeed,
   #TODO this only works for linear models
   #TODO needs better matching, force name matching in polyICT
   Estimates <- round(rbind(summary(mod0)$tTable[,1]),3 )
-  Inputs    <- round(c(unlist(design$unStdEffects))[c(1,3,2,4)],3)
+  Inputs    <- round(c(unlist(design$unStdRandFxMean))[c(1,3,2,4)],3)
   cat('\n\nCheck the effect size estimates against inputs:\n')
   print( data.frame(Inputs=Inputs, Estimates=t(Estimates)) )
 
@@ -292,28 +297,38 @@ powerReport <- function(paout, alpha, file, saveReport=TRUE)
   return( unlist(powerL) )
 }
 
-
-#' corMatPop - correlation matrix populator, see \link{\code{checkPolyICT}}
+#' seeds - make a vector of random seeds
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @keywords internal
-corMatPop <- function(phaseNames, groupNames, corMat, wn=c('p', 'g', 'n'))
+makeSeeds <- function(seed, S)
 {
-  corMatL <- list()
+  set.seed(seed)
+  ceiling(runif(S, 0, 9e6))
+}
+
+
+#' randFxCorMatPop - correlation matrix populator, see \code{\link{checkPolyICT}}
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @keywords internal
+randFxCorMatPop <- function(phaseNames, groupNames, randFxCorMat, wn=c('p', 'g', 'n'))
+{
+  randFxCorMatL <- list()
   for(p in seq_along(phaseNames))
   {
     for(g in seq_along(groupNames))
     {
-      if(wn=='p') returnMat <- corMat[[p]]
-      if(wn=='g') returnMat <- corMat[[g]]
-      if(wn=='n') returnMat <- corMat
-      corMatL[[phaseNames[p]]][[groupNames[g]]] <- returnMat
+      if(wn=='p') returnMat <- randFxCorMat[[p]]
+      if(wn=='g') returnMat <- randFxCorMat[[g]]
+      if(wn=='n') returnMat <- randFxCorMat
+      randFxCorMatL[[phaseNames[p]]][[groupNames[g]]] <- returnMat
     }
   }
-  return(corMatL)
+  return(randFxCorMatL)
 }
 
-#' randFxVarPop - random effects variance populator, see \link{\code{checkPolyICT}}
+#' randFxVarPop - random effects variance populator, see \code{\link{checkPolyICT}}
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @keywords internal
@@ -332,3 +347,4 @@ randFxVarPop <- function(phaseNames, groupNames, randFxVar, wn=c('p', 'g', 'n'))
   }
   return(randFxVarL)
 }
+

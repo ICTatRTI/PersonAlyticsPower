@@ -1,4 +1,4 @@
-# this file will contain the the *Data functions
+# this file will contain the the *Data functions [consider moving to repsective *ICT files]
 #
 #  polyData
 #  hyperData
@@ -31,58 +31,46 @@
 # -- continuous: implemented directly in lgmSim
 # -- categorical: achieve by categarizing continuous covariates
 
-polyData <- function(randFx, errors, ymean=NULL, yvar=NULL)
+polyData <- function(seed=123, n, nObs, mu, Sigma, self, dM,
+                     rFxVr, propErrVar, yMean, ySD, group=NULL)
 {
-  # make each component into a matrix of dimension
-  # n by nObservations
+  # get seeds
+  # 1. random effects
+  # 2. autocorrelated errors
+  # 3. white noise errors
+  seeds <- makeSeeds(seed, 3)
 
-  # fixed and random effects
-  fe <- re <- list()
-  fev <- rev <- list()
-  for(i in seq_along(self$unStdEffects[[1]]))
+  # random effects
+  reVars <- rFxVr/sum(rFxVr)
+  eta <- mvrFam(n, mu, Sigma, seeds[1])
+  .L  <- list()
+  for(i in 1:ncol(eta))
   {
-    # fixed effects
-    feName  <- names(self$unStdEffects$fixdFx)[i]
-    fe[[i]] <- matrix((self$unStdEffects$fixdFx[[feName]] *
-                         self$designMat[[feName]]),
-                      self$n, self$nObservations, byrow=TRUE)
-
-    # intercepts
-    if(i==1)
-    {
-      re[[i]] <- matrix((self$unStdEffects$randFx[[i]] + randFx[,i]),
-                        self$n, self$nObservations)
-    }
-    # slopes and higher
+    # rescale data by propErrVar and reVars and expand into matrix
+    etaM <- matrix(propErrVar[i] * reVars[i] * eta[,i], n, nObs)
     if(i>1)
     {
-      re[[i]] <- matrix(self$unStdEffects$randFx[[i]] + randFx[,i]) %*%
-        t(self$designMat$Time^(i-1))
-      # QC - should be strictly linear for i==2
-      #longCatEDA::longContPlot(re[[i]])
+      etaM <- etaM * c(dM[,i+1])
     }
-
-    # variance QC
-    fev[[i]] <- apply(fe[[i]], 2, var)
-    rev[[i]] <- apply(re[[i]], 2, var)
+    .L[[i]] <- etaM
   }
 
-  # sum non-error components
-  Ystar <- Reduce(`+`, fe) + Reduce(`+`, re)
+  # TODO implement transforming error distn via makeFam()
+  # errors w/ scaling
+  .L[[length(.L) + 1]] <- propErrVar[2] * ICTerror(self$error, n, nObs, seeds[2])
+  .L[[length(.L) + 1]] <- propErrVar[3] * ICTerror(self$merror, n, nObs, seeds[3])
 
-  # sum together the effects
-  Y <- Ystar + errors
+  # TODO consider rescaling to unit variance first, otherwise propErrVar will
+  # be off
 
-  # QC
-  #apply(Ystar, 2, var)
-  #apply(Y, 2, var)
+  # now put it all together
+  Y <- Reduce('+', .L)
 
   # construct a long dataset
   data <- data.frame(
-    id    = sort(rep(1:self$n, self$nObservations)) ,
+    id    = sort(rep(1:n, nObs)) ,
     y     = c(t(Y))                                 ,
-    do.call(rbind, replicate(self$n,
-                             self$designMat, simplify = FALSE))
+    do.call(rbind, replicate(n, dM, simplify = FALSE))
   )
 
   # QC
@@ -95,15 +83,19 @@ polyData <- function(randFx, errors, ymean=NULL, yvar=NULL)
   data$phase <- factor(data$phase)
 
   # rescale the y variance if !is.null
-  if(!is.null(yvar) | !is.null(ymean))
+  if(!is.null(ySD) | !is.null(yMean))
   {
-    if(is.null(ymean)) ymean <- FALSE
-    if(is.null(yvar))  yvar  <- 1
-    data$y <- scale(yvar, ymean, TRUE) * sqrt(yvar)
+    if(is.null(yMean)) yMean <- mean(data$y)
+    if(is.null(ySD))   ySD   <- sd(data$y)
+    data$y <- scale(data$y, yMean, TRUE) * ySD
   }
 
-  # TODO: consider having filename option and saving here
+  # add group identifiers, phase is already coming in via dM
+  if(!is.null(thisg)) data$group <- group
 
   # return the data
-  invisible(data)
+  return(data)
 }
+
+
+

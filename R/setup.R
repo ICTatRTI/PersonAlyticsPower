@@ -33,8 +33,8 @@
 #'
 #' @param nGroups Integer. The number of groups.
 #'
-#' @param effectSizes See \code{polyICT2}. If \code{effectSizes} is
-#' provided, \code{nGroups} will be set to \code{length(effectSizes)}.
+#' @param randFxMean See \code{polyICT2}. If \code{randFxMean} is
+#' provided, \code{nGroups} will be set to \code{length(randFxMean)}.
 #'
 #' @param DIST Character. A \code{\link{gamlss.family}} distribution.
 #'
@@ -147,7 +147,7 @@ makePhase <- function(nObsPerPhase = c(10,20,10) ,
 #' designMatrix <- edit(designMatrix)
 #' }
 #'
-#'  effectSizes = list(
+#'  randFxMean = list(
 #'    group1 = list(
 #'      phase1 = c(i=0.0, s=0.0, q=0.0),
 #'      phase2 = c(i=0.2, s=0.0, q=0.0),
@@ -159,30 +159,30 @@ makePhase <- function(nObsPerPhase = c(10,20,10) ,
 #'      phase3 = c(i=0.0, s=0.0, q=0.0)
 #'    )
 #'    )
-#' designMatrix <- polyICTsetup(phases = makePhase(), effectSizes=effectSizes,
+#' designMatrix <- polyICTsetup(phases = makePhase(), randFxMean=randFxMean,
 #'   DIST = 'NO')
 #' # TODO really need a portable method of moving items around, probably need to
 #' # make this an R6 class with methods.
 #' ICTviz(DIST="NO", parms = list(mu=0, sigma=1), designMatrix=designMatrix,
 #' BLrange=c(-3,-2))
 
-polyICTsetup <- function(phases = makePhase(), nGroups = 1, effectSizes = NULL,
+polyICTsetup <- function(phases = makePhase(), nGroups = 1, randFxMean = NULL,
                        DIST = 'NO', parms = list(mu=0, sigma=1),
                        BLrange = c(-3, -2))
 {
-  # TODO: add a check that phases and effectSizes conform, see checkPolyICT2()
+  # TODO: add a check that phases and randFxMean conform, see checkPolyICT2()
 
-  # if effectSizes is provided, override nGroups
-  if(!is.null(effectSizes))
+  # if randFxMean is provided, override nGroups
+  if(!is.null(randFxMean))
   {
-    if(nGroups != length(effectSizes))
+    if(nGroups != length(randFxMean))
     {
-      message('`effectSizess` was provided, `nGroups` is being changed to ', nGroups)
+      message('`randFxMeans` was provided, `nGroups` is being changed to ', nGroups)
     }
-    nGroups <- length(effectSizes)
-    gNames  <- names(effectSizes)
+    nGroups <- length(randFxMean)
+    gNames  <- names(randFxMean)
   }
-  if( is.null(effectSizes))
+  if( is.null(randFxMean))
   {
     gNames <- paste('Group', 1:nGroups, sep='')
   }
@@ -198,8 +198,8 @@ polyICTsetup <- function(phases = makePhase(), nGroups = 1, effectSizes = NULL,
     designMatrix[[paste('upper_', gNames[g], sep='')]] <- as.numeric(NA)
   }
 
-  # if effectSizes are provided, populate the mean_ columns of designMatrix
-  if(!is.null(effectSizes))
+  # if randFxMean are provided, populate the mean_ columns of designMatrix
+  if(!is.null(randFxMean))
   {
     phaseNames <- unique(phases)
     for(g in 1:nGroups)
@@ -208,7 +208,7 @@ polyICTsetup <- function(phases = makePhase(), nGroups = 1, effectSizes = NULL,
       for(p in phaseNames)
       {
         temp <- designMatrix[[wc]][designMatrix$phase==p]
-        temp <- makeMeans(effectSizes[[gNames[g]]][[p]],  length(temp))
+        temp <- makeMeans(randFxMean[[gNames[g]]][[p]],  length(temp))
         designMatrix[[wc]][designMatrix$phase==p] <- temp
       }
     }
@@ -250,7 +250,7 @@ ICTviz <- function(DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
     stop("The value of `DIST`=", DIST, " is not a `gamlss.family` distribution.")
   }
 
-  # clean up parms for lazy people
+  # clean up parms for lazy people -- may be superceded by err active bindings
   if(is.null(names(parms))) names(parms) <- c('mu', 'sigma', 'nu', 'tau')
   if(length(parms) > 4 |
      any( ! names(parms) %in%  c('mu', 'sigma', 'nu', 'tau') ))
@@ -457,7 +457,7 @@ makeBounds <- function(designMatrix, DIST, parms, BLrange)
 }
 
 #' makeMeans - a function to create mean values given within-phase
-#' growth model parameters (i, s, q, etc.; see \code{effectSizes} in
+#' growth model parameters (i, s, q, etc.; see \code{randFxMean} in
 #' \code{polyICT2}).
 #'
 #' @author Stephen Tueller \email{stueller@@rti.org}

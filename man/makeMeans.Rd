@@ -3,14 +3,14 @@
 \name{makeMeans}
 \alias{makeMeans}
 \title{makeMeans - a function to create mean values given within-phase
-growth model parameters (i, s, q, etc.; see \code{effectSizes} in
+growth model parameters (i, s, q, etc.; see \code{randFxMean} in
 \code{polyICT2}).}
 \usage{
 makeMeans(phaseParms = c(100, 0.5, -0.25), nObs = 10)
 }
 \description{
 makeMeans - a function to create mean values given within-phase
-growth model parameters (i, s, q, etc.; see \code{effectSizes} in
+growth model parameters (i, s, q, etc.; see \code{randFxMean} in
 \code{polyICT2}).
 }
 \author{

@@ -4,7 +4,7 @@
 \alias{checkPolyICT}
 \title{checkPolyICT}
 \usage{
-checkPolyICT(effectSizes, corMat, randFxVar)
+checkPolyICT(randFxMean, phases, randFxCorMat, randFxVar)
 }
 \description{
 checkPolyICT

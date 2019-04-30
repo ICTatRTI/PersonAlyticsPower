@@ -5,10 +5,8 @@
 \title{ICTpower - get simulated power for an ICT design using parametric bootstrap.}
 \usage{
 ICTpower(file, design = polyICT$new(), B = 100, checkDesign = "no",
-  alpha = 0.05, randFxFamily = "qNO", randFxParms = list(mu = 0.5,
-  sigma = 1), randFxSeed = 11, errorParms = list(ar = c(0.5), ma =
-  c(0)), errorFUN = arima.sim, errorFamily = NULL, errorSeed = 21,
-  cores = parallel::detectCores() - 1, savePowerReport = TRUE, ...)
+  alpha = 0.05, seed = 123, cores = parallel::detectCores() - 1,
+  savePowerReport = TRUE, ...)
 }
 \arguments{
 \item{file}{The file name for saving power analysis results.
@@ -32,39 +30,21 @@ also be plotted. This allows users to check their inputs.}
 emprical power (the proportion of p-values across \code{B} data sets that are
 less than or equal to \code{alpha}.}
 
-\item{randFxFamily}{A quantile function such as those in
-\code{\link{gamlss.family}}.
-If \code{family} is not "qNO" or "qnorm", multivariate normal random effects
-are first simulated, then transformed using the quantile function.}
-
-\item{randFxParms}{Ignored unless \code{family} is not "qNO" or "qnorm".
-Parameters to be passed to a quantile function given in \code{family}. For
-\code{\link{gamlss.family}} quantile functions, the parameters are mu,
-sigma, nu, and tau.}
-
-\item{randFxSeed}{A random seed for generating random effects.}
-
-\item{errorParms}{Parameters for simulating random errors. Currently only
-supports \code{\link{arima.sim}}.}
-
-\item{errorFUN}{A function for simulating errors. Currently only
-\code{\link{arima.sim}} is supported.}
-
-\item{errorFamily}{A quantile function fo simulating non-normal errors. Not
-currently implemented.}
+\item{seed}{A random seed for replicating the power analysis.}
 
 \item{cores}{The number of cores used in parralelized simulation. The default
-is to use one few cores than are detected on the computer. Do not exceed the
-maximum available cores or unexpect results may occur or R may crash.}
+is to use one fewer cores than are detected on the computer. Do not exceed the
+maximum available cores or unexpected results may occur and R may crash.}
 
 \item{savePowerReport}{Should the power report be saved using the \code{file}
 name? If \code{TRUE}, a `txt` file is saved in the working directory. This
 option is set to \code{FALSE} in the function \code{\link{ICTpowerSim}} which
 instead saves the reports from several conditions in a `csv` file.}
 
-\item{...}{Further arguments to be passed to \code{\link{PersonAlytics}}.}
-
-\item{errorseed}{A random seed for generating errors.}
+\item{...}{Further arguments to be passed to \code{\link{PersonAlytic}} for
+analysis. All options in \code{PersonAlytic} can be passed except for
+\code{output}, \code{data}, \code{ids}, \code{dvs}, \code{time}, and
+\code{phase} as these are taken from the \code{design}.}
 }
 \description{
 ICTpower - get simulated power for an ICT design using parametric bootstrap.

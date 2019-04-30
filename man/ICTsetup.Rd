@@ -10,7 +10,7 @@
 makePhase(nObsPerPhase = c(10, 20, 10), phaseNames = c("phase1",
   "phase2", "phase3"))
 
-polyICTsetup(phases = makePhase(), nGroups = 1, effectSizes = NULL,
+polyICTsetup(phases = makePhase(), nGroups = 1, randFxMean = NULL,
   DIST = "NO", parms = list(mu = 0, sigma = 1), BLrange = c(-3, -2))
 
 ICTviz(DIST = "NO", parms = list(mu = 0, sigma = 1, nu = 2, tau = 2),
@@ -31,8 +31,8 @@ times as there are time points within that phase. See \code{\link{makePhase}}.}
 
 \item{nGroups}{Integer. The number of groups.}
 
-\item{effectSizes}{See \code{polyICT2}. If \code{effectSizes} is
-provided, \code{nGroups} will be set to \code{length(effectSizes)}.}
+\item{randFxMean}{See \code{polyICT2}. If \code{randFxMean} is
+provided, \code{nGroups} will be set to \code{length(randFxMean)}.}
 
 \item{DIST}{Character. A \code{\link{gamlss.family}} distribution.}
 
@@ -143,7 +143,7 @@ ICTviz()
 designMatrix <- edit(designMatrix)
 }
 
- effectSizes = list(
+ randFxMean = list(
    group1 = list(
      phase1 = c(i=0.0, s=0.0, q=0.0),
      phase2 = c(i=0.2, s=0.0, q=0.0),
@@ -155,7 +155,7 @@ designMatrix <- edit(designMatrix)
      phase3 = c(i=0.0, s=0.0, q=0.0)
    )
    )
-designMatrix <- polyICTsetup(phases = makePhase(), effectSizes=effectSizes,
+designMatrix <- polyICTsetup(phases = makePhase(), randFxMean=randFxMean,
   DIST = 'NO')
 # TODO really need a portable method of moving items around, probably need to
 # make this an R6 class with methods.
