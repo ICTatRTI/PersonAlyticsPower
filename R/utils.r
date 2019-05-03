@@ -1,4 +1,5 @@
-
+# TODO this file is a mix of internal and exported functions, split into a
+# file containing internals and a file with exports
 
 #' cor2cov - a version of this function was in the deprecated package `stremo`
 #' @author Stephen Tueller \email{stueller@@rti.org}
@@ -120,23 +121,23 @@ totalVar <- function(randFxCovMat, propErrVar, designMat, randFxMean,
 #' @param X a vector of probabilities to be passed to a quantile function
 #' like \code{\link{qN0}} in \code{\link{gamlss}} or \code{\link{qnorm}}.
 #'
-#' @param .fcn see \code{\link{doCall}} in the `R.utils` package.
+#' @param .fcn see \code{\link{R.utils::doCall}} in the `R.utils` package.
 #'
 #' @keywords internal
 
 doIt <- function(X, .fcn="qNO", ...)
 {
-  doCall(.fcn, p=X, ...)
+  R.utils::doCall(.fcn, p=X, ...)
 }
 
-#' doLapply - lapply with \code{\link{doCall}} to ignore extra arguments to
+#' doLapply - lapply with \code{\link{R.utils::doCall}} to ignore extra arguments to
 #' \code{\link{gamlss.family}} distributions
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @param Yp X a vector of probabilities to be passed to a quantile function
 #'
 #' @param .fcn A quantile function like \code{\link{qN0}} in \code{\link{gamlss}}
-#' or \code{\link{qnorm}}. See also \code{\link{doCall}} in the `R.utils` package
+#' or \code{\link{qnorm}}. See also \code{\link{R.utils::doCall}} in the `R.utils` package
 #'
 #' @param ... other options passed to \code{\link{gamlss.family}} distribution
 #' functions, most commonly mu, sigma, nu, and tau.
@@ -190,79 +191,28 @@ checkFile <- function(file)
 }
 
 
-#' designCheck - check whether a file is writable and a csv or Rdata file
+#' checkFam - check whether \code{fam} is a gamlss.family object and
+#' whether its parameters in \code{parms} are legitimate
+#'
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @keywords internal
-designCheck <- function(design, file, family, randFxParms, randFxSeed,
-                        errorParms, errorFUN, errorFamily, errorSeed)
+checkFam <- function(fam, parms)
 {
-  # message
-  message("\n\nStarting a design check with n=5000 participants\n",
-          "WARNING: this check is currently only done for the standard MLM")
+  # check family
+  if( ! is(gamlss.dist::gamlss.family(fam)) == "gamlss.family")
+  {
+    stop("The value of `fam`=", fam, " is not a `gamlss.family` distribution.")
+  }
 
-  # save and reset n, due to inheritance design will get overwritten, fix
-  # n below
-  originaln <- design$n
-  design$n  <- 5000
-
-  # simulate random effects
-  randFx <- mvrFam(design, randFxParms, family, randFxSeed)
-
-  # simulate the errors
-  errors <- ICTerror(design, errorParms, errorFUN, errorSeed)
-
-  # construct the data
-  dat <- design$makeData(randFx, errors)
-
-  # get expected means and variances
-  expectedVar <- design$expectedVariances
-
-  # compare expected to observed variances
-  expObsVar   <- cbind( expectedVar$Variances,
-                        aggregate(dat$y, by=list(dat$Time), var)$x)
-  # get the correlation of expected and observed variances
-  expObsVcor <- round(cor(expObsVar)[1,2],4)
-  cat("The correlation between the expected variances and the observed\n",
-      "variances are ", expObsVcor, "\n\n")
-
-  # compare expected to observed means
-  expObsMean <- cbind( expectedVar$Means,
-                       aggregate(dat$y, by=list(dat$Time), mean)$x)
-  expObsMcor <- round(cor(expObsMean)[1,2],4)
-  cat("The correlation between the expected means and the observed\n",
-      "means are ", expObsMcor, "\n\n")
-
-  # compare expected to observed total
-  TotalMean <- mean(dat$y)
-  TotalVar  <- var(dat$y)
-  cat("The observed total mean is ", TotalMean,
-      "\nThe expected total mean is ", expectedVar$TotalMean,
-      "\nThe observed total variance is ", TotalVar,
-      "\nThe expected total variance is ", expectedVar$TotalVar, "\n\n")
-
-
-  # TODO: generalize the equation to the implied model, hmmm, need to generate
-  # that from the inputs, currently only works for slopes model with AR(1)
-  pa   <- Palytic$new(data=dat, ids='id', dv='y', time='Time', phase='phase')
-  mod0 <- pa$lme()
-
-  save(mod0, file=paste(file[1], 'designCheck.RData', sep='_'))
-  print( mod0 )
-
-  # plot
-  print( pa$plot() )
-
-  #TODO this only works for linear models
-  #TODO needs better matching, force name matching in polyICT
-  Estimates <- round(rbind(summary(mod0)$tTable[,1]),3 )
-  Inputs    <- round(c(unlist(design$unStdRandFxMean))[c(1,3,2,4)],3)
-  cat('\n\nCheck the effect size estimates against inputs:\n')
-  print( data.frame(Inputs=Inputs, Estimates=t(Estimates)) )
-
-  cat("\n\n\n")
-
-  design$n <- originaln
+  # clean up parms for lazy people -- may be superceded by err active bindings
+  if(is.null(names(parms))) names(parms) <- c('mu', 'sigma', 'nu', 'tau')
+  if(length(parms) > 4 |
+     any( ! names(parms) %in%  c('mu', 'sigma', 'nu', 'tau') ))
+  {
+    stop("`parms` should be a named list of length 1 to 4 with possible names\n",
+         "'mu', 'sigma', 'nu', or 'tau'.")
+  }
 }
 
 
@@ -347,4 +297,85 @@ randFxVarPop <- function(phaseNames, groupNames, randFxVar, wn=c('p', 'g', 'n'))
   }
   return(randFxVarL)
 }
+
+# TODO this isn't a fully functional function
+#' samplingDist - function to plot the sampling distributions of
+#' \code{\link{PersonAlytic}} output produce by \code{\link{ICTpower}}.
+#'
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @export
+samplingDist <- function(paout)
+{
+  # parse statNames
+  statNames <- names(paout)[ grepl('statName', names(paout)) ]
+  statsAre  <- list()
+  for(i in seq_along(statNames))
+  {
+    statsAre[[statNames[i]]] <- statNameParse(paout[[statNames[i]]])
+  }
+
+  # plot statValues
+  if(statsAre[[1]] == 'Correlations Between Y and Time')
+  {
+    statValues <- names(paout)[ grepl('statValue', names(paout)) ]
+    hist(paout[[statValues[1]]], main=statsAre[[1]], xlab='Correlation')
+    m <- paste('Mean =', round(mean(paout[[statValues[1]]], na.rm=TRUE),2))
+    s <- paste('SD   =', round(  sd(paout[[statValues[1]]], na.rm=TRUE),2))
+    legend("topright", legend = c(m, s))
+  }
+
+  # ggplot approach
+  long <- list()
+  wc   <- statValues[2:length(statValues)]
+  for(i in seq_along(wc))
+  {
+    long[[i]] <- data.frame(Phase = i-1, Ymeans = paout[,wc[i]])
+  }
+  long <- do.call(rbind, long)
+  long$Phase <- factor(long$Phase)
+  ggplot(long, aes(x=Ymeans, fill=Phase)) + geom_density(alpha=0.25)
+
+
+  ggplot(paout, aes(x=phase1.Value, fill=factor(phase1.p.value<=.05))) +
+    geom_density(alpha=0.25) +
+    guides(fill=guide_legend(title="P <= .05")) +
+    xlab("Estimated Phase Effect")
+
+  ggplot(paout, aes(x=Time.Value, fill=factor(Time.p.value<=.05))) +
+    geom_density(alpha=0.25) +
+    guides(fill=guide_legend(title="P <= .05")) +
+    xlab("Estimated Time Effect")
+}
+
+#' statNameParse - used by samplingDist()
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @keywords internal
+statNameParse <- function(statName)
+{
+
+  # correlations
+  if( all(grepl('correlation', statName)) )
+  {
+    statIs <- 'Correlations Between Y and Time'
+  }
+
+  # means
+  if( all(grepl('mean', statName)) )
+  {
+    phase  <- strsplit(statName[1], "\\=")[[1]][2]
+    statIs <- paste('Means of Phase =', phase)
+  }
+
+  # error
+  if( ! exists('statIs') )
+  {
+    stop("The type of descriptive statistic cannot be determined.")
+  }
+
+  # return
+  return(statIs)
+}
+
 

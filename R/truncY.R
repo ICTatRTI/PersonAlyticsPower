@@ -1,9 +1,9 @@
 # try last answer from
 # https://stats.stackexchange.com/questions/113230/generate-random-numbers-following-a-distribution-within-an-interval
-# noting that this is very similar in structure to the approach taken in mvrFam() for
+# noting that this is very similar in structure to the approach taken in makeFam() for
 # transforming data
 
-# note, we use doCall from R.utils to allow for ignore arguments (e.g., nu, tau)
+# note, we use R.utils::doCall from R.utils to allow for ignore arguments (e.g., nu, tau)
 truncY0 <- function(N, parms=list(mu=0, sigma=1, nu=2, tau=2),
                    DIST='NO', a = -Inf, b = Inf, seed=123)
 {
@@ -20,16 +20,16 @@ truncY0 <- function(N, parms=list(mu=0, sigma=1, nu=2, tau=2),
 
   set.seed(seed)
   p <- runif(N,
-             doCall(pdist, q=a,
+             R.utils::doCall(pdist, q=a,
                     mu=parms$mu,
                     sigma=parms$sigma,
                     nu=parms$nu, tau=parms$tau),
-             doCall(pdist, q=b,
+             R.utils::doCall(pdist, q=b,
                     mu=parms$mu,
                     sigma=parms$sigma,
                     nu=parms$nu, tau=parms$tau))
 
-  doCall(qdist, p=p,
+  R.utils::doCall(qdist, p=p,
          mu=parms$mu,
          sigma=parms$sigma,
          nu=parms$nu, tau=parms$tau)

@@ -1,5 +1,9 @@
-# function to populate error generators
 
+#' errActive Active bindings for Err and its heirs
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @keywords internal
+#'
 errActive <- function()
 {
   list(
@@ -73,6 +77,28 @@ errActive <- function()
   )
 }
 
+
+#' \code{Err} class generator
+#'
+#' @docType class
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @export
+#'
+#'
+#'
+#' @field parms The parameters for \code{FUN}.
+#'
+#' @field errVar The error variance.
+#'
+#' @field FUN The function for simulating error terms.
+#'
+#' @field fam A random variable generator from the
+#' \code{\link{gamlss.family}} for the error term distribution.
+#' After data are simulated using \code{FUN} and its \code{parms}, it can be
+#' transformed to have a distribution implied by \code{fam}.
+#'
+#' @field famParms Parameters to be passed to \code{fam}, see \code{\link{gamlss.family}}.
 Err <- R6::R6Class("err",
 
          private = list(
@@ -118,6 +144,44 @@ Err <- R6::R6Class("err",
 
        )
 
+#' \code{armaErr} class generator using \code{\link{arima.sim}}
+#'
+#' @docType class
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @export
+#'
+#'
+#'
+#' @field parms The parameters for \code{FUN}.
+#'
+#' @field errVar The error variance.
+#'
+#' @field FUN The function for simulating error terms.
+#'
+#' @field fam A \code{\link{gamlss.family}} family for the error term distribution.
+#' After data are simulated using \code{FUN} and its \code{parms}, it can be
+#' transformed to have a distribution different from those available to \code{FUN}.
+#'
+#' @field famParms Parameters to be passed to \code{fam}, see \code{\link{gamlss.family}}.
+#'
+#' @examples
+#'
+#' # show that r* functions from gamlss.family distribution functions can be
+#' # passed to arima.sim
+#' errBeta <- arima.sim(list(ar=c(.5)), 1000, innov = rBE(1000, mu=.5, sigma=.2))
+#'
+#' # note that the rand.gen option only allows teh defaults for the function
+#' # passed to rand.gen
+#' #errBeta <- arima.sim(list(ar=c(.5)), 1000, rand.gen = rBE)
+#' # that said, rand.gen's parameters can be passed via ...
+#' #errBeta <- arima.sim(list(ar=c(.5)), 1000, rand.gen = rBE, mu=.9, sigma=.2)
+#'
+#' # note that even though beta innovations are used, the resulting data is not
+#' # constrained to be in (0,1)
+#' hist(errBeta)
+#' plot(errBeta)
+#' auto.arima(ts(errBeta))
 armaErr <- R6::R6Class("errARMA",
 
   inherit = Err,
@@ -125,8 +189,7 @@ armaErr <- R6::R6Class("errARMA",
   public = list(
     initialize = function(
       parms    = list(ar=c(.5), ma=c(0)) ,
-      errVar   = 1                       ,
-      fam      = "qNO"                   ,
+      fam      = "NO"                    ,
       famParms = list(mu=0, sigma=1)
     )
     {
@@ -144,26 +207,61 @@ armaErr <- R6::R6Class("errARMA",
       {
         for(p in 1:length(parms))
         {
-          if( !is.numeric(parms[[i]]) | !is.vector(parms[[i]]) )
+          if( !is.numeric(parms[[p]]) | !is.vector(parms[[p]]) )
           {
-            stop('`', names(parms)[i], '` must be a numeric vector.')
+            stop('`', names(parms)[p], '` must be a numeric vector.')
           }
         }
       }
-
+      # check family and famParms
+      checkFam(fam, famParms)
 
       # populate private
       private$.parms    <- parms
-      private$.errVar   <- errVar
+      private$.errVar   <- 1
       private$.FUN      <- arima.sim
-      private$.fam      <- fam
+      private$.fam      <- paste('r', fam, sep='')
       private$.famParms <- famParms
 
     },
 
-    makeErrors = function()
+    # TODO documentation for this method
+    makeErrors = function(n, nObservations, seed=123)
     {
-      # move contents of ICTerror() here, currently in dataMakerUtils.R
+      # get seeds
+      seeds <- as.list( makeSeeds(seed, nObservations) )
+
+      # sim errors
+      errors <- doLapply(seeds, self$fam, n=n,
+               mu = self$famParms$mu, sigma = self$famParms$sigma,
+               nu = self$famParms$nu, tau = self$famParms$tau)
+
+      # TODO move this to a validation test or examples for this function.
+      # rescale to have unit variances within time points then multiply
+      # by the proportion of error variance; need to transpose twice so
+      # that the rescaling applies within person (which also gets the
+      # between person scaling right, but not vice versa in initial tests)
+      #errorsr <- t(scale(t(errors), FALSE, TRUE)) * sqrt(design$variances$errorVar)
+      #
+      #doQC <- FALSE
+      #if(doQC)
+      #{
+      #  # QC, only holds asymptotically
+      #  # within persons:
+      #  all.equal(mean(apply(errorsr, 1, var)), errorVar, tolerance = .05)
+      #  # between persons:
+      #  all.equal(mean(apply(errorsr, 2, var)), errorVar, tolerance = .05)
+      #  tseries <- lapply(data.frame(t(errorsr)), ts)
+      #  aFun <- function(x, order=c(1,0,0)) try(arima(x, order), silent = TRUE)
+      #  sigma2s <- lapply(lapply(tseries, aFun), function(x) x$sigma2)
+      #  # tends toward underestimation when nObservations are small, but very precise
+      #  # when large
+      #  hist(unlist(sigma2s))
+      #}
+
+      # return
+      return(errors)
+
     }
 
 

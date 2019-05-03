@@ -1,11 +1,5 @@
 if(1==2)
 {
-#*# move from ICTpower (inside parallelized loop) to makeData??
-# simulate random effects
-randFx <- mvrFam(design, randFxParms, randFxFamily, randFxSeeds[b])
-
-# simulate the errors
-errors <- ICTerror(design, errorParms, errorFUN, errorSeeds[b])
 
 # RESUME HERE: this needs to be moved to the make data
 # loops b/c it is phase/group specific; or, move it

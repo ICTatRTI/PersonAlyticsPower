@@ -333,7 +333,7 @@ ICTdesign <- R6::R6Class("ICTdesign",
                  invisible(self)
                },
 
-               designCheck = function(file=NULL, ylim=NULL, fitMod=FALSE)
+               designCheck = function(file=NULL, ylim=NULL)
                {
 
                  # save and reset n, due to inheritance design will get overwritten, fix
@@ -385,22 +385,18 @@ ICTdesign <- R6::R6Class("ICTdesign",
                    cat("\n\n\n")
                  }
 
-                 # get the data and, if requested, fit the model
-                 correlation <- paste("corARMA(p=", length(self$error$parms$ar), ", ",
-                                      "q=", length(self$error$parms$ma), ")", sep="")
+                 # TODO: generalize the equation to the implied model, hmmm, need to generate
+                 # that from the inputs, currently only works for slopes model with AR(1)
+                 correlation <- corARMA(p=length(self$error$parms$ar), q=length(self$error$parms$ma))
                  pa   <- Palytic$new(data=dat, ids='id', dv='y', time='Time',
                                      phase=unlist(ifelse(length(self$phaseNames)>1,'phase',list(NULL))),
                                      ivs=unlist(ifelse(length(self$groupNames)>1,
                                                                'group',list(NULL))),
                                      time_power = self$maxRandFx,
                                      correlation = correlation)
-                 if(fitMod) # runs slow with some examples, qc why
-                 {
-                   mod0 <- pa$lme()
-                   print( summary( mod0 ) )
-                 }
+                 mod0 <- pa$lme()
+                 print( summary( mod0 ) )
 
-                 # save data if requested
                  if(!is.null(file)) save(mod0, file=paste(file[1], 'designCheck.RData', sep='_'))
 
 
@@ -408,11 +404,9 @@ ICTdesign <- R6::R6Class("ICTdesign",
                  if( length( self$groupNames ) == 1 ) print( pa$plot(ylim=ylim) )
                  if( length( self$groupNames ) >= 2 ) print( pa$plot(groupvar = 'group', ylim=ylim) )
 
-                 # restore the original sample sizes
                  self$n <- originaln
 
-                 # if the model was fit, return it
-                 if(fitMod)  invisible(pa)
+                 invisible(pa)
                }
 
 

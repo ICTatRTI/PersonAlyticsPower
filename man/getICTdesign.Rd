@@ -4,7 +4,8 @@
 \alias{getICTdesign}
 \title{getICTdesign - create the fixed effects design matrix for n=1}
 \usage{
-getICTdesign(phases = makePhase(), maxRandFx = 2, design = "polyICT")
+getICTdesign(phases = makePhase(), phaseNames = NULL, maxRandFx = 2,
+  design = "polyICT")
 }
 \description{
 getICTdesign - create the fixed effects design matrix for n=1

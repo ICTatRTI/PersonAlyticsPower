@@ -5,7 +5,7 @@
 \title{makeBounds - function to get the bounds from the baseline bounds and
 vectors of effect sizes}
 \usage{
-makeBounds(designMatrix, DIST, parms, BLrange)
+makeBounds(designMatrix, fam, parms, BLrange)
 }
 \description{
 Note that the bounds are approximate on the assumptiong that fixed width

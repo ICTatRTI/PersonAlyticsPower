@@ -36,15 +36,15 @@
 #' @param randFxMean See \code{polyICT2}. If \code{randFxMean} is
 #' provided, \code{nGroups} will be set to \code{length(randFxMean)}.
 #'
-#' @param DIST Character. A \code{\link{gamlss.family}} distribution.
+#' @param fam Character. A \code{\link{gamlss.family}} distribution.
 #'
-#' @param parms Named list. The parameters for \code{DIST}. \code{parms} should
+#' @param parms Named list. The parameters for \code{fam}. \code{parms} should
 #' be from length 1 to 4 with possible names including 'mu', 'sigma', 'nu', and
 #' 'tau'.
 #'
 #' @param BLrange Numeric vector. The range of possible values at baseline. This
 #' range should be smaller than, and within, the theoretical range of the
-#' distribution specified by \code{DIST}.
+#' distribution specified by \code{fam}.
 
 #' @rdname ICTsetup
 #' @export
@@ -129,7 +129,7 @@ makePhase <- function(nObsPerPhase = c(10,20,10) ,
 #' g2exampleDesignMatrix
 #'
 #' # visualize this design using truncated standard normal
-#' ICTviz(DIST = 'NO', parms=list(mu=0, sigma=1),
+#' ICTviz(fam = 'NO', parms=list(mu=0, sigma=1),
 #'        designMatrix = g2exampleDesignMatrix)
 #'
 #' \dontrun{
@@ -160,14 +160,14 @@ makePhase <- function(nObsPerPhase = c(10,20,10) ,
 #'    )
 #'    )
 #' designMatrix <- polyICTsetup(phases = makePhase(), randFxMean=randFxMean,
-#'   DIST = 'NO')
+#'   fam = 'NO')
 #' # TODO really need a portable method of moving items around, probably need to
 #' # make this an R6 class with methods.
-#' ICTviz(DIST="NO", parms = list(mu=0, sigma=1), designMatrix=designMatrix,
+#' ICTviz(fam="NO", parms = list(mu=0, sigma=1), designMatrix=designMatrix,
 #' BLrange=c(-3,-2))
 
 polyICTsetup <- function(phases = makePhase(), nGroups = 1, randFxMean = NULL,
-                       DIST = 'NO', parms = list(mu=0, sigma=1),
+                       fam = 'NO', parms = list(mu=0, sigma=1),
                        BLrange = c(-3, -2))
 {
   # TODO: add a check that phases and randFxMean conform, see checkPolyICT2()
@@ -214,7 +214,7 @@ polyICTsetup <- function(phases = makePhase(), nGroups = 1, randFxMean = NULL,
     }
   }
 
-  designMatrix <- makeBounds(designMatrix, DIST, parms, BLrange)
+  designMatrix <- makeBounds(designMatrix, fam, parms, BLrange)
 
   return(designMatrix)
 }
@@ -224,9 +224,9 @@ polyICTsetup <- function(phases = makePhase(), nGroups = 1, randFxMean = NULL,
 #'
 #' @export
 #'
-#' @return For \code{ICTviz}, if \code{DIST} and \code{parms} are given
+#' @return For \code{ICTviz}, if \code{fam} and \code{parms} are given
 #' (and optionally,
-#' \code{BLrange}), a density plot for the \code{DIST} is plotted. If
+#' \code{BLrange}), a density plot for the \code{fam} is plotted. If
 #' \code{BLrange} is given, lines indicating the truncated part of the distribution
 #' from which baseline values will be sampled are shown.
 #'
@@ -236,40 +236,27 @@ polyICTsetup <- function(phases = makePhase(), nGroups = 1, randFxMean = NULL,
 #'
 #' @examples
 #' # standard normal distribution with baseline values sampled from -3 to -2
-#' ICTviz(DIST = 'NO', parms=list(mu=0, sigma=1), BLrange = c(-3, -2))
+#' ICTviz(fam = 'NO', parms=list(mu=0, sigma=1), BLrange = c(-3, -2))
 #'
-#' ICTviz(DIST = 'NO', parms=list(mu=0, sigma=1),
+#' ICTviz(fam = 'NO', parms=list(mu=0, sigma=1),
 #'        designMatrix = g2exampleDesignMatrix, BLrange = c(-2, -0))
 
-ICTviz <- function(DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
+ICTviz <- function(fam = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
                    designMatrix=NULL, BLrange = NULL)
 {
-  # check inputs
-  if( ! is(gamlss.dist::gamlss.family(DIST)) == "gamlss.family")
-  {
-    stop("The value of `DIST`=", DIST, " is not a `gamlss.family` distribution.")
-  }
-
-  # clean up parms for lazy people -- may be superceded by err active bindings
-  if(is.null(names(parms))) names(parms) <- c('mu', 'sigma', 'nu', 'tau')
-  if(length(parms) > 4 |
-     any( ! names(parms) %in%  c('mu', 'sigma', 'nu', 'tau') ))
-  {
-    stop("`parms` should be a named list of length 1 to 4 with possible names\n",
-         "'mu', 'sigma', 'nu', or 'tau'.")
-  }
+  checkFam(fam, parms)
 
   # set up items for plot title
-  faminfo <- gamlss.dist::gamlss.family(DIST)
+  faminfo <- gamlss.dist::gamlss.family(fam)
   family  <- paste(faminfo$family[2], 'family')
   wparms  <- names(parms) %in% names(faminfo$parameters)
   pparms  <- paste(names(parms[wparms]), parms[wparms], sep="=")
   pparms  <- paste(pparms, collapse = "; ")
 
   # find the theoretical limits of the distribution given the parameters
-  qdist <- paste('q', DIST, sep='')
-  xmin  <- doCall(qdist, p=1/9e9)
-  xmax  <- doCall(qdist, p=9e9/(9e9+1))
+  qdist <- paste('q', fam, sep='')
+  xmin  <- R.utils::doCall(qdist, p=1/9e9)
+  xmax  <- R.utils::doCall(qdist, p=9e9/(9e9+1))
   x     <- seq(xmin, xmax, length=1000)
   if(!is.null(BLrange))
   {
@@ -288,8 +275,8 @@ ICTviz <- function(DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
   }
 
   # get the density
-  ddist  <- paste('d', DIST, sep='')
-  dY <- doCall(ddist, x=x,
+  ddist  <- paste('d', fam, sep='')
+  dY <- R.utils::doCall(ddist, x=x,
                mu=parms$mu,
                sigma=parms$sigma,
                nu=parms$nu, tau=parms$tau)
@@ -389,51 +376,51 @@ ICTviz <- function(DIST = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @keywords internal
-makeBounds <- function(designMatrix, DIST, parms, BLrange)
+makeBounds <- function(designMatrix, fam, parms, BLrange)
 {
-  # check that DIST is a gamlss.family distribution, esp. since eval(parse())
+  # check that fam is a gamlss.family distribution, esp. since eval(parse())
   # used below
-  if( ! is(gamlss.dist::gamlss.family(DIST)) == "gamlss.family")
+  if( ! is(gamlss.dist::gamlss.family(fam)) == "gamlss.family")
   {
-    stop("The value of `DIST`=", DIST, " is not a `gamlss.family` distribution.")
+    stop("The value of `fam`=", fam, " is not a `gamlss.family` distribution.")
   }
 
   ### this code is preserved to prevent future developers from trying and failing
   #   to use these approaches
   # the following returns the function value, not the function
-  #DISTg <- get(DIST)()
-  #eval(call(DIST))
-  #DISTg <- eval(expression(DIST))
-  #eval(quote(DIST))
-  ### this fails b/c if DIST='NO', DISTn still calls itself 'NO' internally which
-  #   fails to create DISTntr etc., instead producing NOtr etc.
+  #famg <- get(fam)()
+  #eval(call(fam))
+  #famg <- eval(expression(fam))
+  #eval(quote(fam))
+  ### this fails b/c if fam='NO', famn still calls itself 'NO' internally which
+  #   fails to create famntr etc., instead producing NOtr etc.
   # to make the names useable later, copy the distribution, density,
   # distribution function, quantile function, and random generation functions
-  # to the internal distribution DISTn
-  #DISTn  <- eval(parse(text=DIST))
-  #dDISTn <- eval(parse(text=paste("d", DIST, sep='')))
-  #pDISTn <- eval(parse(text=paste("p", DIST, sep='')))
-  #qDISTn <- eval(parse(text=paste("q", DIST, sep='')))
-  #rDISTn <- eval(parse(text=paste("r", DIST, sep='')))
-  #gamlss.tr::gen.trun(par = BLrange, family = "DISTn", type = 'both')
+  # to the internal distribution famn
+  #famn  <- eval(parse(text=fam))
+  #dfamn <- eval(parse(text=paste("d", fam, sep='')))
+  #pfamn <- eval(parse(text=paste("p", fam, sep='')))
+  #qfamn <- eval(parse(text=paste("q", fam, sep='')))
+  #rfamn <- eval(parse(text=paste("r", fam, sep='')))
+  #gamlss.tr::gen.trun(par = BLrange, family = "famn", type = 'both')
 
   # eval-parse is frowned upon, but gamlss use of 'inherits' in 'as.gamlss.family'
-  # as used in 'gen.trun()' passes 'DIST' instead of its value. To prevent
-  # unsafe code, there is a check that DIST is a gamlss.family object. I tried
+  # as used in 'gen.trun()' passes 'fam' instead of its value. To prevent
+  # unsafe code, there is a check that fam is a gamlss.family object. I tried
   # the options presented here, but none worked
   # https://stackoverflow.com/questions/1743698/evaluate-expression-given-as-a-string
-  trCall <- paste("gamlss.tr::gen.trun(par = BLrange, family = ", DIST,
+  trCall <- paste("gamlss.tr::gen.trun(par = BLrange, family = ", fam,
                   ", type = 'both')")
   eval(parse(text=trCall))
-  # now create doCall -able names (just rDIST for now)
+  # now create R.utils::doCall -able names (just rfam for now)
   # TODO - this should be passed so it doesn't need to be recreated!
   # maybe not...we have several values for a,b across the study...
   # see `varying` in ?gen.trun
-  rDISTtr <- paste("r", DIST, "tr", sep="")
+  rfamtr <- paste("r", fam, "tr", sep="")
 
   # find the trucated distributions mean and variance via approximate asymptotics
   set.seed(111) # TODO should we make this user controllable??
-  y     <- doCall(rDISTtr, n=100000)   # TODO we need to refer to rNOtr dynamically
+  y     <- R.utils::doCall(rfamtr, n=100000)   # TODO we need to refer to rNOtr dynamically
   segM  <- mean(y)
   segSD <- sd(y)
 

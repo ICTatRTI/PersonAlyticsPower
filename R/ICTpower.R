@@ -8,7 +8,7 @@
 #'
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
-#' @param file The file name for saving power analysis results.
+#' @param outFile The file name for saving power analysis results.
 #' It may be a full path. The simulated data are to be saved by including the
 #' file extension in a list. For example,
 #' \code{file=c('n10_medSlopeEffect', 'csv')}
@@ -18,6 +18,16 @@
 #' \code{\link{polyICT}}.
 #'
 #' @param B The number of simulated dataset (or parametric bootstrap replications).
+#'
+#' @param dataFile Character. A file name for already simulated data. Use this option to
+#' do a non-parametric bootstrap. If \code{dataFile} is provide, \code{design}
+#' will be ignored. The \code{dataFile} must be a *.csv file with the variables
+#' 'id' and 'Time', optionally 'phase' and/or 'group', and dependent variables
+#' labeled 'y'. Alternatively, \code{dataFile} may be a *.Rdata file named 'Data'
+#' with the same columns as described for the *.csv file.
+#'
+#' @param sampleSize Numeric. The sample size to be drawn \code{B} times from the
+#' \code{dataFile} data.
 #'
 #' @param checkDesign Logical. Default is \code{FALSE}. If \code{TRUE}, an
 #' initial sumulated dataset with n=1,000 participants will be simulated and the
@@ -61,10 +71,11 @@
 #' }
 
 
-ICTpower <- function(file                                        ,
+ICTpower <- function(outFile         = NULL                      ,
                      design          = polyICT$new()             ,
                      B               = 100                       ,
-                     checkDesign     = 'no'                      ,
+                     dataFile        = NULL                      ,
+                     sampleSize      = NULL                      ,
                      alpha           = .05                       ,
                      seed            = 123                       ,
                      cores           = parallel::detectCores()-1 ,
@@ -77,44 +88,21 @@ ICTpower <- function(file                                        ,
   print(argList)
 
   # check file name
-  if(!is.null(file)) file <- checkFile(file)
+  if(!is.null(outFile)) outFile <- checkFile(outFile)
 
-  #
-  # do a design check with large N
-  #
-  if(! checkDesign %in% c('no', 'yes', 'only'))
-  {
-    stop("`checkDesign` must be one of 'no', 'yes', or 'only',\n",
-         "where 'only' only checks the design but does not simulate data.\n",
-         "Instead, `checkDesign` was given as ", checkDesign, '.\n\n')
-  }
-  if(checkDesign %in% c('yes', 'only'))
-  {
-    designCheck(design      = design       ,
-                file        = file$file    ,
-                family      = randFxFamily ,
-                randFxParms = randFxParms  ,
-                randFxSeed  = randFxSeed   ,
-                errorParms  = errorParms   ,
-                errorFUN    = errorFUN     ,
-                errorFamily = errorFamily  ,
-                errorSeed   = errorSeed
-                )
-  }
+  # generate seeds
+  seeds <- makeSeeds(seed, B)
 
-  if(checkDesign != 'only')
+  if(is.null(dataFile))
   {
     #
     # parralelization
     #
 
-    # generate seeds
-    seeds <- makeSeeds(seed, B)
-
     # message and timing
     message("\nStarting simulation of B=", B, " data sets.\n",
-            ifelse(!is.null(file$sfile),
-                   paste("Data will be saved in the file:\n\n", file$sfile,
+            ifelse(!is.null(outFile$sfile),
+                   paste("Data will be saved in the file:\n\n", outFile$sfile,
                          "\n\nwhere the outcome for each replicate will be",
                          " labeled y1, ..., y", B,
                          "\n\n", sep=""),
@@ -127,7 +115,7 @@ ICTpower <- function(file                                        ,
     pkgs     <- c("gamlss", "nlme", "foreach")
     capture.output( pb <- txtProgressBar(max = length(DIM), style = 3),
                     file='NUL')
-	  progress <- function(n) setTxtProgressBar(pb, n)
+    progress <- function(n) setTxtProgressBar(pb, n)
     opts     <- list(progress = progress)
     cl       <- snow::makeCluster(cores, type="SOCK", outfile="")
     snow::clusterExport(cl, c())
@@ -136,7 +124,7 @@ ICTpower <- function(file                                        ,
     Data <- foreach( b=DIM, .packages = pkgs, .options.snow = opts) %dopar%
     {
       # construct the data
-      dat <- design$makeData(seed)
+      dat <- design$makeData(seeds[b])
 
       # rename for merging
       names(dat)[2] <- paste('y', b, sep='')
@@ -158,69 +146,115 @@ ICTpower <- function(file                                        ,
                       Data)
 
     # if requested, save the data
-    if(!is.null(file$sfile))
+    if(!is.null(outFile$sfile))
     {
-      if(file$isRData)
+      if(outFile$isRData)
       {
-        save(Data, file=file$sfile)
+        save(Data, file=outFile$sfile)
       }
-      if(file$iscsv)
+      if(outFile$iscsv)
       {
-        write.csv(Data, file=file$sfile, row.names = FALSE)
+        write.csv(Data, file=outFile$sfile, row.names = FALSE)
       }
     }
-
-    #
-    # process inputs in `...` that may be passed to `PersonAlytic`
-    #
-    # get the ARMA order from `correlation` if it is passed by ...
-    if(!exists('correlation'))
-    {
-      ar          <- length(errorParms$ar[errorParms$ar!=0]) # TODO needs to come from design
-      ma          <- length(errorParms$ar[errorParms$ma!=0])
-      correlation <- paste('corARMA(p=', ar, ',q=', ma, ')', sep='')
-      detectAR    <- FALSE
-    }
-    if(!exists('detectTO'))   detectTO   <- FALSE
-    if(!exists('time_power')) time_power <- design$maxRandFx
-
-    #
-    # analyze the data using PersonAlytics, treating y1,...,yB
-    # as separate outcomes
-    #
-    paout <- PersonAlytic(output      = file$file                        ,
-                          data        = Data                             ,
-                          ids         = 'id'                             ,
-                          dvs         = as.list(paste('y', 1:B, sep='')) ,
-                          time        = 'Time'                           ,
-                          phase       = 'phase'                          ,
-                          time_power  = time_power                       ,
-                          correlation = correlation                      ,
-                          detectAR    = detectAR                         ,
-                          detectTO    = detectTO                         ,
-                          ...
-    )
-
-    #
-    # power analysis specific summary of results
-    #
-    powerL <- powerReport(paout, alpha, file=file$file,
-                          saveReport=savePowerReport)
-
-
-    #
-    # distributions of the estimates
-    #
-    plotDists <- FALSE
-    if(plotDists)
-    {
-      samplingDist(paout)
-    }
-
-    #
-    return(powerL)
 
   }
+
+  if(!is.null(dataFile))
+  {
+    ext <- tools::file_ext(dataFile)
+    if(ext %in% c('csv', 'CSV', 'Csv'))
+    {
+      Data <- read.csv(dataFile)
+    }
+    if(ext %in% c('RData', 'rdata', 'Rdata', 'RDATA'))
+    {
+      load(Data)
+    }
+    else
+    {
+      stop('`dataFile` has the extension ', ext, ' which is not supported.\n',
+           'See the documentation for `dataFile` in ?ICTpower.')
+    }
+
+    uid <- unique(Data$id)
+    if(length(uid) <= sampleSize)
+    {
+      stop('There are ', length(uid), ' unique ids in the data in `dataFile`,\n',
+           'which is greater than `sampleSize`. Select a `sampleSize` that is\n',
+           'smaller than the number of unique ids.')
+    }
+
+
+    datL <- list()
+    for(b in 1:B)
+    {
+      set.seed(seeds[b])
+      wid <- sample(uid, size = sampleSize, replace = FALSE)
+      dat <- Data[Data$id==wid,]
+      names(dat)[which(names(dat)=='y')] <- paste('y', b, sep='')
+      dat$id <- as.numeric(factor(dat$id, labels=1:sampleSize))
+      dat <- dat[order(dat$id, dat$Time),]
+      datL[[b]] <- dat
+    }
+    mergeby <- names(datL[[1]])
+    mergeby <- mergeby[mergeby != 'y1']
+    Data    <- Reduce(function(df1, df2) merge(df1, df2, by=mergeby, all = TRUE),
+                      Data)
+  }
+
+  #
+  # process inputs in `...` that may be passed to `PersonAlytic`
+  #
+  # get the ARMA order from `correlation` if it is passed by ...
+  if(!exists('correlation'))
+  {
+    ar          <- length(design$error$parms$ar[design$error$parms$ar!=0])
+    ma          <- length(design$error$parms$ma[design$error$parms$ma!=0])
+    correlation <- paste('corARMA(p=', ar, ',q=', ma, ')', sep='')
+    detectAR    <- FALSE
+  }
+  if(!exists('detectTO'))   detectTO   <- FALSE
+  if(!exists('time_power')) time_power <- design$maxRandFx
+
+  #
+  # analyze the data using PersonAlytics, treating y1,...,yB
+  # as separate outcomes
+  #
+  paout <- PersonAlytic(output      = outFile$outFile                        ,
+                        data        = Data                             ,
+                        ids         = 'id'                             ,
+                        dvs         = as.list(paste('y', 1:B, sep='')) ,
+                        time        = 'Time'                           ,
+                        phase       = 'phase'                          ,
+                        time_power  = time_power                       ,
+                        correlation = correlation                      ,
+                        detectAR    = detectAR                         ,
+                        detectTO    = detectTO                         ,
+                        ...
+  )
+
+  #
+  # power analysis specific summary of results
+  #
+  powerL <- powerReport(paout, alpha, file=outFile$outFile,
+                        saveReport=savePowerReport)
+
+
+  #
+  # distributions of the estimates
+  #
+  plotDists <- FALSE
+  if(plotDists)
+  {
+    samplingDist(paout)
+  }
+
+  #
+  print(powerL)
+  return(powerL)
+
+
 }
 
 

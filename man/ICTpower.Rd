@@ -4,7 +4,7 @@
 \alias{ICTpower}
 \title{ICTpower - get simulated power for an ICT design using parametric bootstrap.}
 \usage{
-ICTpower(file, design = polyICT$new(), B = 100, checkDesign = "no",
+ICTpower(file = NULL, design = polyICT$new(), B = 100,
   alpha = 0.05, seed = 123, cores = parallel::detectCores() - 1,
   savePowerReport = TRUE, ...)
 }
@@ -19,12 +19,6 @@ or \code{file=c('condition2', 'Rdata')}. Only `csv` and `RData` are supported.}
 \code{\link{polyICT}}.}
 
 \item{B}{The number of simulated dataset (or parametric bootstrap replications).}
-
-\item{checkDesign}{Logical. Default is \code{FALSE}. If \code{TRUE}, an
-initial sumulated dataset with n=1,000 participants will be simulated and the
-model fit to the data. This will show whether the design inputs in \code{design}
-are recovered under large sample. The data for the 1st 10 participants will
-also be plotted. This allows users to check their inputs.}
 
 \item{alpha}{Numeric. Default is .05. The Type I error rate for computing
 emprical power (the proportion of p-values across \code{B} data sets that are
@@ -45,6 +39,12 @@ instead saves the reports from several conditions in a `csv` file.}
 analysis. All options in \code{PersonAlytic} can be passed except for
 \code{output}, \code{data}, \code{ids}, \code{dvs}, \code{time}, and
 \code{phase} as these are taken from the \code{design}.}
+
+\item{checkDesign}{Logical. Default is \code{FALSE}. If \code{TRUE}, an
+initial sumulated dataset with n=1,000 participants will be simulated and the
+model fit to the data. This will show whether the design inputs in \code{design}
+are recovered under large sample. The data for the 1st 10 participants will
+also be plotted. This allows users to check their inputs.}
 }
 \description{
 ICTpower - get simulated power for an ICT design using parametric bootstrap.

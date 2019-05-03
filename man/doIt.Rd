@@ -12,7 +12,7 @@ doIt(X, .fcn = "qNO", ...)
 \item{X}{a vector of probabilities to be passed to a quantile function
 like \code{\link{qN0}} in \code{\link{gamlss}} or \code{\link{qnorm}}.}
 
-\item{.fcn}{see \code{\link{doCall}} in the `R.utils` package.}
+\item{.fcn}{see \code{\link{R.utils::doCall}} in the `R.utils` package.}
 }
 \description{
 doIt - helper function for doLapply for ignoring extra arguments, written

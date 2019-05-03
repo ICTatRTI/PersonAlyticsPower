@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{doLapply}
 \alias{doLapply}
-\title{doLapply - lapply with \code{\link{doCall}} to ignore extra arguments to
+\title{doLapply - lapply with \code{\link{R.utils::doCall}} to ignore extra arguments to
 \code{\link{gamlss.family}} distributions}
 \usage{
 doLapply(Yp, .fcn = "qNO", ...)
@@ -11,13 +11,13 @@ doLapply(Yp, .fcn = "qNO", ...)
 \item{Yp}{X a vector of probabilities to be passed to a quantile function}
 
 \item{.fcn}{A quantile function like \code{\link{qN0}} in \code{\link{gamlss}}
-or \code{\link{qnorm}}. See also \code{\link{doCall}} in the `R.utils` package}
+or \code{\link{qnorm}}. See also \code{\link{R.utils::doCall}} in the `R.utils` package}
 
 \item{...}{other options passed to \code{\link{gamlss.family}} distribution
 functions, most commonly mu, sigma, nu, and tau.}
 }
 \description{
-doLapply - lapply with \code{\link{doCall}} to ignore extra arguments to
+doLapply - lapply with \code{\link{R.utils::doCall}} to ignore extra arguments to
 \code{\link{gamlss.family}} distributions
 }
 \author{

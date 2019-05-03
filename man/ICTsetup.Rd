@@ -11,9 +11,9 @@ makePhase(nObsPerPhase = c(10, 20, 10), phaseNames = c("phase1",
   "phase2", "phase3"))
 
 polyICTsetup(phases = makePhase(), nGroups = 1, randFxMean = NULL,
-  DIST = "NO", parms = list(mu = 0, sigma = 1), BLrange = c(-3, -2))
+  fam = "NO", parms = list(mu = 0, sigma = 1), BLrange = c(-3, -2))
 
-ICTviz(DIST = "NO", parms = list(mu = 0, sigma = 1, nu = 2, tau = 2),
+ICTviz(fam = "NO", parms = list(mu = 0, sigma = 1, nu = 2, tau = 2),
   designMatrix = NULL, BLrange = NULL)
 }
 \arguments{
@@ -34,15 +34,15 @@ times as there are time points within that phase. See \code{\link{makePhase}}.}
 \item{randFxMean}{See \code{polyICT2}. If \code{randFxMean} is
 provided, \code{nGroups} will be set to \code{length(randFxMean)}.}
 
-\item{DIST}{Character. A \code{\link{gamlss.family}} distribution.}
+\item{fam}{Character. A \code{\link{gamlss.family}} distribution.}
 
-\item{parms}{Named list. The parameters for \code{DIST}. \code{parms} should
+\item{parms}{Named list. The parameters for \code{fam}. \code{parms} should
 be from length 1 to 4 with possible names including 'mu', 'sigma', 'nu', and
 'tau'.}
 
 \item{BLrange}{Numeric vector. The range of possible values at baseline. This
 range should be smaller than, and within, the theoretical range of the
-distribution specified by \code{DIST}.}
+distribution specified by \code{fam}.}
 
 \item{designMatrix}{Matrix. See \code{\link{polyICTsetup}}.}
 }
@@ -97,9 +97,9 @@ defined by the lower and upper bounds.
 This matrix can be constructed by the user, the polyICTsetup function simply
 creates a shell for the user to fill in.
 
-For \code{ICTviz}, if \code{DIST} and \code{parms} are given
+For \code{ICTviz}, if \code{fam} and \code{parms} are given
 (and optionally,
-\code{BLrange}), a density plot for the \code{DIST} is plotted. If
+\code{BLrange}), a density plot for the \code{fam} is plotted. If
 \code{BLrange} is given, lines indicating the truncated part of the distribution
 from which baseline values will be sampled are shown.
 
@@ -125,7 +125,7 @@ makePhase()
 g2exampleDesignMatrix
 
 # visualize this design using truncated standard normal
-ICTviz(DIST = 'NO', parms=list(mu=0, sigma=1),
+ICTviz(fam = 'NO', parms=list(mu=0, sigma=1),
        designMatrix = g2exampleDesignMatrix)
 
 \dontrun{
@@ -156,15 +156,15 @@ designMatrix <- edit(designMatrix)
    )
    )
 designMatrix <- polyICTsetup(phases = makePhase(), randFxMean=randFxMean,
-  DIST = 'NO')
+  fam = 'NO')
 # TODO really need a portable method of moving items around, probably need to
 # make this an R6 class with methods.
-ICTviz(DIST="NO", parms = list(mu=0, sigma=1), designMatrix=designMatrix,
+ICTviz(fam="NO", parms = list(mu=0, sigma=1), designMatrix=designMatrix,
 BLrange=c(-3,-2))
 # standard normal distribution with baseline values sampled from -3 to -2
-ICTviz(DIST = 'NO', parms=list(mu=0, sigma=1), BLrange = c(-3, -2))
+ICTviz(fam = 'NO', parms=list(mu=0, sigma=1), BLrange = c(-3, -2))
 
-ICTviz(DIST = 'NO', parms=list(mu=0, sigma=1),
+ICTviz(fam = 'NO', parms=list(mu=0, sigma=1),
        designMatrix = g2exampleDesignMatrix, BLrange = c(-2, -0))
 }
 \author{

@@ -31,8 +31,18 @@
 # -- continuous: implemented directly in lgmSim
 # -- categorical: achieve by categarizing continuous covariates
 
+
+# TODO document @param
+#' polyData - function to simulate polynomial growth data, used by the polyICT
+#' class
+#'
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @export
+#'
+#'
 polyData <- function(seed=123, n, nObs, mu, Sigma, self, dM,
-                     rFxVr, propErrVar, yMean, ySD, group=NULL)
+                     rFxVr, propErrVar, group=NULL)
 {
   # get seeds
   # 1. random effects
@@ -42,23 +52,36 @@ polyData <- function(seed=123, n, nObs, mu, Sigma, self, dM,
 
   # random effects
   reVars <- rFxVr/sum(rFxVr)
-  eta <- mvrFam(n, mu, Sigma, seeds[1])
+  eta <- makeEta(n, mu, Sigma, seeds[1])
+
+  # rescale random effects by  by propErrVar and reVars, retaining means
+  eta <- scale(eta) %*% diag( sqrt(propErrVar[1] * reVars) ) +
+    matrix(apply(eta, 2, mean), nrow(eta), ncol(eta), byrow=TRUE)
+
+  # qc - should hold even in small samples
+  #all(propErrVar[1] * reVars, apply(eta, 2, var))
+
+
+  # expand random effects into matrices
   .L  <- list()
   for(i in 1:ncol(eta))
   {
-    # rescale data by propErrVar and reVars and expand into matrix
-    etaM <- matrix(propErrVar[i] * reVars[i] * eta[,i], n, nObs)
+
+    if(i==1) etaM <- matrix(eta[,i]) %*% rep(1, nObs)
     if(i>1)
     {
-      etaM <- etaM * c(dM[,i+1])
+      # multiply by time rescaled to 0,1
+      dMi  <- dM[,i]-min(dM[,i])
+      dMi  <- c(dMi/max(dMi))
+      etaM <- matrix(eta[,i]) %*% dMi
     }
     .L[[i]] <- etaM
   }
 
   # TODO implement transforming error distn via makeFam()
   # errors w/ scaling
-  .L[[length(.L) + 1]] <- propErrVar[2] * ICTerror(self$error, n, nObs, seeds[2])
-  .L[[length(.L) + 1]] <- propErrVar[3] * ICTerror(self$merror, n, nObs, seeds[3])
+  .L[[length(.L) + 1]] <- sqrt(propErrVar[2]) * scale(self$error$makeErrors(n, nObs, seeds[2]))
+  .L[[length(.L) + 1]] <- sqrt(propErrVar[3]) * scale(self$merror$makeErrors(n, nObs, seeds[3]))
 
   # TODO consider rescaling to unit variance first, otherwise propErrVar will
   # be off
@@ -66,10 +89,19 @@ polyData <- function(seed=123, n, nObs, mu, Sigma, self, dM,
   # now put it all together
   Y <- Reduce('+', .L)
 
+  # create id and prepend group number to ensure unique ids
+  id <- sort(rep(1:n, nObs))
+  if(!is.null(group))
+  {
+    groupNumber <- as.numeric( gsub("[^[:digit:]]", "", group) )
+    groupNumber <- (10*groupNumber)^max(nchar(id))
+    id <- groupNumber + id
+  }
+
   # construct a long dataset
   data <- data.frame(
-    id    = sort(rep(1:n, nObs)) ,
-    y     = c(t(Y))                                 ,
+    id    = id                                       ,
+    y     = as.vector(t(Y))                          ,
     do.call(rbind, replicate(n, dM, simplify = FALSE))
   )
 
@@ -82,16 +114,8 @@ polyData <- function(seed=123, n, nObs, mu, Sigma, self, dM,
   # make phase a factor (for later analysis and plotting)
   data$phase <- factor(data$phase)
 
-  # rescale the y variance if !is.null
-  if(!is.null(ySD) | !is.null(yMean))
-  {
-    if(is.null(yMean)) yMean <- mean(data$y)
-    if(is.null(ySD))   ySD   <- sd(data$y)
-    data$y <- scale(data$y, yMean, TRUE) * ySD
-  }
-
   # add group identifiers, phase is already coming in via dM
-  if(!is.null(thisg)) data$group <- group
+  if(!is.null(group)) data$group <- group
 
   # return the data
   return(data)
