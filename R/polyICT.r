@@ -104,6 +104,7 @@
 #' t2pa <- t2$designCheck()
 #'
 
+# TODO no more todos
 
 # TODO how many of the items in private can be moved to designICT because all
 # heirs should have them?
