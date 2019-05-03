@@ -59,12 +59,12 @@ catMat <- function(x=matrix(1:4, 2, 2))
 }
 
 
-#' getICTdesign - create the fixed effects design matrix for n=1
+#' getdesignICT - create the fixed effects design matrix for n=1
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #' @keywords internal
-# TODO consider making this a method for ICTdesign that is passed by inheritence
+# TODO consider making this a method for designICT that is passed by inheritence
 # to polyICT, etc.
-getICTdesign <- function(phases      = makePhase() ,
+getdesignICT <- function(phases      = makePhase() ,
                          phaseNames  = NULL        ,
                          maxRandFx   = 2           ,
                          design      = 'polyICT'
@@ -105,7 +105,7 @@ getICTdesign <- function(phases      = makePhase() ,
 #' totalVar - get the total variance for simulated data
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #' @keywords internal
-# TODO consider making this a method for ICTdesign that is passed by inheritence
+# TODO consider making this a method for designICT that is passed by inheritence
 # to polyICT, etc.
 totalVar <- function(randFxCovMat, propErrVar, designMat, randFxMean,
                      nObservations, n)
@@ -214,49 +214,6 @@ checkFam <- function(fam, parms)
          "'mu', 'sigma', 'nu', or 'tau'.")
   }
 }
-
-
-#' powerReport - print power results to screen and to a file
-#' @author Stephen Tueller \email{stueller@@rti.org}
-#'
-#' @keywords internal
-powerReport <- function(paout, alpha, file, saveReport=TRUE)
-{
-  whichP <- names(paout)[ grepl('p.value', names(paout)) ]
-  powerL <- list()
-  for(i in whichP)
-  {
-    powerL[[i]] <- mean(paout[[i]] <= alpha, na.rm = TRUE)
-  }
-
-  # print the report to the screen
-  names(powerL) <- gsub('.p.value', '', names(powerL))
-  names(powerL) <- gsub("\\s", " ", format(names(powerL),
-                                           width=max(nchar(names(powerL)))) )
-  powerOutput <- paste(names(powerL), '\t', round(unlist(powerL),2), '\n' )
-  cat( powerOutput )
-
-  # save the report
-  if(saveReport)
-  {
-   powerfile <- paste(file, 'PowerReport.txt', sep='_')
-    cat( powerOutput, file = powerfile)
-  }
-
-  # return results
-  return( unlist(powerL) )
-}
-
-#' seeds - make a vector of random seeds
-#' @author Stephen Tueller \email{stueller@@rti.org}
-#'
-#' @keywords internal
-makeSeeds <- function(seed, S)
-{
-  set.seed(seed)
-  ceiling(runif(S, 0, 9e6))
-}
-
 
 #' randFxCorMatPop - correlation matrix populator, see \code{\link{checkPolyICT}}
 #' @author Stephen Tueller \email{stueller@@rti.org}
@@ -376,6 +333,16 @@ statNameParse <- function(statName)
 
   # return
   return(statIs)
+}
+
+#' seeds - make a vector of random seeds
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @keywords internal
+makeSeeds <- function(seed, S)
+{
+  set.seed(seed)
+  ceiling(runif(S, 0, 9e6))
 }
 
 

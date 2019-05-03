@@ -14,7 +14,7 @@
 #' \code{file=c('n10_medSlopeEffect', 'csv')}
 #' or \code{file=c('condition2', 'Rdata')}. Only `csv` and `RData` are supported.
 #'
-#' @param design An \code{\link{ICTdesign}} object such as
+#' @param design An \code{\link{designICT}} object such as
 #' \code{\link{polyICT}}.
 #'
 #' @param B The number of simulated dataset (or parametric bootstrap replications).
@@ -134,7 +134,7 @@ ICTpower <- function(outFile         = NULL                      ,
     }
     cat("\n\n") # to separate progress bar from warnings and messages
     # stop the cluster
-    parallel::stopCluster(cl)
+    suppressWarnings( parallel::stopCluster(cl) )
 
     #
     # data clean up and save
@@ -158,8 +158,14 @@ ICTpower <- function(outFile         = NULL                      ,
       }
     }
 
+    # print timing message
+    message("Data simulation took: ",
+            capture.output(Sys.time() - start), ".\n\n")
+
+
   }
 
+  # TODO - still needs testing
   if(!is.null(dataFile))
   {
     ext <- tools::file_ext(dataFile)
@@ -256,5 +262,50 @@ ICTpower <- function(outFile         = NULL                      ,
 
 
 }
+
+
+#' powerReport - print power results to screen and to a file
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @keywords internal
+powerReport <- function(paout, alpha, file, saveReport=TRUE)
+{
+  whichP <- names(paout)[ grepl('p.value', names(paout)) ]
+  powerL <- list()
+  for(i in whichP)
+  {
+    powerL[[i]] <- mean(paout[[i]] <= alpha, na.rm = TRUE)
+  }
+
+  # print the report to the screen
+  names(powerL) <- gsub('.p.value', '', names(powerL))
+  names(powerL) <- gsub("\\s", " ", format(names(powerL),
+                                           width=max(nchar(names(powerL)))) )
+  powerOutput <- paste(names(powerL), '\t', round(unlist(powerL),2), '\n' )
+
+  message( hl(), "Power Estimates:\n", hl(),
+    powerOutput, hl() )
+
+  # save the report
+  if(saveReport)
+  {
+    powerfile <- paste(file, 'PowerReport.txt', sep='_')
+    cat( powerOutput, file = powerfile)
+  }
+
+  # return results
+  return( unlist(powerL) )
+}
+
+#' hl - horizontal line for printing to the console
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @keywords internal
+hl <- function()
+{
+  paste(paste(rep("\u2500", 80), collapse=''), '\n')
+}
+
+
 
 

@@ -1,4 +1,4 @@
-#' active - active bindings for ICTdesign R6 class definitions and it heirs
+#' active - active bindings for designICT R6 class definitions and it heirs
 #'
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
@@ -21,6 +21,11 @@ ICTactive <- function()
           stop("`n`, the number of participants, ",
                "must be a positive integer\ninstead of the ",
                "provided value `", value, "`")
+        }
+        if(length(value) != length(private$.n))
+        {
+          value <- rep(value, length(private$.n))
+          names(value) <- names(private$.n)
         }
         private$.n <- value
         self
@@ -253,7 +258,7 @@ ICTactive <- function()
 }
 
 
-#' \code{ICTdesign} class generator
+#' \code{designICT} class generator
 #'
 #' @docType class
 #' @author Stephen Tueller \email{stueller@@rti.org}
@@ -262,13 +267,13 @@ ICTactive <- function()
 #'
 #' @examples
 #' # create a basic ABA design
-#' basicICT <- ICTdesign$new(n=10, phases=makePhase(), propErrVar=.5)
+#' basicICT <- designICT$new(n=10, phases=makePhase(), propErrVar=.5)
 #' basicICT
 #' basicICT$n <- 20
 #' basicICT$n <- 'A'
 #' basicICT$propErrVar <- 2
 
-ICTdesign <- R6::R6Class("ICTdesign",
+designICT <- R6::R6Class("designICT",
 
              # this list must contain all child slots, children cannot update
              # private (to my knowledge)
@@ -299,13 +304,13 @@ ICTdesign <- R6::R6Class("ICTdesign",
               .expectedVariances = NULL
              ),
 
-             # Child classes of ICTdesign will inherit active bindings and
+             # Child classes of designICT will inherit active bindings and
              # all active bindings for children will stay in active()
              active = ICTactive(),
 
              public = list(
 
-               # initialize is child-specific, so ICTdesign does not have an
+               # initialize is child-specific, so designICT does not have an
                # initialize function
 
                print = function(...)
@@ -316,24 +321,25 @@ ICTdesign <- R6::R6Class("ICTdesign",
                  phases  <- paste(c('', rep(' ', length(phases)-1)), phases)
                  nGroups <- length(self$groupNames)
                  if(nGroups==0) nGroups <- 1
-                 cat(
+                 message(hl(),
                    "An ICT with ", sum(self$n), " participants, ",
                    length(c(unlist(self$phases))), " time points, and ",
                    ifelse(!is.null(self$groupNames), nGroups, 1),
-                   ifelse(nGroups==1, " group.", " groups.\n"),
+                   ifelse(nGroups==1, " group.", " groups.\n"), hl(),
                    "\nPhases:\n",
                    paste(phases, collapse = ''),
                    "\nGroups:\n", paste(self$groupNames, 'n=', self$n, '\n'),
                    "\nThe variance at the first time point is partitioned as\n",
                    100*self$propErrVar[1], "% random effects variance,\n",
                    100*self$propErrVar[2], "% residual autocorrelation variance,\n",
-                   100*self$propErrVar[3], "% measurement error variance.",
+                   100*self$propErrVar[3], "% measurement error variance.\n",
+                   hl(),
                    sep=""
                  )
                  invisible(self)
                },
 
-               designCheck = function(file=NULL, ylim=NULL)
+               designCheck = function(file=NULL, ylim=NULL, fitMod=FALSE)
                {
 
                  # save and reset n, due to inheritance design will get overwritten, fix
@@ -344,7 +350,7 @@ ICTdesign <- R6::R6Class("ICTdesign",
                  self$n <- tempn; rm(tempn)
 
                  # simulate data
-                 dat <- self$makeData() # TODO check for bottleneck, slow in some manual tests
+                 dat <- self$makeData()
 
                  # needs to be reimplemented
                  if(1==2)
@@ -385,18 +391,22 @@ ICTdesign <- R6::R6Class("ICTdesign",
                    cat("\n\n\n")
                  }
 
-                 # TODO: generalize the equation to the implied model, hmmm, need to generate
-                 # that from the inputs, currently only works for slopes model with AR(1)
-                 correlation <- corARMA(p=length(self$error$parms$ar), q=length(self$error$parms$ma))
+                 # get the data and, if requested, fit the model
+                 correlation <- paste("corARMA(p=", length(self$error$parms$ar), ", ",
+                                      "q=", length(self$error$parms$ma), ")", sep="")
                  pa   <- Palytic$new(data=dat, ids='id', dv='y', time='Time',
                                      phase=unlist(ifelse(length(self$phaseNames)>1,'phase',list(NULL))),
                                      ivs=unlist(ifelse(length(self$groupNames)>1,
                                                                'group',list(NULL))),
                                      time_power = self$maxRandFx,
                                      correlation = correlation)
-                 mod0 <- pa$lme()
-                 print( summary( mod0 ) )
+                 if(fitMod) # runs slow with some examples, qc why
+                 {
+                   mod0 <- pa$lme()
+                   print( summary( mod0 ) )
+                 }
 
+                 # save data if requested
                  if(!is.null(file)) save(mod0, file=paste(file[1], 'designCheck.RData', sep='_'))
 
 
@@ -404,20 +414,22 @@ ICTdesign <- R6::R6Class("ICTdesign",
                  if( length( self$groupNames ) == 1 ) print( pa$plot(ylim=ylim) )
                  if( length( self$groupNames ) >= 2 ) print( pa$plot(groupvar = 'group', ylim=ylim) )
 
+                 # restore the original sample sizes
                  self$n <- originaln
 
-                 invisible(pa)
+                 # if the model was fit, return it
+                 if(fitMod)  invisible(pa)
                }
 
 
 
              )
-) # end of ICTdesign class definition
+) # end of designICT class definition
 
 
 
 
-# use inheritance to create specific instances of ICTdesign
+# use inheritance to create specific instances of designICT
 #
 # current:
 # - polyICT: polynomial ICT

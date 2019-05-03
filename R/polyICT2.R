@@ -127,7 +127,7 @@
 
 polyICT2 <- R6::R6Class("polyICT",
 
-     inherit = ICTdesign,
+     inherit = designICT,
 
      private = list(
        .n                 = NULL,
@@ -189,7 +189,7 @@ polyICT2 <- R6::R6Class("polyICT",
          #maxRandFx <- checkPolyICT2(randFxMean, randFxCorMat, randFxVar) - 1
 
          # construct the fixed effects design matrix
-         designMat <- getICTdesign(phases, maxRandFx, 'polyICT')
+         designMat <- getdesignICT(phases, maxRandFx, 'polyICT')
 
          # get the covariance matrix
          randFxCovMat <- cor2cov(randFxCorMat, randFxVar)

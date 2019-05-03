@@ -41,11 +41,6 @@ ICTpowerSim <- function(designs                                  ,
                         seed         = 1                         ,
                         save         = NULL                      ,
                         alpha        = .05                       ,
-                        randFxFamily = "qNO"                     ,
-                        randFxParms  = list(mu=.5 , sigma=1)     ,
-                        errorParms   = list(ar=c(.5), ma=c(0))   ,
-                        errorFUN     = arima.sim                 ,
-                        errorFamily  = NULL                      ,
                         cores        = parallel::detectCores()-1 ,
                         ...
                         )
@@ -78,24 +73,17 @@ ICTpowerSim <- function(designs                                  ,
   for(i in seq_along(designs))
   {
     message(msgDelim, ' Starting design: ', names(designs)[i],
-            " (", round(100*(i/length(designs)),2), "% of ",
+            " (", i, " of ",
             length(designs), " designs)",
             msgDelim)
     powerL[[i]] <-
-    ICTpower(file            = c(fnames[i]  , save) ,
+    ICTpower(outFile         = c(fnames[i]  , save) ,
              design          = designs[[i]]         ,
              B               = B                    ,
-             checkDesign     = 'no'                 ,
              alpha           = alpha                ,
-             randFxFamily    = randFxFamily         ,
-             randFxParms     = randFxParms          ,
-             randFxSeed      = seeds[i, 1]          ,
-             errorParms      = errorParms           ,
-             errorFUN        = errorFUN             ,
-             errorFamily     = errorFamily          ,
-             errorSeed       = seeds[i, 2]          ,
+             seed            = seeds[i]             ,
              cores           = cores                ,
-             savePowerReport = FALSE                , # if there is a crash, this is bad
+             savePowerReport = TRUE                 ,
              ...
              )
   }

@@ -4,21 +4,31 @@
 \alias{ICTpower}
 \title{ICTpower - get simulated power for an ICT design using parametric bootstrap.}
 \usage{
-ICTpower(file = NULL, design = polyICT$new(), B = 100,
-  alpha = 0.05, seed = 123, cores = parallel::detectCores() - 1,
-  savePowerReport = TRUE, ...)
+ICTpower(outFile = NULL, design = polyICT$new(), B = 100,
+  dataFile = NULL, sampleSize = NULL, alpha = 0.05, seed = 123,
+  cores = parallel::detectCores() - 1, savePowerReport = TRUE, ...)
 }
 \arguments{
-\item{file}{The file name for saving power analysis results.
+\item{outFile}{The file name for saving power analysis results.
 It may be a full path. The simulated data are to be saved by including the
 file extension in a list. For example,
 \code{file=c('n10_medSlopeEffect', 'csv')}
 or \code{file=c('condition2', 'Rdata')}. Only `csv` and `RData` are supported.}
 
-\item{design}{An \code{\link{ICTdesign}} object such as
+\item{design}{An \code{\link{designICT}} object such as
 \code{\link{polyICT}}.}
 
 \item{B}{The number of simulated dataset (or parametric bootstrap replications).}
+
+\item{dataFile}{Character. A file name for already simulated data. Use this option to
+do a non-parametric bootstrap. If \code{dataFile} is provide, \code{design}
+will be ignored. The \code{dataFile} must be a *.csv file with the variables
+'id' and 'Time', optionally 'phase' and/or 'group', and dependent variables
+labeled 'y'. Alternatively, \code{dataFile} may be a *.Rdata file named 'Data'
+with the same columns as described for the *.csv file.}
+
+\item{sampleSize}{Numeric. The sample size to be drawn \code{B} times from the
+\code{dataFile} data.}
 
 \item{alpha}{Numeric. Default is .05. The Type I error rate for computing
 emprical power (the proportion of p-values across \code{B} data sets that are
