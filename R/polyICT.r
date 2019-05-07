@@ -195,6 +195,7 @@ polyICT <- R6::R6Class("polyICT",
                            #
                            # populate private
                            #
+                           #private$.edit              <- TRUE
 
                            # design
                            private$.n                 <- n
@@ -219,6 +220,8 @@ polyICT <- R6::R6Class("polyICT",
                            # variances TODO repopulate these after moving their function to ??
                            #private$.variances         <- variances
                            #private$.expectedVariances <- expectedVariances
+                           # internals
+                           #private$.edit              <- FALSE
 
 
                          },
@@ -249,6 +252,7 @@ polyICT <- R6::R6Class("polyICT",
                            # which should be implemented as warnings, are
                            # turned off (checkPolyICT will handle via errors)
                            options(warn=-1)
+                           #self$edit <- TRUE
 
                            # This will call each active binding in self for
                            # passed parameters, hence warn=-1
@@ -268,37 +272,44 @@ polyICT <- R6::R6Class("polyICT",
                                     "object and will be ignored.")
                              }
                            }
-                           polyInputs <- checkPolyICT(
-                                           n            = self$n             ,
-                                           randFxMean   = self$randFxMean    ,
-                                           phases       = self$phases        ,
-                                           randFxCorMat = self$randFxCorMat  ,
-                                           randFxVar    = self$randFxVar
-                                           )
-                           self$n                <- polyInputs$n
-                           self$randFxCorMat     <- polyInputs$randFxCorMat
-                           self$randFxCovMat     <- polyInputs$randFxCovMat
-                           self$randFxVar        <- polyInputs$randFxVar
-                           self$phaseNames       <- polyInputs$phaseNames
-                           self$groupNames       <- polyInputs$groupNames
-                           self$maxRandFx        <- polyInputs$maxRandFx
-                           self$unStdRandFxMean  <- polyInputs$unStdRandFxMean
-                           rm(polyInputs)
-
-                           if(!all(names(self$phases)==self$phaseNames))
+                           # only run this if
+                           if(names(dots) %in% c('n', 'randFxMean', 'phases',
+                                                 'randFxCorMat', 'randFxVar'))
                            {
-                             names(self$phases) <- self$phaseNames
+                             polyInputs <- checkPolyICT(
+                               n            = self$n             ,
+                               randFxMean   = self$randFxMean    ,
+                               phases       = self$phases        ,
+                               randFxCorMat = self$randFxCorMat  ,
+                               randFxVar    = self$randFxVar
+                             )
+
+                             self$n                <- polyInputs$n
+                             self$randFxCorMat     <- polyInputs$randFxCorMat
+                             self$randFxCovMat     <- polyInputs$randFxCovMat
+                             self$randFxVar        <- polyInputs$randFxVar
+                             self$phaseNames       <- polyInputs$phaseNames
+                             self$groupNames       <- polyInputs$groupNames
+                             self$maxRandFx        <- polyInputs$maxRandFx
+                             self$unStdRandFxMean  <- polyInputs$unStdRandFxMean
+                             rm(polyInputs)
+
+                             if(!all(names(self$phases)==self$phaseNames))
+                             {
+                               names(self$phases) <- self$phaseNames
+                             }
+
+                             self$designMat <- makeDesignMat(self$phases,
+                                                             self$phaseNames,
+                                                             self$maxRandFx,
+                                                             'polyICT')
+
+                             self$nObservations <- length(c(unlist(self$phases)))
                            }
-
-                           self$designMat <- makeDesignMat(self$phases,
-                                                           self$phaseNames,
-                                                           self$maxRandFx,
-                                                           'polyICT')
-
-                           self$nObservations <- length(c(unlist(self$phases)))
 
                            # reset warnings
                            options(warn=0)
+                           #self$edit <- FALSE
 
                            # return self to allow for chaining of method calls
                            invisible(self)

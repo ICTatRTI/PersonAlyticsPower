@@ -11,8 +11,13 @@ test_that("polyICT updates",
 
             # test updateability of test1
             .n <- test1$n <- c(201,202)
+            names(.n) <- names(test1$n)
             expect_equal(test1$n, .n)
             test1$update(n=.n)
             expect_equal(test1$n, .n)
+
+            .phases <- makePhase(c(10,30,20))
+            test1$update(phases=.phases)
+            expect_equal(test1$phases, .phases)
 
           })
