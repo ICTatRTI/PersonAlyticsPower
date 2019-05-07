@@ -4,7 +4,7 @@
 #'
 #' @keywords internal
 #'
-ICTactive <- function()
+.active <- function()
 {
   list(
 
@@ -106,10 +106,15 @@ ICTactive <- function()
       if( missing(value) ){ private$.propErrVar }
       else
       {
-        if( value < .01 | value > .99 )
+        if( any(value < .01) | any(value > .99) )
         {
-          stop("`propErrVar`, the proportion of the total variance ",
-               "that is error variance,\nmust be > .01 and < .99")
+          stop("The three values in `propErrVar` must be > .01 and < .99.\n",
+               "You provided (", paste(value, collapse=', '), ").")
+        }
+        if( sum(value) != 1 )
+        {
+          stop("The three values in `propErrVar` should sum to one.\n",
+               "The sum of (", paste(value, collapse=', '), ") is ", sum(value), ".")
         }
         private$.propErrVar <- value
         self
@@ -151,19 +156,29 @@ ICTactive <- function()
       if( missing(value) ){ private$.randFxVar }
       else
       {
-        private$.randFxVar <- value
+        if(( !is.list(value) & (length(value) != (private$.maxRandFx + 1)) ))
+        {
+          stop('This design has ', private$.maxRandFx + 1, ' random effects,\n',
+               'while you provided ', length(value))
+        }
+        private$.randFxVar <- randFxVarPop(private$.phaseNames,
+                                           private$.groupNames,
+                                           value, 'n')
+        self
       }
-
     },
 
     randFxCorMat = function(value)
     {
-      if( missing(value) ){ private$.randFxCorMat}
+      if( missing(value) ){ private$.randFxCorMat }
       else
       {
         if("polyICT" %in% class(self))
         {
-          checkCorMat(value)
+          temp <- checkPolyICT(private$.n, private$.randFxMean,
+                               private$.phases, private$.randFxCorMat,
+                               private$.randFVar)
+
         }
         private$.randFxCorMat <- value
         self
@@ -306,7 +321,7 @@ designICT <- R6::R6Class("designICT",
 
              # Child classes of designICT will inherit active bindings and
              # all active bindings for children will stay in active()
-             active = ICTactive(),
+             active = .active(),
 
              public = list(
 
@@ -395,7 +410,8 @@ designICT <- R6::R6Class("designICT",
                  correlation <- paste("corARMA(p=", length(self$error$parms$ar), ", ",
                                       "q=", length(self$error$parms$ma), ")", sep="")
                  pa   <- Palytic$new(data=dat, ids='id', dv='y', time='Time',
-                                     phase=unlist(ifelse(length(self$phaseNames)>1,'phase',list(NULL))),
+                                     phase=unlist(ifelse(length(self$phaseNames)>1,
+                                                         'phase',list(NULL))),
                                      ivs=unlist(ifelse(length(self$groupNames)>1,
                                                                'group',list(NULL))),
                                      time_power = self$maxRandFx,
@@ -407,17 +423,21 @@ designICT <- R6::R6Class("designICT",
                  }
 
                  # save data if requested
-                 if(!is.null(file)) save(mod0, file=paste(file[1], 'designCheck.RData', sep='_'))
+                 if(!is.null(file)) save(mod0, file=paste(file[1],
+                                                          'designCheck.RData',
+                                                          sep='_'))
 
 
                  # plot
                  if( length( self$groupNames ) == 1 ) print( pa$plot(ylim=ylim) )
-                 if( length( self$groupNames ) >= 2 ) print( pa$plot(groupvar = 'group', ylim=ylim) )
+                 if( length( self$groupNames ) >= 2 ) print( pa$plot(groupvar = 'group',
+                                                                     ylim=ylim) )
 
                  # restore the original sample sizes
                  self$n <- originaln
 
                  # if the model was fit, return it
+                 # TODO consider the conseuences of returning pa intsead of self
                  if(fitMod)  invisible(pa)
                }
 

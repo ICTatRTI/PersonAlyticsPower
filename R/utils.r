@@ -59,15 +59,15 @@ catMat <- function(x=matrix(1:4, 2, 2))
 }
 
 
-#' getdesignICT - create the fixed effects design matrix for n=1
+#' makeDesignMat - create the fixed effects design matrix for n=1
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #' @keywords internal
 # TODO consider making this a method for designICT that is passed by inheritence
 # to polyICT, etc.
-getdesignICT <- function(phases      = makePhase() ,
-                         phaseNames  = NULL        ,
-                         maxRandFx   = 2           ,
-                         design      = 'polyICT'
+makeDesignMat <- function(phases      = makePhase() ,
+                          phaseNames  = NULL        ,
+                          maxRandFx   = 2           ,
+                          design      = 'polyICT'
 )
 {
   # make names if null

@@ -189,7 +189,7 @@ polyICT2 <- R6::R6Class("polyICT",
          #maxRandFx <- checkPolyICT2(randFxMean, randFxCorMat, randFxVar) - 1
 
          # construct the fixed effects design matrix
-         designMat <- getdesignICT(phases, maxRandFx, 'polyICT')
+         designMat <- makeDesignMat(phases, maxRandFx, 'polyICT')
 
          # get the covariance matrix
          randFxCovMat <- cor2cov(randFxCorMat, randFxVar)
@@ -462,21 +462,3 @@ checkPolyICT2 <- function(randFxMean, randFxCorMat, randFxVar)
   invisible( unname(unlist(nFx[1])) )
 }
 
-#' checkRandFxMean
-#' @author Stephen Tueller \email{stueller@@rti.org}
-#'
-#' @keywords internal
-#'
-checkRandFxMeanPoly <- function(randFxMean)
-{
-  # check conformity of the elements in `randFxMean`
-  FxNames <- c( "randFx", "fixdFx")
-  test1   <- all( names(randFxMean) %in% FxNames)
-  if(!test1) stop('`randFxMean` must be a length 2 list with the names ',
-                  paste('`', FxNames, '`', collapse=', ', sep=''))
-  nFx   <- lapply(randFxMean, length)
-  test2 <- nFx[[1]]==nFx[[2]]
-  if(!test2) stop('`randFxMean$randFx` must have the same number of elements\n',
-                  'as `randFxMean$fixdFx`.')
-  invisible(nFx)
-}
