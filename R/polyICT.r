@@ -197,7 +197,7 @@ polyICT <- R6::R6Class("polyICT",
 
                            # construct randFx correlation matrices that can be
                            # edited later
-                           randFxCorMat <- randFxCorMat <- list()
+                           randFxCorMat <- randFxCovMat <- list()
                            CorMat <- matrix(randFxCor,
                                             length(randFxOrder),
                                             length(randFxOrder))

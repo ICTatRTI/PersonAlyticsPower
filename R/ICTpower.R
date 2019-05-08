@@ -227,7 +227,7 @@ ICTpower <- function(outFile         = NULL                      ,
   # analyze the data using PersonAlytics, treating y1,...,yB
   # as separate outcomes
   #
-  paout <- PersonAlytic(output      = outFile$outFile                        ,
+  paout <- PersonAlytic(output      = outFile$outFile                  ,
                         data        = Data                             ,
                         ids         = 'id'                             ,
                         dvs         = as.list(paste('y', 1:B, sep='')) ,
