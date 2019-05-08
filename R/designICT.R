@@ -281,33 +281,36 @@ designICT <- R6::R6Class("designICT",
                              phases  <- paste(c('', rep(' ', length(phases)-1)), phases)
                              nGroups <- length(self$groupNames)
                              if(nGroups==0) nGroups <- 1
-                             message(hl(),
-                                     "An ICT with ", sum(self$n), " participants, ",
-                                     length(c(unlist(self$phases))), " time points, and ",
-                                     ifelse(!is.groupsull(self$groupNames), nGroups, 1),
-                                     ifelse(nGroups==1, " group.", " groups.\n"), hl(),
-                                     "\nPhases:\n",
-                                     paste(phases, collapse = ''),
-                                     "\nGroups:\n", paste(self$groupNames, 'n=', self$n, '\n'),
-                                     "\nThe variance at the first time point is partitioned as\n",
-                                     100*self$propErrVar[1], "% random effects variance,\n",
-                                     100*self$propErrVar[2], "% residual autocorrelation variance,\n",
-                                     100*self$propErrVar[3], "% measurement error variance.\n",
-                                     hl(),
-                                     sep=""
+                             cat(.hl(),
+                                 "An ICT with ", sum(self$n), " participants, ",
+                                 length(c(unlist(self$phases))), " time points, and ",
+                                 ifelse(!is.null(self$groupNames), nGroups, 1),
+                                 ifelse(nGroups==1, " group.", " groups.\n"), .hl(),
+                                 "\nPhases:\n",
+                                 paste(phases, collapse = ''),
+                                 "\nGroups:\n", paste(self$groupNames, 'n=', self$n, '\n'),
+                                 .hl(),
+                                 sep=""
                              )
+                             cat("Input Matrix:\n")
+                             cat(.hl())
+                             print( self$inputMat )
+                             cat(.hl())
+                             cat("The input matrix can be edited by typing `edit(x$inputmat)`\n",
+                                 "where `x` is the name of your ICT design object.\n")
                              invisible(self)
                            },
 
-                           designCheck = function(file=NULL, ylim=NULL, fitMod=FALSE)
+                           designCheck = function(file=NULL, ylim=NULL, fitMod=FALSE,
+                                                  npg=5000)
                            {
 
                              # save and reset n, due to inheritance design will get overwritten, fix
                              # n below
-                             originaln <- self$n
-                             tempn <- rep(5000, length(originaln))
-                             names(tempn) <- names(self$n)
-                             self$n <- tempn; rm(tempn)
+                             originaln <- self$groups
+                             tempn <- rep(npg, length(originaln))
+                             names(tempn) <- names(self$groups)
+                             self$groups <- tempn; rm(tempn)
 
                              # simulate data
                              dat <- self$makeData()
@@ -368,7 +371,7 @@ designICT <- R6::R6Class("designICT",
                              }
 
                              # save data if requested
-                             if(!is.groupsull(file)) save(mod0, file=paste(file[1],
+                             if(!is.null(file)) save(mod0, file=paste(file[1],
                                                                       'designCheck.RData',
                                                                       sep='_'))
 
@@ -379,7 +382,7 @@ designICT <- R6::R6Class("designICT",
                                                                                  ylim=ylim) )
 
                              # restore the original sample sizes
-                             self$n <- originaln
+                             self$groups <- originaln
 
                              # if the model was fit, return it
                              # TODO consider the conseuences of returning pa intsead of self

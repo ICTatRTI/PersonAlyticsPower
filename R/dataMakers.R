@@ -53,9 +53,13 @@ polyData <- function(seed=123, n, nObs, mu, Sigma, self, dM,
   # random effects
   reVars <- rFxVr/sum(rFxVr)
   eta <- makeEta(n, mu, Sigma, seeds[1])
+  seta <- scale(eta)
+  attr(seta, "scaled:center") <- NULL
+  attr(seta, "scaled:scale") <- NULL
+
 
   # rescale random effects by  by propErrVar and reVars, retaining means
-  eta <- scale(eta) %*% diag( sqrt(propErrVar[1] * reVars) ) +
+  eta <- seta %*% diag( sqrt(propErrVar[1] * reVars) ) +
     matrix(apply(eta, 2, mean), nrow(eta), ncol(eta), byrow=TRUE)
 
   # qc - should hold even in small samples
@@ -80,8 +84,14 @@ polyData <- function(seed=123, n, nObs, mu, Sigma, self, dM,
 
   # TODO implement transforming error distn via makeFam()
   # errors w/ scaling
-  .L[[length(.L) + 1]] <- sqrt(propErrVar[2]) * scale(self$error$makeErrors(n, nObs, seeds[2]))
-  .L[[length(.L) + 1]] <- sqrt(propErrVar[3]) * scale(self$merror$makeErrors(n, nObs, seeds[3]))
+   err <- scale(self$error$makeErrors(n, nObs, seeds[2]))
+  merr <- scale(self$merror$makeErrors(n, nObs, seeds[3]))
+  attr(err, "scaled:center") <- NULL
+  attr(err, "scaled:scale") <- NULL
+  attr(merr, "scaled:center") <- NULL
+  attr(merr, "scaled:scale") <- NULL
+  .L[[length(.L) + 1]] <- sqrt(propErrVar[2]) *  err
+  .L[[length(.L) + 1]] <- sqrt(propErrVar[3]) * merr
 
   # TODO consider rescaling to unit variance first, otherwise propErrVar will
   # be off
@@ -106,9 +116,9 @@ polyData <- function(seed=123, n, nObs, mu, Sigma, self, dM,
   )
 
   # QC
-  all.equal(aggregate(data$y, list(data$Time), mean)$x,
+  all(aggregate(data$y, list(data$Time), mean)$x ==
             unname(apply(Y, 2, mean)))
-  all.equal(aggregate(data$y, list(data$Time), var)$x,
+  all(aggregate(data$y, list(data$Time), var)$x ==
             unname(apply(Y, 2, var)))
 
   # make phase a factor (for later analysis and plotting)

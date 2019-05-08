@@ -1,6 +1,5 @@
 # This file contains internal utility functions not directly accessable by the
-# user. It used to be called '.utils.r' but the leading '.' in the file name
-# prevented R from correctly exporting the functions to the package namespace.
+# user.
 
 #' .checkCorMat
 #' @author Stephen Tueller \email{stueller@@rti.org}

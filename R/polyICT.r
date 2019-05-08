@@ -97,6 +97,9 @@
 #' # print the density instead of histogram (type can be passed to designCheck)
 #' t1pa$plot(type='density') # TODO not working, debug
 #'
+#' t1$designCheck()
+#' t1$designCheck(npg=20)
+#'
 #' # change parameters
 #' t1$n <- 20
 #' t1$n
@@ -168,8 +171,9 @@ polyICT <- R6::R6Class("polyICT",
                          )
                          {
                            # makeDesign
-                           design <- makeDesign(randFxOrder, phases, groups, propErrVar,
-                                      randFxVar, randFxCor, design = 'polyICT')
+                           design <- makeDesign(randFxOrder, phases, groups,
+                                                propErrVar, randFxVar,
+                                                randFxCor, design = 'polyICT')
 
 
                            #
@@ -195,11 +199,11 @@ polyICT <- R6::R6Class("polyICT",
                            private$.phases            <- design$phases
                            private$.designMat         <- design$designMat
                            private$.unStdRandFxMean   <- design$unStdRandFxMean
+                           private$.meanNames         <- design$meanNames
+                           private$.varNames          <- design$varNames
                            private$.phaseNames        <- names(phases)
                            private$.groupNames        <- names(groups)
                            private$.randFxOrder       <- randFxOrder
-                           private$.meanNames         <- meanNames
-                           private$.varNames          <- varNames
 
                            # not implemented
                            private$.randFxFam         <- randFxFam
@@ -216,19 +220,11 @@ polyICT <- R6::R6Class("polyICT",
 
                          print = function(...)
                          {
-                           # use super to call the print function of the parent class
+                           # use super to call the print function of the parent
+                           # class, then you can add anything specific to this
+                           # class
                            super$print()
-
-                           # TODO deprecate or generalize for list objects
-                           ## add print options for the child class
-                           #cat("\n\nEffect sizes:\n",
-                           #    paste(unlist(lapply(self$randFxMean, names)), '=',
-                           #          unlist(self$randFxMean), '\n'),
-                           #    "\nRandom Effects\n",
-                           #    "\nCorrelation matrix:\n", .catMat(self$randFxCorMat),
-                           #    "\nCovariance matrix:\n",  .catMat(round(self$randFxCovMat,3))
-                           #)
-
+                           invisible(self)
                          },
 
                          # update function to repeate QC steps in $new (which
@@ -261,26 +257,27 @@ polyICT <- R6::R6Class("polyICT",
                              }
                            }
                            # only run this if
-                           if(names(dots) %in% c('n', 'randFxMean', 'phases',
+                           if(names(dots) %in% c('groups', 'randFxMean', 'phases',
                                                  'randFxCorMat', 'randFxVar'))
                            {
-                             polyInputs <- checkPolyICT(
-                               n            = self$n             ,
-                               randFxMean   = self$randFxMean    ,
-                               phases       = self$phases        ,
-                               randFxCorMat = self$randFxCorMat  ,
-                               randFxVar    = self$randFxVar
-                             )
+                             design <- makeDesign(randFxOrder, phases, groups,
+                                                  propErrVar, randFxVar,
+                                                  randFxCor, design = 'polyICT')
 
-                             self$n                <- polyInputs$n
-                             self$randFxCorMat     <- polyInputs$randFxCorMat
-                             self$randFxCovMat     <- polyInputs$randFxCovMat
-                             self$randFxVar        <- polyInputs$randFxVar
-                             self$phaseNames       <- polyInputs$phaseNames
-                             self$groupNames       <- polyInputs$groupNames
-                             self$maxRandFx        <- polyInputs$maxRandFx
-                             self$unStdRandFxMean  <- polyInputs$unStdRandFxMean
-                             rm(polyInputs)
+                             self$inputMat          <- design$inputMat
+                             self$randFxVar         <- design$randFxVar
+                             self$randFxCorMat      <- design$randFxCorMat
+                             self$randFxCovMat      <- design$randFxCovMat
+                             self$propErrVar        <- design$propErrVar
+                             self$n                 <- design$n
+                             self$nObs              <- design$nObs
+                             self$groups            <- design$groups
+                             self$phases            <- design$phases
+                             self$designMat         <- design$designMat
+                             self$unStdRandFxMean   <- design$unStdRandFxMean
+                             self$meanNames     <- design$meanNames
+                             self$varNames      <- design$varNames
+                             rm(design)
 
                              if(!all(names(self$phases)==self$phaseNames))
                              {
@@ -322,23 +319,33 @@ polyICT <- R6::R6Class("polyICT",
                                # the slope variance (and higher polynomial terms)
                                # get scaled twice
                                Sigma <- self$randFxCorMat[[thisp]][[thisg]]
-                               mu    <- self$unStdRandFxMean[[thisp]][[thisg]]
-                               n     <- self$n[[thisg]]
+                               mu    <- self$unStdRandFxMean[
+                                 self$unStdRandFxMean$Phase==thisp &
+                                   self$unStdRandFxMean$Group==thisg,
+                                 self$meanNames]
+                               n     <- self$groups[[thisg]]
                                nObs  <- length(self$phases[[thisp]])
                                dM    <- self$designMat[self$designMat$phase==thisp,]
-                               rFxVr <- self$randFxVar[[thisp]][[thisg]]
+                               rFxVr <- self$unStdRandFxMean[
+                                 self$unStdRandFxMean$Phase==thisp &
+                                   self$unStdRandFxMean$Group==thisg,
+                                 self$varNames]
+                               propErrVar <- self$unStdRandFxMean[
+                                 self$unStdRandFxMean$Phase==thisp &
+                                   self$unStdRandFxMean$Group==thisg,
+                                 c('randFx', 'res', 'mserr')]
 
                                # calls to polyData() here
-                               data[[d]] <- polyData(seed       = seeds[p,g]      ,
-                                                     n          = n               ,
-                                                     nObs       = nObs            ,
-                                                     mu         = mu              ,
-                                                     Sigma      = Sigma           ,
-                                                     self       = self            ,
-                                                     dM         = dM              ,
-                                                     rFxVr      = rFxVr           ,
-                                                     propErrVar = self$propErrVar ,
-                                                     group      = thisg           )
+                               data[[d]] <- polyData(seed       = seeds[p,g]         ,
+                                                     n          = n                  ,
+                                                     nObs       = nObs               ,
+                                                     mu         = unlist(mu)         ,
+                                                     Sigma      = Sigma              ,
+                                                     self       = self               ,
+                                                     dM         = dM                 ,
+                                                     rFxVr      = unlist(rFxVr)      ,
+                                                     propErrVar = unlist(propErrVar) ,
+                                                     group      = thisg              )
                                d <- d + 1
                              }
                            }

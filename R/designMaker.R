@@ -52,8 +52,14 @@ makeDesign <- function(randFxOrder, phases, groups, propErrVar,
   }
   rm(p, g, .np, .ng, .V)
 
-  # populate uneditable objects
-  unStdRandFxMean <- "Implementation Pending"
+  # TODO change unStdRandFxMean to unStdInputMat (notepad++ not working today)
+  # get unstandardized random effects means by multiplying by sqrt(var)
+  unStdRandFxMean <- inputMat
+  for(i in seq_along(randFxOrder))
+  {
+    unStdRandFxMean[[meanNames[i]]] <- unStdRandFxMean[[meanNames[i]]] *
+      sqrt(unStdRandFxMean[[varNames[i]]])
+  }
 
   # construct the fixed effects design matrix, only one
   # is needed across all combinations of group and phase
