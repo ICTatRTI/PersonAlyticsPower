@@ -244,7 +244,7 @@ polyICTsetup <- function(phases = makePhase(), nGroups = 1, randFxMean = NULL,
 ICTviz <- function(fam = 'NO', parms=list(mu=0, sigma=1, nu=2, tau=2),
                    designMatrix=NULL, BLrange = NULL)
 {
-  checkFam(fam, parms)
+  .checkFam(fam, parms)
 
   # set up items for plot title
   faminfo <- gamlss.dist::gamlss.family(fam)

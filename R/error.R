@@ -214,7 +214,7 @@ armaErr <- R6::R6Class("errARMA",
         }
       }
       # check family and famParms
-      checkFam(fam, famParms)
+      .checkFam(fam, famParms)
 
       # populate private
       private$.parms    <- parms
@@ -229,10 +229,10 @@ armaErr <- R6::R6Class("errARMA",
     makeErrors = function(n, nObservations, seed=123)
     {
       # get seeds
-      seeds <- as.list( makeSeeds(seed, nObservations) )
+      seeds <- as.list( .makeSeeds(seed, nObservations) )
 
       # sim errors
-      errors <- doLapply(seeds, self$fam, n=n,
+      errors <- .doLapply(seeds, self$fam, n=n,
                mu = self$famParms$mu, sigma = self$famParms$sigma,
                nu = self$famParms$nu, tau = self$famParms$tau)
 

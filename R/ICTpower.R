@@ -88,10 +88,10 @@ ICTpower <- function(outFile         = NULL                      ,
   print(argList)
 
   # check file name
-  if(!is.null(outFile)) outFile <- checkFile(outFile)
+  if(!is.null(outFile)) outFile <- .checkFile(outFile)
 
   # generate seeds
-  seeds <- makeSeeds(seed, B)
+  seeds <- .makeSeeds(seed, B)
 
   if(is.null(dataFile))
   {

@@ -335,7 +335,7 @@ ICTsimSetup <- function(seed                      ,
   designI$dir <- sort( rep(1:nFolders, length.out = nrow(designI)) )
 
   # set seeds
-  designI$seeds <- makeSeeds(seed, nrow(designI))
+  designI$seeds <- .makeSeeds(seed, nrow(designI))
 
   # save objects for calling by the scripts produced in the loop
   save(designI                           ,

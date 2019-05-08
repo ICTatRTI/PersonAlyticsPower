@@ -48,7 +48,7 @@ polyData <- function(seed=123, n, nObs, mu, Sigma, self, dM,
   # 1. random effects
   # 2. autocorrelated errors
   # 3. white noise errors
-  seeds <- makeSeeds(seed, 3)
+  seeds <- .makeSeeds(seed, 3)
 
   # random effects
   reVars <- rFxVr/sum(rFxVr)

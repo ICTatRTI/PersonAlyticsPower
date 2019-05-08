@@ -8,6 +8,15 @@
 {
   list(
 
+    inputMat = function(value)
+    {
+      if( missing(value) ){ private$.inputMat}
+      else
+      {
+
+      }
+    },
+
     groups = function(value)
     {
       if( missing(value) ){ private$.groups }
@@ -156,7 +165,7 @@
           stop('This design has ', private$.maxRandFx + 1, ' random effects,\n',
                'while you provided ', length(value))
         }
-        private$.randFxVar <- randFxVarPop(private$.phaseNames,
+        private$.randFxVar <- .randFxVarPop(private$.phaseNames,
                                            private$.groupNames,
                                            value, 'n')
         self

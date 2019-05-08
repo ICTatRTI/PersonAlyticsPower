@@ -88,12 +88,12 @@ makeEta <- function(n, mu, Sigma, seed=1)
 #' # with approximately the same correlation matrix
 #'
 #' # works well for symmetric distributions
-#' YBEINF <- doLapply(YpNorm, .fcn="qBEINF", mu=.5, sigma=.35)
+#' YBEINF <-. doLapply(YpNorm, .fcn="qBEINF", mu=.5, sigma=.35)
 #' psych::pairs.panels(YBEINF)
 #' all.equal(unname(cor(YBEINF)), randFxCorMat, tolerance=.08)
 #'
 #' # does not work as well for skewed distributions
-#' YLOGNO <- doLapply(YpNorm, "qLOGNO", mu=3, sigma=1)
+#' YLOGNO <- .doLapply(YpNorm, "qLOGNO", mu=3, sigma=1)
 #' psych::pairs.panels(YLOGNO)
 #' all.equal(unname(cor(YLOGNO)), randFxCorMat, tolerance=.08)
 #'
@@ -102,14 +102,14 @@ makeEta <- function(n, mu, Sigma, seed=1)
 makeFam <- function(Y, parms, family="NO")
 {
   # qc inputs
-  checkFam(family, parms)
+  .checkFam(family, parms)
   family <- paste('q', family, sep='')
 
   # get the propabilities
   YpNorm <- data.frame(pnorm(Y))
 
   # transform to the specified distribution
-  Y <- doLapply(YpNorm, family, mu=parms$mu, sigma=parms$sigma,
+  Y <- .doLapply(YpNorm, family, mu=parms$mu, sigma=parms$sigma,
                 nu=parms$nu, tau=parms$tau, ...)
 
   # rescale the data - this may be problamtic if the user specifies a

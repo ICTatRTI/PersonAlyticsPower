@@ -167,73 +167,10 @@ polyICT <- R6::R6Class("polyICT",
 
                          )
                          {
-                           # input check
-                           if(length(randFxOrder) != length(randFxVar))
-                           {
-                             stop('`randFxOrder` and `randFxVar` must be the ',
-                                  'same length.')
-                           }
+                           # makeDesign
+                           design <- makeDesign(randFxOrder, phases, groups, propErrVar,
+                                      randFxVar, randFxCor, design = 'polyICT')
 
-                           # expand groups and phases into a input matrix
-                           inputMat <- cbind(
-                             expand.grid(names(phases), names(groups)),
-                             expand.grid(lapply(phases, length), groups))
-                           names(inputMat) <- c('Phase', 'Group', 'nObs', 'n')
-                           for(i in seq_along(randFxOrder))
-                           {
-                             inputMat[[paste('Mean', randFxOrder[i], sep='')]] <- 0
-                           }
-                           for(i in seq_along(randFxOrder))
-                           {
-                             inputMat[[paste('Var' , randFxOrder[i], sep='')]] <- randFxVar[i]
-                           }
-                           for(i in seq_along(propErrVar))
-                           {
-                             inputMat[[names(propErrVar)[i]]] <- propErrVar[i]
-                           }
-                           rm(i)
-                           meanNames <- names(inputMat)[grepl('Mean', names(inputMat))]
-                           varNames  <- names(inputMat)[grepl('Var', names(inputMat))]
-
-                           # construct randFx correlation matrices that can be
-                           # edited later
-                           randFxCorMat <- randFxCovMat <- list()
-                           CorMat <- matrix(randFxCor,
-                                            length(randFxOrder),
-                                            length(randFxOrder))
-                           diag(CorMat) <- 1
-                           for(p in seq_along(phases))
-                           {
-                             .np <- names(phases)[p]
-                             for(g in seq_along(groups))
-                             {
-                               .ng <- names(groups)[g]
-                               randFxCorMat[[.np]][[.ng]] <- CorMat
-                               .V <- inputMat[inputMat$Phase==.np &
-                                              inputMat$Group==.ng,
-                                              varNames]
-                               randFxCovMat[[.np]][[.ng]] <- cor2cov(CorMat,
-                                                               unlist(.V))
-                             }
-                           }
-                           rm(p, g, .np, .ng, .V)
-
-                           # populate uneditable objects
-                           unStdRandFxMean <- "Implementation Pending"
-
-                           # construct the fixed effects design matrix, only one
-                           # is needed across all combinations of group and phase
-                           # by using maxRandFx, any unneeded columns will be
-                           # ignored when constructing data
-                           designMat <- makeDesignMat(
-                             phases     = phases              ,
-                             phaseNames = names(phases)       ,
-                             maxRandFx  = length(randFxOrder) ,
-                             design     = 'polyICT'           )
-
-                           # get the number of observations
-                           nObs <- length(c(unlist(phases)))
-                           n    <- sum(groups)
 
                            #
                            # populate private
@@ -241,25 +178,25 @@ polyICT <- R6::R6Class("polyICT",
                            #private$.edit              <- TRUE
 
                            # editable without a new call to $new
-                           private$.inputMat          <- inputMat
-                           private$.yMean             <- yMean
-                           private$.ySD               <- ySD
-                           private$.randFxVar         <- randFxVar
-                           private$.randFxCorMat      <- randFxCorMat
-                           private$.randFxCovMat      <- randFxCovMat
+                           private$.inputMat          <- design$inputMat
+                           private$.randFxVar         <- design$randFxVar
+                           private$.randFxCorMat      <- design$randFxCorMat
+                           private$.randFxCovMat      <- design$randFxCovMat
+                           private$.propErrVar        <- design$propErrVar
                            private$.error             <- error
                            private$.merror            <- merror
+                           private$.yMean             <- yMean
+                           private$.ySD               <- ySD
 
                            # not editable
-                           private$.n                 <- n
-                           private$.nObs              <- nObs
-                           private$.groups            <- groups
-                           private$.phases            <- phases
+                           private$.n                 <- design$n
+                           private$.nObs              <- design$nObs
+                           private$.groups            <- design$groups
+                           private$.phases            <- design$phases
+                           private$.designMat         <- design$designMat
+                           private$.unStdRandFxMean   <- design$unStdRandFxMean
                            private$.phaseNames        <- names(phases)
                            private$.groupNames        <- names(groups)
-                           private$.designMat         <- designMat
-                           private$.propErrVar        <- propErrVar
-                           private$.unStdRandFxMean   <- unStdRandFxMean
                            private$.randFxOrder       <- randFxOrder
 
                            # not implemented
@@ -286,8 +223,8 @@ polyICT <- R6::R6Class("polyICT",
                            #    paste(unlist(lapply(self$randFxMean, names)), '=',
                            #          unlist(self$randFxMean), '\n'),
                            #    "\nRandom Effects\n",
-                           #    "\nCorrelation matrix:\n", catMat(self$randFxCorMat),
-                           #    "\nCovariance matrix:\n",  catMat(round(self$randFxCovMat,3))
+                           #    "\nCorrelation matrix:\n", .catMat(self$randFxCorMat),
+                           #    "\nCovariance matrix:\n",  .catMat(round(self$randFxCovMat,3))
                            #)
 
                          },
@@ -368,7 +305,7 @@ polyICT <- R6::R6Class("polyICT",
                          # randFx and errors, so we pass the parameters
                          makeData = function(seed=123, yMean=100, ySD=15)
                          {
-                           seeds <- makeSeeds(seed, length(self$phaseNames) *
+                           seeds <- .makeSeeds(seed, length(self$phaseNames) *
                                                 length(self$groupNames))
                            seeds <- matrix(seeds, length(self$phaseNames),
                                            length(self$groupNames))
@@ -521,12 +458,12 @@ checkPolyICT <- function(n, randFxMean, phases, randFxCorMat, randFxVar)
     # if randFxCorMat only given for phases, assume equal across groups
     if(all(names(randFxCorMat) %in% phaseNames) & !any(randFxCorMatLengths > 1))
     {
-      randFxCorMatL <- randFxCorMatPop(phaseNames, groupNames, randFxCorMat, 'p')
+      randFxCorMatL <- .randFxCorMatPop(phaseNames, groupNames, randFxCorMat, 'p')
     }
     # if randFxCorMat only given for groups, assume equal across phases
     if(all(names(randFxCorMat) %in% groupNames) & !any(randFxCorMatLengths > 1))
     {
-      randFxCorMatL <- randFxCorMatPop(phaseNames, groupNames, randFxCorMat, 'g')
+      randFxCorMatL <- .randFxCorMatPop(phaseNames, groupNames, randFxCorMat, 'g')
     }
     # if randFxCorMat given for both phases and groups, check dimension conformity
     if(all(names(randFxCorMat) %in% phaseNames) & all(randFxCorMatLengths > 1))
@@ -545,7 +482,7 @@ checkPolyICT <- function(n, randFxMean, phases, randFxCorMat, randFxVar)
   # if only one randFxCorMat is given, repeat it for all phases and groups
   if(!is.list(randFxCorMat))
   {
-    randFxCorMatL <- randFxCorMatPop(phaseNames, groupNames, randFxCorMat, 'n')
+    randFxCorMatL <- .randFxCorMatPop(phaseNames, groupNames, randFxCorMat, 'n')
   }
 
   # check conformity of random effects variances, must be per phase, per group
@@ -555,12 +492,12 @@ checkPolyICT <- function(n, randFxMean, phases, randFxCorMat, randFxVar)
     # if randFxVar only given for phases, assume equal across groups
     if(all(names(randFxVar) %in% phaseNames) & !any(randFxVarLengths > 1))
     {
-      randFxVarL <- randFxVarPop(phaseNames, groupNames, randFxVar, 'p')
+      randFxVarL <- .randFxVarPop(phaseNames, groupNames, randFxVar, 'p')
     }
     # if randFxVar only given for groups, assume equal across phases
     if(all(names(randFxVar) %in% groupNames) & !any(randFxVarLengths > 1))
     {
-      randFxVarL <- randFxVarPop(phaseNames, groupNames, randFxVar, 'g')
+      randFxVarL <- .randFxVarPop(phaseNames, groupNames, randFxVar, 'g')
     }
     # if randFxVar given for both phases and groups, check dimension conformity
     if(all(names(randFxVar) %in% phaseNames) & all(randFxVarLengths > 1))
@@ -579,7 +516,7 @@ checkPolyICT <- function(n, randFxMean, phases, randFxCorMat, randFxVar)
   # if only one randFxVar is given, repeat it for all phases and groups
   if(!is.list(randFxVar))
   {
-    randFxVarL <- randFxVarPop(phaseNames, groupNames, randFxVar, 'n')
+    randFxVarL <- .randFxVarPop(phaseNames, groupNames, randFxVar, 'n')
   }
 
   # if only one n is given, repeat it for all groups
@@ -633,11 +570,11 @@ checkPolyICT <- function(n, randFxMean, phases, randFxCorMat, randFxVar)
       }
 
       # check that `randFxCorMat` is a correlation matrix
-      checkCorMat(randFxCorMat[[tP]][[tG]])
+      .checkCorMat(randFxCorMat[[tP]][[tG]])
 
       # check that resulting covariance matrix is legit
       randFxCovMatL[[tP]][[tG]] <- cor2cov(randFxCorMat[[tP]][[tG]], randFxVar[[tP]][[tG]])
-      checkCorMat(randFxCovMatL[[tP]][[tG]], FALSE)
+      .checkCorMat(randFxCovMatL[[tP]][[tG]], FALSE)
 
       # get unstandardized effects
       randFxSD <- sqrt(diag(randFxCovMatL[[tP]][[tG]]))
@@ -678,6 +615,8 @@ checkRandFxMeanPoly <- function(randFxMean)
          'random effects.')
   }
 }
+
+
 
 
 

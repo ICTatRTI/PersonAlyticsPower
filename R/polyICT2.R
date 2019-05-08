@@ -240,8 +240,8 @@ polyICT2 <- R6::R6Class("polyICT",
              paste(unlist(lapply(self$randFxMean, names)), '=',
                    unlist(self$randFxMean), '\n'),
              "\nRandom Effects\n",
-             "\nCorrelation matrix:\n", catMat(self$randFxCorMat),
-             "\nCovariance matrix:\n",  catMat(round(self$randFxCovMat,3))
+             "\nCorrelation matrix:\n", .catMat(self$randFxCorMat),
+             "\nCovariance matrix:\n",  .catMat(round(self$randFxCovMat,3))
          )
 
        },
@@ -441,7 +441,7 @@ checkPolyICT2 <- function(randFxMean, randFxCorMat, randFxVar)
   nFx <- checkRandFxMeanPoly(randFxMean)
 
   # check that `randFxCorMat` is a correlation matrix
-  checkCorMat(randFxCorMat)
+  .checkCorMat(randFxCorMat)
 
   # check conformity of `randFxCorMat` with `randFxMean`
   test3 <- nrow(randFxCorMat) == nFx[[1]]
@@ -456,7 +456,7 @@ checkPolyICT2 <- function(randFxMean, randFxCorMat, randFxVar)
                   ' `randFxMean$randFx` and `randFxMean$fixdFx`.')
 
   # check that resulting covariance matrix is legit
-  checkCorMat(cor2cov(randFxCorMat, randFxVar), FALSE)
+  .checkCorMat(cor2cov(randFxCorMat, randFxVar), FALSE)
 
   # return the polynomial order
   invisible( unname(unlist(nFx[1])) )
