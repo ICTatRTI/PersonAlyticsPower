@@ -283,7 +283,7 @@ powerReport <- function(paout, alpha, file, saveReport=TRUE)
                                            width=max(nchar(names(powerL)))) )
   powerOutput <- paste(names(powerL), '\t', round(unlist(powerL),2), '\n' )
 
-  message( .hl(), "Power Estimates:\n", hl(),
+  message( .hl(), "Power Estimates:\n", .hl(),
     powerOutput, .hl() )
 
   # save the report

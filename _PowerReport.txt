@@ -1,0 +1,6 @@
+X.Intercept.     	 1 
+ Time             	 0.09 
+ phasephase2      	 0.11 
+ phasephase3      	 0.03 
+ Time.phasephase2 	 0.11 
+ Time.phasephase3 	 0.08 

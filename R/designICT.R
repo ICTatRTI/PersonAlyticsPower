@@ -302,7 +302,7 @@ designICT <- R6::R6Class("designICT",
                            },
 
                            designCheck = function(file=NULL, ylim=NULL, fitMod=FALSE,
-                                                  npg=5000)
+                                                  seed=123, npg=5000)
                            {
 
                              # save and reset n, due to inheritance design will get overwritten, fix
@@ -313,7 +313,7 @@ designICT <- R6::R6Class("designICT",
                              self$groups <- tempn; rm(tempn)
 
                              # simulate data
-                             dat <- self$makeData()
+                             dat <- self$makeData(seed=seed)
 
                              # needs to be reimplemented
                              if(1==2)
