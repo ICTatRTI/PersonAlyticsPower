@@ -4,74 +4,63 @@
 \alias{ICTpower}
 \title{ICTpower - get simulated power for an ICT design using parametric bootstrap.}
 \usage{
-ICTpower(file, design = polyICT$new(), B = 100, checkDesign = "no",
-  alpha = 0.05, randFxFamily = "qNO", randFxParms = list(mu = 0.5,
-  sigma = 1), randFxSeed = 11, errorParms = list(ar = c(0.5), ma =
-  c(0)), errorFUN = arima.sim, errorFamily = NULL, errorSeed = 21,
+ICTpower(outFile = NULL, design = polyICT$new(), B = 100,
+  dataFile = NULL, sampleSize = NULL, alpha = 0.05, seed = 123,
   cores = parallel::detectCores() - 1, savePowerReport = TRUE, ...)
 }
 \arguments{
-\item{file}{The file name for saving power analysis results.
+\item{outFile}{The file name for saving power analysis results.
 It may be a full path. The simulated data are to be saved by including the
 file extension in a list. For example,
 \code{file=c('n10_medSlopeEffect', 'csv')}
 or \code{file=c('condition2', 'Rdata')}. Only `csv` and `RData` are supported.}
 
-\item{design}{An \code{\link{ICTdesign}} object such as
+\item{design}{An \code{\link{designICT}} object such as
 \code{\link{polyICT}}.}
 
 \item{B}{The number of simulated dataset (or parametric bootstrap replications).}
 
-\item{checkDesign}{Logical. Default is \code{FALSE}. If \code{TRUE}, an
-initial sumulated dataset with n=1,000 participants will be simulated and the
-model fit to the data. This will show whether the design inputs in \code{design}
-are recovered under large sample. The data for the 1st 10 participants will
-also be plotted. This allows users to check their inputs.}
+\item{dataFile}{Character. A file name for already simulated data. Use this option to
+do a non-parametric bootstrap. If \code{dataFile} is provide, \code{design}
+will be ignored. The \code{dataFile} must be a *.csv file with the variables
+'id' and 'Time', optionally 'phase' and/or 'group', and dependent variables
+labeled 'y'. Alternatively, \code{dataFile} may be a *.Rdata file named 'Data'
+with the same columns as described for the *.csv file.}
+
+\item{sampleSize}{Numeric. The sample size to be drawn \code{B} times from the
+\code{dataFile} data.}
 
 \item{alpha}{Numeric. Default is .05. The Type I error rate for computing
 emprical power (the proportion of p-values across \code{B} data sets that are
 less than or equal to \code{alpha}.}
 
-\item{randFxFamily}{A quantile function such as those in
-\code{\link{gamlss.family}}.
-If \code{family} is not "qNO" or "qnorm", multivariate normal random effects
-are first simulated, then transformed using the quantile function.}
-
-\item{randFxParms}{Ignored unless \code{family} is not "qNO" or "qnorm".
-Parameters to be passed to a quantile function given in \code{family}. For
-\code{\link{gamlss.family}} quantile functions, the parameters are mu,
-sigma, nu, and tau.}
-
-\item{randFxSeed}{A random seed for generating random effects.}
-
-\item{errorParms}{Parameters for simulating random errors. Currently only
-supports \code{\link{arima.sim}}.}
-
-\item{errorFUN}{A function for simulating errors. Currently only
-\code{\link{arima.sim}} is supported.}
-
-\item{errorFamily}{A quantile function fo simulating non-normal errors. Not
-currently implemented.}
+\item{seed}{A random seed for replicating the power analysis.}
 
 \item{cores}{The number of cores used in parralelized simulation. The default
-is to use one few cores than are detected on the computer. Do not exceed the
-maximum available cores or unexpect results may occur or R may crash.}
+is to use one fewer cores than are detected on the computer. Do not exceed the
+maximum available cores or unexpected results may occur and R may crash.}
 
 \item{savePowerReport}{Should the power report be saved using the \code{file}
 name? If \code{TRUE}, a `txt` file is saved in the working directory. This
 option is set to \code{FALSE} in the function \code{\link{ICTpowerSim}} which
 instead saves the reports from several conditions in a `csv` file.}
 
-\item{...}{Further arguments to be passed to \code{\link{PersonAlytics}}.}
+\item{...}{Further arguments to be passed to \code{\link{PersonAlytic}} for
+analysis. All options in \code{PersonAlytic} can be passed except for
+\code{output}, \code{data}, \code{ids}, \code{dvs}, \code{time}, and
+\code{phase} as these are taken from the \code{design}.}
 
-\item{errorseed}{A random seed for generating errors.}
+\item{checkDesign}{Logical. Default is \code{FALSE}. If \code{TRUE}, an
+initial sumulated dataset with n=1,000 participants will be simulated and the
+model fit to the data. This will show whether the design inputs in \code{design}
+are recovered under large sample. The data for the 1st 10 participants will
+also be plotted. This allows users to check their inputs.}
 }
 \description{
 ICTpower - get simulated power for an ICT design using parametric bootstrap.
 }
 \examples{
 
-# TODO change to dontrun
 \dontrun{
 ICTpower(c('testICTpower10', 'csv'),
   polyICT$new(n=10),

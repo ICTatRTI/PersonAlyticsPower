@@ -17,13 +17,17 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # The Basic ICT Model
 
-The ICT model is a multilevel model (MLM) when $N>1$, which simplifies to an autoregression moving average (ARMA) model when $N=1$. Using the notatino from Applied Longitudinal Data Anlysis (ALDA; Singer & Willett, 2003), the standard MLM is 
+The ICT model is a multilevel model (MLM) when $N>1$, which simplifies to an autoregression moving average ($ARMA$) model when $N=1$. Other time-series models are theoretically possible. PersonAlytics utilizes the options available in the nlme package.
+
+Using the notation from Applied Longitudinal Data Anlysis (ALDA; Singer & Willett, 2003), the standard MLM is 
 
 $$
 (1) \quad  y_{ij} = \pi_{0i} + \pi_{1i} TIME_j + \varepsilon_{ij}
 $$
 
-where $y$ is the outcome variable, $i$ indexes the individual ($i=1, \dots, n$), $j$ indexes $TIME$ ($j=1, \dots, T$), $TIME_1=0$, $\pi_{0i}$ are random intercepts, $\pi_{1i}$ are random slopes, and $\varepsilon_{ij}$ are errors (see ALDA EQ7.1a). The residuals are assumed
+where $y$ is the outcome variable, $i$ indexes the individual ($i=1, \dots, n$), $j$ indexes $TIME$ ($j=1, \dots, T$), $TIME_1=0$, $\pi_{0i}$ are random intercepts, $\pi_{1i}$ are random slopes, and $\varepsilon_{ij}$ are errors (see ALDA EQ7.1a). Other random effects are possible including higher order polynomial terms (e.g., quadratic, quartic), hyperbolic, inverse polynomial, and expontial random effects. These will be included in future releases of PersonAlyticsPower. 
+
+The residuals are assumed
 
 $$
 (2) \quad \varepsilon_{ij}  \overset{iid}{\sim} N(0, \sigma_{\varepsilon}^2)
@@ -238,6 +242,18 @@ $$
 where the components of Equation 20 are defined in Equations 16, 17, 18, 19.
 
 
+
+## Measurement Error
+
+When simulating data, PersonAlyticsPower further decomposes th error term into residual autocorrelation $a_{ij}$, and measurement errors of the residual autocorrelation $e_{ij}$:
+
+$$
+(3) \quad \varepsilon_{ij} = a_{ij} + e_{ij}
+$$
+
+It is assumed that the $a_{ij}$ follow an $ARMA(p,q)$ process with a variance of $\sigma^2_{a_j}$ and that the $e_{ij}$ are white noise, $e_{ij} \sim N(0,\sigma^2_{e_j})$, and that the $e_{ij}$ are mutually uncorrelated across time. The $a_{ij}$ and $e_{ij}$ are assumed to be uncorrelated.
+
+As currently implemented, PersonAlytics is unable to estimate this decomposition. To our knowledge, no software can estimate this decomposition directly, though there are time series software that could estimate this model on the residual time series one participant at a time. The purpose of implementing this decomposition in PersonAlyticsPower is to study whether the addition of measurement error negatively impacts power and parameter estimatation vs. simply being one error term that is adequately parsed out as a composite.
 
 
 

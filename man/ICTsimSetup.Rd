@@ -6,29 +6,29 @@
 \code{\link{ICTpowerSim}}, including splitting up the designs over sevar folders
 so the simulation can be run in chunks or on multiple computers.}
 \usage{
-ICTsimSetup(seed, nL, phasesL, propErrVarL, effectSizesL, corMatL,
+ICTsimSetup(seed, nL, phasesL, propErrVarL, randFxMeanL, randFxCorMatL,
   randFxVarL, B = 1000, nFolders = NULL, ICTpowerSimOptions = "")
 }
 \arguments{
 \item{seed}{Numeric. A random seed for this simulation.}
 
 \item{nL}{Numeric list. A list of sample sizes. See \code{n} in
-\code{\link{ployICT}}.}
+\code{\link{polyICT}}.}
 
 \item{phasesL}{A list of phases. See \code{n} in
-\code{\link{ployICT}}.}
+\code{\link{polyICT}}.}
 
 \item{propErrVarL}{Numeric List. See \code{n} in
-\code{\link{ployICT}}.}
+\code{\link{polyICT}}.}
 
-\item{effectSizesL}{A list of effect sizes. See \code{n} in
-\code{\link{ployICT}}.
+\item{randFxMeanL}{A list of effect sizes. See \code{n} in
+\code{\link{polyICT}}.
 
- @param corMatL A list of numeric correlation matrices. See \code{n} in
-\code{\link{ployICT}}.}
+ @param randFxCorMatL A list of numeric correlation matrices. See \code{n} in
+\code{\link{polyICT}}.}
 
 \item{randFxVarL}{A list of numeric vectors. See \code{n} in
-\code{\link{ployICT}}.}
+\code{\link{polyICT}}.}
 
 \item{nFolders}{Numeric. The number of folders to divide the simulation into.
 The default is \code{NULL}, in which case the user is prompted for input at
@@ -52,11 +52,11 @@ seed <- 1234
 nL <- list(10, 20)
 phasesL <- list( makePhase(c(10,10), c(0,1)), makePhase(c(5,15), c(0,1)) )
 propErrVarL <- list(.5, .75)
-effectSizesL <- list( list(randFx=list(intercept=0, slope=.25),
+randFxMeanL <- list( list(randFx=list(intercept=0, slope=.25),
                       fixdFx=list(phase=.5, phaseTime=.25)),
                       list(randFx=list(intercept=0, slope=.5),
                       fixdFx=list(phase=.5, phaseTime=.25)))
-corMatL <- list(matrix(c(1,.2,.2,1), 2, 2), matrix(c(1,.6,.6,1), 2, 2))
+randFxCorMatL <- list(matrix(c(1,.2,.2,1), 2, 2), matrix(c(1,.6,.6,1), 2, 2))
 randFxVarL <- list(c(1, .1), c(1, .2))
 B <- 3
 nFolders <- 4
@@ -65,8 +65,8 @@ ICTsimSetup(seed    ,
   nL                ,
   phasesL           ,
   propErrVarL       ,
-  effectSizesL      ,
-  corMatL           ,
+  randFxMeanL      ,
+  randFxCorMatL           ,
   randFxVarL        ,
   B                 ,
   nFolders          ,

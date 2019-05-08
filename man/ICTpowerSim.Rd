@@ -5,9 +5,7 @@
 \title{ICTpowerSim}
 \usage{
 ICTpowerSim(designs, pReportName = "ICTpowerSimResults", B = 1000,
-  seed = 1, save = NULL, alpha = 0.05, randFxFamily = "qNO",
-  randFxParms = list(mu = 0.5, sigma = 1), errorParms = list(ar =
-  c(0.5), ma = c(0)), errorFUN = arima.sim, errorFamily = NULL,
+  seed = 1, save = NULL, alpha = 0.05,
   cores = parallel::detectCores() - 1, ...)
 }
 \arguments{

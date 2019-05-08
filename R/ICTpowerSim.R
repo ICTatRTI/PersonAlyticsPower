@@ -41,11 +41,6 @@ ICTpowerSim <- function(designs                                  ,
                         seed         = 1                         ,
                         save         = NULL                      ,
                         alpha        = .05                       ,
-                        randFxFamily = "qNO"                     ,
-                        randFxParms  = list(mu=.5 , sigma=1)     ,
-                        errorParms   = list(ar=c(.5), ma=c(0))   ,
-                        errorFUN     = arima.sim                 ,
-                        errorFamily  = NULL                      ,
                         cores        = parallel::detectCores()-1 ,
                         ...
                         )
@@ -78,24 +73,17 @@ ICTpowerSim <- function(designs                                  ,
   for(i in seq_along(designs))
   {
     message(msgDelim, ' Starting design: ', names(designs)[i],
-            " (", round(100*(i/length(designs)),2), "% of ",
+            " (", i, " of ",
             length(designs), " designs)",
             msgDelim)
     powerL[[i]] <-
-    ICTpower(file            = c(fnames[i]  , save) ,
+    ICTpower(outFile         = c(fnames[i]  , save) ,
              design          = designs[[i]]         ,
              B               = B                    ,
-             checkDesign     = 'no'                 ,
              alpha           = alpha                ,
-             randFxFamily    = randFxFamily         ,
-             randFxParms     = randFxParms          ,
-             randFxSeed      = seeds[i, 1]          ,
-             errorParms      = errorParms           ,
-             errorFUN        = errorFUN             ,
-             errorFamily     = errorFamily          ,
-             errorSeed       = seeds[i, 2]          ,
+             seed            = seeds[i]             ,
              cores           = cores                ,
-             savePowerReport = FALSE                , # if there is a crash, this is bad
+             savePowerReport = TRUE                 ,
              ...
              )
   }
@@ -204,22 +192,22 @@ simStatus <- function(studyName, studyDirectory=getwd())
 #' @param seed Numeric. A random seed for this simulation.
 #'
 #' @param nL Numeric list. A list of sample sizes. See \code{n} in
-#' \code{\link{ployICT}}.
+#' \code{\link{polyICT}}.
 #'
 #' @param phasesL A list of phases. See \code{n} in
-#' \code{\link{ployICT}}.
+#' \code{\link{polyICT}}.
 #'
 #' @param propErrVarL Numeric List. See \code{n} in
-#' \code{\link{ployICT}}.
+#' \code{\link{polyICT}}.
 #'
-#' @param effectSizesL A list of effect sizes. See \code{n} in
-#' \code{\link{ployICT}}.
+#' @param randFxMeanL A list of effect sizes. See \code{n} in
+#' \code{\link{polyICT}}.
 #'
-#'  @param corMatL A list of numeric correlation matrices. See \code{n} in
-#' \code{\link{ployICT}}.
+#'  @param randFxCorMatL A list of numeric correlation matrices. See \code{n} in
+#' \code{\link{polyICT}}.
 #'
 #' @param randFxVarL A list of numeric vectors. See \code{n} in
-#' \code{\link{ployICT}}.
+#' \code{\link{polyICT}}.
 #'
 #' @param nFolders Numeric. The number of folders to divide the simulation into.
 #' The default is \code{NULL}, in which case the user is prompted for input at
@@ -238,11 +226,11 @@ simStatus <- function(studyName, studyDirectory=getwd())
 #' nL <- list(10, 20)
 #' phasesL <- list( makePhase(c(10,10), c(0,1)), makePhase(c(5,15), c(0,1)) )
 #' propErrVarL <- list(.5, .75)
-#' effectSizesL <- list( list(randFx=list(intercept=0, slope=.25),
+#' randFxMeanL <- list( list(randFx=list(intercept=0, slope=.25),
 #'                       fixdFx=list(phase=.5, phaseTime=.25)),
 #'                       list(randFx=list(intercept=0, slope=.5),
 #'                       fixdFx=list(phase=.5, phaseTime=.25)))
-#' corMatL <- list(matrix(c(1,.2,.2,1), 2, 2), matrix(c(1,.6,.6,1), 2, 2))
+#' randFxCorMatL <- list(matrix(c(1,.2,.2,1), 2, 2), matrix(c(1,.6,.6,1), 2, 2))
 #' randFxVarL <- list(c(1, .1), c(1, .2))
 #' B <- 3
 #' nFolders <- 4
@@ -251,8 +239,8 @@ simStatus <- function(studyName, studyDirectory=getwd())
 #'   nL                ,
 #'   phasesL           ,
 #'   propErrVarL       ,
-#'   effectSizesL      ,
-#'   corMatL           ,
+#'   randFxMeanL      ,
+#'   randFxCorMatL           ,
 #'   randFxVarL        ,
 #'   B                 ,
 #'   nFolders          ,
@@ -262,8 +250,8 @@ ICTsimSetup <- function(seed                      ,
                         nL                        ,
                         phasesL                   ,
                         propErrVarL               ,
-                        effectSizesL              ,
-                        corMatL                   ,
+                        randFxMeanL              ,
+                        randFxCorMatL                   ,
                         randFxVarL                ,
                         B                  = 1000 ,
                         nFolders           = NULL ,
@@ -293,8 +281,8 @@ ICTsimSetup <- function(seed                      ,
   nObservations <- unlist( lapply(phasesL, function(x) length(unlist(x))) )
   nBaseline     <- unlist( lapply(phasesL, function(x) length(x[[1]])) )
   propErrVarL   <- unlist( propErrVarL )
-  effectSizes   <- seq_along(effectSizesL)
-  corMats       <- seq_along(corMatL)
+  randFxMean   <- seq_along(randFxMeanL)
+  randFxCorMats       <- seq_along(randFxCorMatL)
   randFxVars    <- seq_along(randFxVarL)
 
   # set up the designs
@@ -302,8 +290,8 @@ ICTsimSetup <- function(seed                      ,
                          nObservations,
                          nBaseline    ,
                          propErrVarL  ,
-                         effectSizes  ,
-                         corMats      ,
+                         randFxMean  ,
+                         randFxCorMats      ,
                          randFxVars   )
 
   names(designI) <- c('n'             ,
@@ -311,7 +299,7 @@ ICTsimSetup <- function(seed                      ,
                       'nBaseline'     ,
                       'propErrVar'    ,
                       'effectSize'    ,
-                      'corMat'        ,
+                      'randFxCorMat'        ,
                       'randFxVar'     )
 
 
@@ -321,7 +309,7 @@ ICTsimSetup <- function(seed                      ,
     'nbl',    designI$nBaseline     ,
     'pev',    designI$propsErrVar   ,
     'fx',     designI$effectSize    ,
-    'r',      designI$corMat        ,
+    'r',      designI$randFxCorMat        ,
     'V',      designI$randFxVar     ,
     sep='')
 
@@ -347,16 +335,15 @@ ICTsimSetup <- function(seed                      ,
   designI$dir <- sort( rep(1:nFolders, length.out = nrow(designI)) )
 
   # set seeds
-  set.seed(seed)
-  designI$seeds <- ceiling(runif(nrow(designI), 0, 9e6) )
+  designI$seeds <- .makeSeeds(seed, nrow(designI))
 
   # save objects for calling by the scripts produced in the loop
   save(designI                           ,
        nL                                ,
        phasesL                           ,
        propErrVarL                       ,
-       effectSizesL                      ,
-       corMatL                           ,
+       randFxMeanL                      ,
+       randFxCorMatL                           ,
        randFxVarL                        ,
        nFolders                          ,
        ICTpowerSimOptions                ,
@@ -380,8 +367,8 @@ ICTsimSetup <- function(seed                      ,
         "                         designI$nObservations[i]-designI$nBaseline[i]),\n",
         "                       c(0,1)),\n",
         "    propErrVar = designI$propErrVar[i],\n",
-        "    effectSizes = effectSizesL[[designI$effectSize[i]]],\n",
-        "    corMat = corMatL[[designI$corMat[i]]],\n",
+        "    randFxMean = randFxMeanL[[designI$effectSize[i]]],\n",
+        "    randFxCorMat = randFxCorMatL[[designI$randFxCorMat[i]]],\n",
         "    randFxVar = randFxVarL[[designI$randFxVar[i]]]\n",
         "  )\n",
         "}\n",
