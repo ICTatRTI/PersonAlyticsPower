@@ -2,12 +2,12 @@
 % Please edit documentation in R/designICT.R
 \name{.active}
 \alias{.active}
-\title{active - active bindings for designICT R6 class definitions and it heirs}
+\title{active - active bindings for designICT R6 class definitions and its children}
 \usage{
 .active()
 }
 \description{
-active - active bindings for designICT R6 class definitions and it heirs
+active - active bindings for designICT R6 class definitions and its children
 }
 \author{
 Stephen Tueller \email{stueller@rti.org}

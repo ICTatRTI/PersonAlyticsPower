@@ -80,6 +80,8 @@ makeDesign <- function(randFxOrder, phases, groups, propErrVar,
     groups          = groups          ,
     phases          = phases          ,
     designMat       = designMat       ,
-    unStdRandFxMean = unStdRandFxMean
+    unStdRandFxMean = unStdRandFxMean ,
+    meanNames       = meanNames       ,
+    varNames        = varNames
   ))
 }

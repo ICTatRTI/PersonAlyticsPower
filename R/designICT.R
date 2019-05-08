@@ -1,4 +1,4 @@
-#' active - active bindings for designICT R6 class definitions and it heirs
+#' active - active bindings for designICT R6 class definitions and its children
 #'
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
@@ -8,150 +8,13 @@
 {
   list(
 
+    # fields that can be updated by the user
     inputMat = function(value)
     {
-      if( missing(value) ){ private$.inputMat}
+      if( missing(value) ){ private$.inputMat }
       else
       {
-
-      }
-    },
-
-    groups = function(value)
-    {
-      if( missing(value) ){ private$.groups }
-      else
-      {
-
-      }
-    },
-
-    phases = function(value)
-    {
-      if( missing(value) ){ private$.phases }
-      else
-      {
-        if( private$.nObs < 10 )
-        {
-          warning("`desgin` has ", nObs, " total time points.\n",
-                  "At least 10 time points are reccomended.")
-        }
-        private$.phases <- value
-        self
-      }
-    },
-
-    n = function(value)
-    {
-
-    },
-
-    nObs = function(value)
-    {
-      if( missing(value) ){ private$.nObs }
-      else
-      {
-        warning('`nObs` is constructed from other inputs during the',
-             ' creation of a\n`', class(self)[1], '` object and cannot',
-             ' be updated.')
-        private$.nObs <- value
-      }
-    },
-
-
-
-    phaseNames = function(value)
-    {
-      if( missing(value) ){ private$.phaseNames }
-      else
-      {
-        if( length(private$.phases) != length(value) )
-        {
-          stop("The `desgin` has ", length(private$.phases), " phases.\n",
-               "Only ", length(value), " `phaseNames` were provided:\n",
-               paste(value, sep='\n'))
-        }
-        private$.phaseNames <- value
-        self
-      }
-    },
-
-    groupNames = function(value)
-    {
-      if( missing(value) ){ private$.groupNames }
-      else
-      {
-        if( length(private$.groupNames) != length(value) )
-        {
-          stop("The `desgin` has ", length(private$.groupNames), " groups.\n",
-               "Only ", length(value), " `groupNames` were provided:\n",
-               paste(value, sep='\n'))
-        }
-        private$.groupNames <- value
-        self
-      }
-    },
-
-    designMat = function(value)
-    {
-      if( missing(value) ){ private$.designMat }
-      else
-      {
-        warning('`designMat` is constructed from other inputs during the',
-             ' creation of a\n`', class(self)[1], '` object and cannot',
-             ' be updated.')
-        private$.designMat <- value
-      }
-    },
-
-    propErrVar = function(value)
-    {
-      if( missing(value) ){ private$.propErrVar }
-      else
-      {
-        if( any(value < .01) | any(value > .99) )
-        {
-          stop("The three values in `propErrVar` must be > .01 and < .99.\n",
-               "You provided (", paste(value, collapse=', '), ").")
-        }
-        if( sum(value) != 1 )
-        {
-          stop("The three values in `propErrVar` should sum to one.\n",
-               "The sum of (", paste(value, collapse=', '), ") is ", sum(value), ".")
-        }
-        private$.propErrVar <- value
-        self
-      }
-    },
-
-    randFxMean = function(value)
-    {
-      if( missing(value) ){ private$.randFxMean }
-      else
-      {
-        if( !is.list(value) )
-        {
-          stop('`randFxMean` should be a named list, not the provided value\n',
-               value)
-        }
-        if("polyICT" %in% class(self))
-        {
-          checkRandFxMeanPoly(value)
-        }
-        private$.randFxMean <- value
-        self
-      }
-    },
-
-    unStdRandFxMean = function(value)
-    {
-      if( missing(value) ){ private$.unStdRandFxMean }
-      else
-      {
-        warning('`unStdRandFxMean` is constructed from other inputs during the',
-             ' creation of a\n`', class(self)[1], '` object and cannot',
-             ' be updated.')
-        private$.unStdRandFxMean <- value
+        private$.inputMat <- value
       }
     },
 
@@ -160,15 +23,7 @@
       if( missing(value) ){ private$.randFxVar }
       else
       {
-        if(( !is.list(value) & (length(value) != (private$.maxRandFx + 1)) ))
-        {
-          stop('This design has ', private$.maxRandFx + 1, ' random effects,\n',
-               'while you provided ', length(value))
-        }
-        private$.randFxVar <- .randFxVarPop(private$.phaseNames,
-                                           private$.groupNames,
-                                           value, 'n')
-        self
+        private$.randFxVar <- value
       }
     },
 
@@ -177,15 +32,7 @@
       if( missing(value) ){ private$.randFxCorMat }
       else
       {
-        #if("polyICT" %in% class(self))
-        #{
-        #  temp <- checkPolyICT(private$.groups, private$.randFxMean,
-        #                       private$.phases, private$.randFxCorMat,
-        #                       private$.randFVar)
-
-        #}
         private$.randFxCorMat <- value
-        self
       }
     },
 
@@ -194,13 +41,158 @@
       if( missing(value) ){ private$.randFxCovMat }
       else
       {
-        warning('`randFxCovMat` is constructed from other inputs during the',
-             ' creation of a\n`', class(self)[1], '` object and cannot',
-             ' be updated.')
         private$.randFxCovMat <- value
       }
     },
 
+    propErrVar = function(value)
+    {
+      if( missing(value) ){ private$.propErrVar }
+      else
+      {
+        private$.propErrVar <- value
+      }
+    },
+
+    error = function(value)
+    {
+      if( missing(value) ){ private$.error }
+      else
+      {
+        private$.error <- value
+      }
+    },
+
+    merror = function(value)
+    {
+      if( missing(value) ){ private$.merror }
+      else
+      {
+        private$.merror <- value
+      }
+    },
+
+    yMean = function(value)
+    {
+      if( missing(value) ){ private$.yMean }
+      else
+      {
+        private$.yMean <- value
+      }
+    },
+
+    ySD  = function(value)
+    {
+      if( missing(value) ){ private$.ySD }
+      else
+      {
+        private$.ySD <- value
+      }
+    },
+
+
+    # fields than cannot be updated by the user
+    n = function(value)
+    {
+      if( missing(value) ){ private$.n }
+      else
+      {
+        private$.n <- value
+      }
+    },
+
+    nObs = function(value)
+    {
+      if( missing(value) ){ private$.nObs }
+      else
+      {
+        private$.nObs <- value
+      }
+    },
+
+    groups = function(value)
+    {
+      if( missing(value) ){ private$.groups }
+      else
+      {
+        private$.groups <- value
+      }
+    },
+
+    phases= function(value)
+    {
+      if( missing(value) ){ private$.phases }
+      else
+      {
+        private$.phases <- value
+      }
+    },
+
+    designMat = function(value)
+    {
+      if( missing(value) ){ private$.designMat }
+      else
+      {
+        private$.designMat <- value
+      }
+    },
+
+    unStdRandFxMean = function(value)
+    {
+      if( missing(value) ){ private$.unStdRandFxMean }
+      else
+      {
+        private$.unStdRandFxMean <- value
+      }
+    },
+
+    phaseNames = function(value)
+    {
+      if( missing(value) ){ private$.phaseNames }
+      else
+      {
+        private$.phaseNames <- value
+      }
+    },
+
+    groupNames = function(value)
+    {
+      if( missing(value) ){ private$.groupNames }
+      else
+      {
+        private$.groupNames <- value
+      }
+    },
+
+    randFxOrder = function(value)
+    {
+      if( missing(value) ){ private$.randFxOrder }
+      else
+      {
+        private$.randFxOrder <- value
+      }
+    },
+
+    meanNames = function(value)
+    {
+      if( missing(value) ){ private$.meanNames }
+      else
+      {
+        private$.meanNames <- value
+      }
+    },
+
+    varNames = function(value)
+    {
+      if( missing(value) ){ private$.varNames }
+      else
+      {
+        private$.varNames <- value
+      }
+    },
+
+
+    # fields not currently implementd
     randFxFam = function(value)
     {
       if( missing(value) ){ private$.randFxFam }
@@ -217,64 +209,7 @@
       {
         private$.randFxFamParms <- value
       }
-    },
-
-    maxRandFx = function(value)
-    {
-      if( missing(value) ){ private$.maxRandFx }
-      else
-      {
-        warning('`maxRandFx` is constructed from `randFxMean` during the',
-             ' creation of a\n`', class(self)[1], '` object and cannot',
-             ' be updated.')
-        private$.maxRandFx <- value
-      }
-    },
-
-    error = function(value)
-    {
-      if( missing(value) ){ private$.error }
-      else
-      {
-        if( !class(value) %in% "err" ) stop('`error` must be an `err` class object.')
-        private$.error <- value
-      }
-
-    },
-
-    merror = function(value)
-    {
-      if( missing(value) ){ private$.merror }
-      else
-      {
-        if( !class(value) %in% "err" ) stop('`merror` must be an `err` class object.')
-        private$.merror <- value
-      }
-
-    },
-
-    variances = function(value)
-    {
-      if( missing(value) ){ private$.variances }
-      else
-      {
-        stop('`variances` is constructed from other inputs during the',
-             ' creation of a\n`', class(self)[1], '` object and cannot',
-             ' be updated.')
-      }
-    },
-
-    expectedVariances = function(value)
-    {
-      if( missing(value) ){ private$.expectedVariances }
-      else
-      {
-        stop('`expectedVariances` is constructed from other inputs during the',
-             ' creation of a\n`', class(self)[1], '` object and cannot',
-             ' be updated.')
-      }
     }
-
   )
 }
 
@@ -300,29 +235,33 @@ designICT <- R6::R6Class("designICT",
                          # private (to my knowledge)
                          private = list(
 
-                           # design
-                           .groups                 = NULL,
-                           .nObs     = NULL,
-                           .phases            = NULL,
-                           .phaseNames        = NULL,
-                           .groupNames        = NULL,
-                           .designMat         = NULL,
-                           .propErrVar        = NULL,
-                           # random effects
-                           .randFxMean        = NULL,
-                           .unStdRandFxMean   = NULL,
+                           # editable without a new call to $new
+                           .inputMat          = NULL,
                            .randFxVar         = NULL,
                            .randFxCorMat      = NULL,
                            .randFxCovMat      = NULL,
-                           .randFxFam         = NULL,
-                           .randFxFamParms    = NULL,
-                           .maxRandFx         = NULL,
-                           # errors
+                           .propErrVar        = NULL,
                            .error             = NULL,
                            .merror            = NULL,
-                           # variances
-                           .variances         = NULL,
-                           .expectedVariances = NULL
+                           .yMean             = NULL,
+                           .ySD               = NULL,
+
+                           # not editable
+                           .n                 = NULL,
+                           .nObs              = NULL,
+                           .groups            = NULL,
+                           .phases            = NULL,
+                           .designMat         = NULL,
+                           .unStdRandFxMean   = NULL,
+                           .phaseNames        = NULL,
+                           .groupNames        = NULL,
+                           .randFxOrder       = NULL,
+                           .meanNames         = NULL,
+                           .varNames          = NULL,
+
+                           # not implemented
+                           .randFxFam         = NULL,
+                           .randFxFamParms    = NULL
                          ),
 
                          # Child classes of designICT will inherit active bindings and

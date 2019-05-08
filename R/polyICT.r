@@ -158,12 +158,12 @@ polyICT <- R6::R6Class("polyICT",
                            error             = armaErr$new()                             ,
                            merror            = armaErr$new(list())                       ,
                            ySD               = 15                                        ,
-                           yMean             = 100
+                           yMean             = 100                                       ,
 
                            # these should be hidden from users until we can model
                            # non-normal random effects
                            randFxFam         = "qNO"                                     ,
-                           randFxFamParms    = list(mu=.5 , sigma=1)                     ,
+                           randFxFamParms    = list(mu=.5 , sigma=1)
 
                          )
                          {
@@ -198,6 +198,8 @@ polyICT <- R6::R6Class("polyICT",
                            private$.phaseNames        <- names(phases)
                            private$.groupNames        <- names(groups)
                            private$.randFxOrder       <- randFxOrder
+                           private$.meanNames         <- meanNames
+                           private$.varNames          <- varNames
 
                            # not implemented
                            private$.randFxFam         <- randFxFam
