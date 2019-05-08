@@ -345,4 +345,14 @@ makeSeeds <- function(seed, S)
   ceiling(runif(S, 0, 9e6))
 }
 
+#' .err - function to generate errors in .active
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @keywords internal
+.err <- function(x, self)
+{
+  stop('To edit `', x, '` use `edit(x$inputMat)` where `x` is your ',
+       class(self)[1], ' object.')
+}
+
 

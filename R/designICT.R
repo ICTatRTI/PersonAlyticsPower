@@ -8,39 +8,12 @@
 {
   list(
 
-    n = function(value)
+    groups = function(value)
     {
-      if( missing(value) ){ private$.n }
+      if( missing(value) ){ private$.groups }
       else
       {
-        isNum <- is.numeric(value)
-        isInt <- TRUE
-        if(isNum) isInt <- round(value)==value
-        if( !all(isNum) | !all(isInt) )
-        {
-          stop("`n`, the number of participants, ",
-               "must be a positive integer\ninstead of the ",
-               "provided value `", value, "`")
-        }
-        if(length(value) != length(private$.n))
-        {
-          value <- rep(value, length(private$.n))
-          names(value) <- names(private$.n)
-        }
-        private$.n <- value
-        self
-      }
-    },
 
-    nObservations = function(value)
-    {
-      if( missing(value) ){ private$.nObservations }
-      else
-      {
-        warning('`nObservations` is constructed from other inputs during the',
-             ' creation of a\n`', class(self)[1], '` object and cannot',
-             ' be updated.')
-        private$.nObservations <- value
       }
     },
 
@@ -49,15 +22,34 @@
       if( missing(value) ){ private$.phases }
       else
       {
-        if( private$.nObservations < 10 )
+        if( private$.nObs < 10 )
         {
-          warning("`desgin` has ", nObservations, " total time points.\n",
+          warning("`desgin` has ", nObs, " total time points.\n",
                   "At least 10 time points are reccomended.")
         }
         private$.phases <- value
         self
       }
     },
+
+    n = function(value)
+    {
+
+    },
+
+    nObs = function(value)
+    {
+      if( missing(value) ){ private$.nObs }
+      else
+      {
+        warning('`nObs` is constructed from other inputs during the',
+             ' creation of a\n`', class(self)[1], '` object and cannot',
+             ' be updated.')
+        private$.nObs <- value
+      }
+    },
+
+
 
     phaseNames = function(value)
     {
@@ -178,7 +170,7 @@
       {
         #if("polyICT" %in% class(self))
         #{
-        #  temp <- checkPolyICT(private$.n, private$.randFxMean,
+        #  temp <- checkPolyICT(private$.groups, private$.randFxMean,
         #                       private$.phases, private$.randFxCorMat,
         #                       private$.randFVar)
 
@@ -300,8 +292,8 @@ designICT <- R6::R6Class("designICT",
                          private = list(
 
                            # design
-                           .n                 = NULL,
-                           .nObservations     = NULL,
+                           .groups                 = NULL,
+                           .nObs     = NULL,
                            .phases            = NULL,
                            .phaseNames        = NULL,
                            .groupNames        = NULL,
@@ -344,7 +336,7 @@ designICT <- R6::R6Class("designICT",
                              message(hl(),
                                      "An ICT with ", sum(self$n), " participants, ",
                                      length(c(unlist(self$phases))), " time points, and ",
-                                     ifelse(!is.null(self$groupNames), nGroups, 1),
+                                     ifelse(!is.groupsull(self$groupNames), nGroups, 1),
                                      ifelse(nGroups==1, " group.", " groups.\n"), hl(),
                                      "\nPhases:\n",
                                      paste(phases, collapse = ''),
@@ -428,7 +420,7 @@ designICT <- R6::R6Class("designICT",
                              }
 
                              # save data if requested
-                             if(!is.null(file)) save(mod0, file=paste(file[1],
+                             if(!is.groupsull(file)) save(mod0, file=paste(file[1],
                                                                       'designCheck.RData',
                                                                       sep='_'))
 
