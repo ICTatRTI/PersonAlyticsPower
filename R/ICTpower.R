@@ -283,8 +283,8 @@ powerReport <- function(paout, alpha, file, saveReport=TRUE)
                                            width=max(nchar(names(powerL)))) )
   powerOutput <- paste(names(powerL), '\t', round(unlist(powerL),2), '\n' )
 
-  message( hl(), "Power Estimates:\n", hl(),
-    powerOutput, hl() )
+  message( .hl(), "Power Estimates:\n", hl(),
+    powerOutput, .hl() )
 
   # save the report
   if(saveReport)
@@ -297,14 +297,6 @@ powerReport <- function(paout, alpha, file, saveReport=TRUE)
   return( unlist(powerL) )
 }
 
-#' hl - horizontal line for printing to the console
-#' @author Stephen Tueller \email{stueller@@rti.org}
-#'
-#' @keywords internal
-hl <- function()
-{
-  paste(paste(rep("\u2500", 80), collapse=''), '\n')
-}
 
 
 

@@ -240,3 +240,14 @@
   stop('To edit `', x, '` use `edit(x$inputMat)` where `x` is your ',
        class(self)[1], ' object.')
 }
+
+
+
+#' .hl - horizontal line for printing to the console
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @keywords internal
+.hl <- function()
+{
+  paste(paste(rep("\u2500", 80), collapse=''), '\n')
+}
