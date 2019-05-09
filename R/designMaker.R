@@ -52,13 +52,12 @@ makeDesign <- function(randFxOrder, phases, groups, propErrVar,
   }
   rm(p, g, .np, .ng, .V)
 
-  # TODO change unStdRandFxMean to unStdInputMat (notepad++ not working today)
   # get unstandardized random effects means by multiplying by sqrt(var)
-  unStdRandFxMean <- inputMat
+  unStdInputMat <- inputMat
   for(i in seq_along(randFxOrder))
   {
-    unStdRandFxMean[[meanNames[i]]] <- unStdRandFxMean[[meanNames[i]]] *
-      sqrt(unStdRandFxMean[[varNames[i]]])
+    unStdInputMat[[meanNames[i]]] <- unStdInputMat[[meanNames[i]]] *
+      sqrt(unStdInputMat[[varNames[i]]])
   }
 
   # construct the fixed effects design matrix, only one
@@ -86,7 +85,7 @@ makeDesign <- function(randFxOrder, phases, groups, propErrVar,
     groups          = groups          ,
     phases          = phases          ,
     designMat       = designMat       ,
-    unStdRandFxMean = unStdRandFxMean ,
+    unStdInputMat   = unStdInputMat   ,
     meanNames       = meanNames       ,
     varNames        = varNames
   ))
