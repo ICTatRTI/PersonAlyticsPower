@@ -245,7 +245,6 @@ myPolyICT$inputMat
 # is not run when calling example(polyICT) due to it taking several seconds to
 # simulate the large sample data.
 
-
 \dontrun{
 
 myPolyICT$designCheck(ylim=c(75,125))
