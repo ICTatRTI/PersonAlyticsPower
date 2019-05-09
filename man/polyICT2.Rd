@@ -29,7 +29,7 @@ random effects and that due to error variance at time = 1.}
 \item{expectedVariance}{The expected variances across all time points. This will
 not match the variance of the simulated data unless n is large. See the \code{checkDesign}
 parameter in \code{\link{ICTpower}}.}
-\item{unStdRandFxMean    }{The unstandardized effect sizes constructed from the total
+\item{unStdInputMat    }{The unstandardized effect sizes constructed from the total
 \code{expectedVariance} and the \code{randFxMean}.}
 }
 \description{
@@ -126,7 +126,7 @@ defaultPolyICT$randFxCovMat
 defaultPolyICT$nObservations
 defaultPolyICT$variances
 defaultPolyICT$expectedVariances
-defaultPolyICT$unStdRandFxMean
+defaultPolyICT$unStdInputMat
 
 
 

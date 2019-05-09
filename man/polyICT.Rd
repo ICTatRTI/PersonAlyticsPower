@@ -8,71 +8,258 @@
 \usage{
 polyICT$new()
 }
-\value{
-\item{n               }{The number of participants (see `Fields`).}
-\item{phases          }{The phases of the study (see `Fields`).}
-\item{phaseNames      }{The names of the phases.}
-\item{groupNames      }{The names of the groups.}
-\item{propErrVar      }{The proportion of error variance (see `Fields`).}
-\item{randFxMean     }{The fixed effects effect sizes (see `Fields`).}
-\item{randFxCorMat          }{The correlation matrix of the random effects (see `Fields`).}
-\item{randFxVar       }{The variance of the random effects (see `Fields`).}
-\item{maxRandFx       }{The highest order for polynomial random effects.}
-\item{designMat       }{The design matrix for one participant showing the structure
-of study timing and phases.}
-\item{randFxCovMat          }{The covariance matrix constructed using \code{randFxCorMat},
-and \code{randFxVar}.}
-\item{nObs   }{The number of observations per participant.}
-\item{variances       }{Partition of the total variance into that due to
-random effects and that due to error variance at time = 1.}
-\item{expectedVariance}{The expected variances across all time points. This will
-not match the variance of the simulated data unless n is large. See the \code{checkDesign}
-parameter in \code{\link{ICTpower}}.}
-\item{unStdRandFxMean    }{The unstandardized effect sizes constructed from the total
-\code{expectedVariance} and the \code{randFxMean}.}
-}
 \description{
 \code{polyICT} class generator
+}
+\details{
+The \code{polyICT} class generator specifies the inputs needed to simulate
+data from a polynomial growth model. Once a \code{polyICT} object is created,
+you can called its methods and examine or update its fields.
+
+Methods are functions that come packaged within your \code{polyICT} object
+and include \code{$print()} for printing the inputs,
+\code{$update()} for changing the inputs,
+\code{$designCheck()} for visualizing the design, and
+\code{$makeData} for simulating a single data set. See the section
+titled \strong{Methods}.
+
+Fields are all the data stored within a \code{polyICT} object,
+some of which are provided by the user when initializing a \code{polyICT}
+object, and others which are derived from these inputs and cannot be changed
+by the user directly. These are detailed in the section titled \strong{Fields}.
+Fields can be accessed using the \code{$} operator. For example, if your
+\code{polyICT} object is called \code{myPolyICT}, use \code{myPolyICT$inputMat}.
 }
 \section{Fields}{
 
 \describe{
-\item{\code{n}}{Numeric (integer). The number of participants. Default is 10.}
+\item{\code{inputMat}}{A \code{\link{data.frame}} containing the inputs needed for
+data simulation by phase and by group. Columns include \code{Phase},
+\code{Group}, \code{nObs} (the number of observations in a given phase),
+\code{n} (the number of participants in a given group), the means and
+variances for each random effect (see \code{randFxOrder} under \code{new} in
+the Methods section), and the variance partioning (see
+\code{propErrVar} under \code{new} in the Methods section). Instructions
+for editing this field are given in the Examples.
 
-\item{\code{phases}}{List. Each phase in one item in the list with the phase name
-repeated for the number of time points in the phase. For example, an "ABA"
-study with 5 time points each would be \code{list(rep("A", 5), rep("B", 5),
-rep("A", 5))}. See also the function \code{\link{makePhase}}. Default is
-\code{makePhase()}.}
+The \code{Mean} columns are standardized effect sizes on the scale of Cohen's
+\emph{d}. For more detailed information and illustrations, see the Example
+section.}
 
-\item{\code{propErrVar}}{Length 3 numeric vector. Default is \code{c(.5,.25,.25)}.#'
-Proporotion of the total variance
-that is due to [1] random effects, [2] residual autocorrelation, and
-[3] measurement error. The values in \code{propErrVar} must sum to one.}
+\item{\code{randFxVar}}{See \code{randFxVar} in the \code{new} method. Phase and/or
+group specific variances can be specified by editing \code{inputMat} after
+initializing a \code{polyICT} object.}
 
-\item{\code{randFxMean}}{A length 2 list with the names `randFx` and `fixdFx`. Each
-are themselves a list with the coefficients for a polynomial growth model.
-The length of `randFx` and `fixdFx` corresponds to the order of the model,
-where an order of 2 would be a linear model and an order of 3 would be a
-quadratic model. An example of a quadratic model would be
-list(randFx = list(intercept = 0, slope = .5, quad = .2),
-     fixdFx = list(phase = 1, phaseSlope = .2, phaseQuad = .1))}
+\item{\code{randFxCorMat}}{A list of correlation matrices for each phase and group.
+The default \code{randFxCorMat}s are ceated using \code{randFxCor} for all
+off-diagonal entries. These can be edited as illustrated in the Examples.}
 
-\item{\code{randFxCorMat}}{Numeric matrix. A symmetric correlation matrix with a dimension
-equal to the order of the model. For example, a quadratic model would
-correpspond to a 3x3 matrix. The diagonal elements must equal 1, the off
-diagonal elements must be between -1 and +1, and the matrix must be
-invertable.}
+\item{\code{randFxCovMat}}{A list of covariance matrices implied by
+\code{randFxCorMat} and the \code{randFxVar}.}
 
-\item{\code{randFxVar}}{Numeric vector. A vector of the same length as the order of
-the polynomial
-model containing the variances of the random effects. For example, in a
-quadratic model, `randFxVar` would be length three, the first element would
-be the intercept variance, the second element would be the slope variance,
-and the third element would be the variance of the quadratic term.}
+\item{\code{propErrVar}}{See \code{propErrVar} in the \code{new} Method. See also
+\code{inputMat} and the Examples for making these inputs phase and/or group
+specific.}
+
+\item{\code{error}}{See \code{error} in the \code{new} Method. See also
+\code{\link{errARMA}}.}
+
+\item{\code{merror}}{See \code{merror} in the \code{new} Method.}
+
+\item{\code{yMean}}{See \code{yMean} in the \code{new} Method.}
+
+\item{\code{ySD}}{See \code{ySD} in the \code{new} Method.}
+
+\item{\code{n}}{The total sample size.}
+
+\item{\code{nObs}}{The total number of observations (i.e., time points).}
+
+\item{\code{groups}}{See \code{groups} in the \code{new} Method.}
+
+\item{\code{phases}}{See \code{phases} in the \code{new} Method.}
+
+\item{\code{designMat}}{The design matrix with phases and timepoints.}
+
+\item{\code{unStdInputMat}}{A copy of \code{InputMat} with unstandardized effect
+sizes in the \code{Mean} columns.}
+
+\item{\code{meanNames}}{The columns of \code{InputMat} and \code{unStdInputMat}
+corresponding to the effect sizes/random effect means.}
+
+\item{\code{varNames}}{The columns of \code{InputMat} and \code{unStdInputMat}
+corresponding to the random effect variances.}
+
+\item{\code{phaseNames}}{The names of the phases, taken from \code{phases}.}
+
+\item{\code{groupNames}}{The names of the groups, taken from \code{groups}.}
+
+\item{\code{randFxFam}}{A \code{\link{gamlss.family}} distribution for non-normal
+random effects. Not implemented.}
+
+\item{\code{randFxFamParms}}{The parameters for the \code{\link{gamlss.family}}
+distribution specified in \code{randFxFam}. Not implemented.}
 }}
 
+\section{Methods}{
+
+\describe{
+
+  \item{\code{new}}{Used to initialize a \code{polyICT} object as illustrated
+  in the \strong{Examples} below. The following
+  parameters can be passed to \code{$new()}:
+
+  \code{groups} Named numeric vector. The default is
+  \code{c(group1=10, group2=10)}. The values are the number of participants
+  per group and the names are the group names.
+
+  \code{phases} Named list. The default is created using the helper function
+  \code{\link{makePhase}}. Each item in the list replicates the phase name
+  as many times as there are time points in that phase. Actual time points
+  are derived during initialization and stored in the field \code{designMat}.
+
+  \code{propErrVar} Named numeric vector of length 3. The default is
+  \code{c(randFx=.5, res=.25, mserr=.25)}. The names must be
+  \code{randFx}, the proportion of the total variance due to random effects;
+  \code{res}, the proportion of the total variance due to residual
+  autocorrelation; and \code{mserr}, the proportion of total variance due to
+  measurement error. The three values must be proportions and must sum to 1.
+
+  \code{randFxOrder} Numeric vector. The default is \code{1}. This is used
+  to specify the order of the polynomial growth model as follows:
+  \code{randFxOrder=0} is an intercept only model, \code{randFxOrder=1} adds
+  random slopes, \code{randFxOrder=2} is a quadratic growth model,
+  \code{randFxOrder=3} is a cubic growth model, etc.
+
+  \code{randFxCor} Numeric. The correlation(s) between all of the random
+  effects. This can be edited later and made group and/or phase specific. See
+  the \strong{Examples}.
+
+  \code{randFxVar} Numeric vector. The default is \code{c(1, 1)}. This
+  parameter is used to specify the variances of the random effects. The
+  number of variances should equal \code{randFxOrder + 1}. The random effects
+  variances are created as
+  \code{Var[o] = propErrVar$randFx * (randFxVar[o]/sum(randFxVar))} where
+  \code{o=0:randFxOredr}. Hence \code{randFxVar} specifies the ratios of
+  the variance that is partitioned among the random effects and rescaled by
+  \code{propErrVar$randFx}. See \code{makeData} in the \strong{Methods}
+  section for more details.
+
+  \code{error} An error object for the residual autocorrelation. The default
+  is \code{armaErr$new(list(ar=c(.5), ma=c(0)))}, a first order AR process
+  with \eqn{phi_1=.5}. See \code{\link{armaErr}}. See \code{makeData} in the
+  \strong{Methods} section for more details.
+
+  \code{merror} An error object for the measurement error. The default
+  is \code{armaErr$new(list()}, a white noise process. See
+  \code{\link{armaErr}}. Also see \code{makeData} in the \strong{Methods}
+  section for more details.
+
+  \code{ySD} Numeric. The default is \code{15}. The standard deviation of the
+  final data. See \code{makeData} in the \strong{Methods}
+  section for more details.
+
+  \code{ySD} Numeric. The default is \code{100}. The mean of the
+  final data. See \code{makeData} in the \strong{Methods}
+  section for more details.
+
+  }
+
+  \item{\code{print}}{See \code{\link{designICT}}.}
+
+  \item{\code{designCheck}}{See \code{\link{designICT}}.}
+
+  \item{\code{update}}{A method to update editable field in a \code{polyICT}
+  object. Fields that can be updated are those listed in \code{new}. New
+  values are passed by name using, for example,
+  \code{$update(groups=c(group1=25, group2=25), randFxOrder=2)}. The are no
+  defaults and any number of fields can be updated at once.
+  }
+
+  \item{\code{makeData}}{A method to simulate one data set from the settings
+  in a given \code{polyICT} object. This method is not intended to be used
+  directly by the user, who should instead use \code{\link{ICTpower}} to
+  automate a power analysis for one ICT design, or \code{\link{ICTpowerSim}} for
+  conducting a full power analysis simulation study. The parameters are
+
+    \code{seed} Numeric. The default is \code{123}. A random seed for
+    reproducibility. If multiple calls are made to \code{makeData}, the seed
+    should change for each call as is done automatically by
+    \code{\link{ICTpower}}.
+
+    \code{yMean} Numeric. Seed \code{yMean} in \code{new}.
+
+    \code{ySD} Numeric. Seed \code{ySD} in \code{new}.
+  }
+}
+}
+
+\examples{
+# Set up a new polyICT object using the default parameter settings
+
+myPolyICT <- polyICT$new(
+  groups            = c(group1=10, group2=10)          ,
+  phases            = makePhase()                      ,
+  propErrVar        = c(randFx=.5, res=.25, mserr=.25) ,
+  randFxOrder       = 1                                ,
+  randFxCor         = 0.2                              ,
+  randFxVar         = c(1, 1)                          ,
+  error             = armaErr$new()                    ,
+  merror            = armaErr$new(list())              ,
+  ySD               = 15                               ,
+  yMean             = 100                              ,
+  )
+
+# print the object
+
+myPolyICT
+# equivalent to:
+#print(myPolyICT)
+#myPolyICT$print()
+
+# fields can be accessed directly using $
+myPolyICT$inputMat
+myPolyICT$designMat
+
+# edit the means in inputMat so that
+#
+# 1. group1 is left with no change in all three phases
+# 2. group2 has no change at phase1 (i.e., baseline), phase2 has a phase
+#    jump to d=.3 with no within phase change, and phase3 starts where it
+#    left off at d=.3 and decreases by d=-.6 through the remained of the
+#    phase.
+#
+# Note that editing inputMat may be easier using
+#edit(myPolyICT)
+# but this is more diffucult to replicate.
+myPolyICT$inputMat[myPolyICT$inputMat$Phase=='phase2' &
+  myPolyICT$inputMat$Group=='group2', 'Mean0'] <- .3
+myPolyICT$inputMat[myPolyICT$inputMat$Phase=='phase3' &
+  myPolyICT$inputMat$Group=='group2', 'Mean0'] <- .3
+myPolyICT$inputMat[myPolyICT$inputMat$Phase=='phase3' &
+  myPolyICT$inputMat$Group=='group2', 'Mean1'] <- -.6
+myPolyICT$inputMat
+
+# now do a large sample (n=5,000/group) check of the design using $designCheck.
+# Notice that in group 2, there is a jump of about .3*15=4.5 between phases
+# one and two, and that within phase 3 there is -.6*15=-9 point reduction. This
+# is not run when calling example(polyICT) due to it taking several seconds to
+# simulate the large sample data.
+\dontrun{
+
+myPolyICT$designCheck(ylim=c(75,125))
+
+# for comparison, see what can happen under finite samples (n=10/group).
+# Notice that there are substantial changes in group1 even though none are
+# specified, and that the changes in group2 can be different from what was
+# specified. This illustrates possible. finite sample behaviors.
+
+myPolyICT$designCheck(seed=1, npg=10, ylim=c(75,125))
+myPolyICT$designCheck(seed=2, npg=10, ylim=c(75,125))
+myPolyICT$designCheck(seed=3, npg=10, ylim=c(75,125))
+
+}
+}
 \author{
 Stephen Tueller \email{stueller@rti.org}
 }
-\keyword{datasets}
+\keyword{data}
