@@ -100,7 +100,7 @@
 #' \item{expectedVariance}{The expected variances across all time points. This will
 #' not match the variance of the simulated data unless n is large. See the \code{checkDesign}
 #' parameter in \code{\link{ICTpower}}.}
-#' \item{unStdRandFxMean    }{The unstandardized effect sizes constructed from the total
+#' \item{unStdInputMat    }{The unstandardized effect sizes constructed from the total
 #' \code{expectedVariance} and the \code{randFxMean}.}
 
 #'
@@ -120,7 +120,7 @@
 #' defaultPolyICT$nObservations
 #' defaultPolyICT$variances
 #' defaultPolyICT$expectedVariances
-#' defaultPolyICT$unStdRandFxMean
+#' defaultPolyICT$unStdInputMat
 #'
 #'
 #'
@@ -144,7 +144,7 @@ polyICT2 <- R6::R6Class("polyICT",
        .nObservations     = NULL,
        .variances         = NULL,
        .expectedVariances = NULL,
-       .unStdRandFxMean      = NULL
+       .unStdInputMat      = NULL
      ),
 
      public  = list(
@@ -164,7 +164,7 @@ polyICT2 <- R6::R6Class("polyICT",
          nObservations     = NULL                                      ,
          variances         = NULL                                      ,
          expectedVariances = NULL                                      ,
-         unStdRandFxMean      = NULL
+         unStdInputMat      = NULL
        )
        {
          if(is.null(randFxMean))
@@ -208,7 +208,7 @@ polyICT2 <- R6::R6Class("polyICT",
          # initial values
          expectedVariances <- expectedVar(randFxCovMat, designMat, variances,
                                           randFxMean, nObservations, n)
-         unStdRandFxMean      <- expectedVariances$randFxMean
+         unStdInputMat      <- expectedVariances$randFxMean
 
          # populate private
          private$.n                 <- n
@@ -225,7 +225,7 @@ polyICT2 <- R6::R6Class("polyICT",
          private$.nObservations     <- nObservations
          private$.variances         <- variances
          private$.expectedVariances <- expectedVariances
-         private$.unStdRandFxMean      <- unStdRandFxMean
+         private$.unStdInputMat      <- unStdInputMat
 
        },
 
@@ -306,24 +306,24 @@ buildY <- function(randFx, errors, ymean, yvar)
   # fixed and random effects
   fe <- re <- list()
   fev <- rev <- list()
-  for(i in seq_along(self$unStdRandFxMean[[1]]))
+  for(i in seq_along(self$unStdInputMat[[1]]))
   {
     # fixed effects
-    feName  <- names(self$unStdRandFxMean$fixdFx)[i]
-    fe[[i]] <- matrix((self$unStdRandFxMean$fixdFx[[feName]] *
+    feName  <- names(self$unStdInputMat$fixdFx)[i]
+    fe[[i]] <- matrix((self$unStdInputMat$fixdFx[[feName]] *
                          self$designMat[[feName]]),
                       self$n, self$nObservations, byrow=TRUE)
 
     # intercepts
     if(i==1)
     {
-      re[[i]] <- matrix((self$unStdRandFxMean$randFx[[i]] + randFx[,i]),
+      re[[i]] <- matrix((self$unStdInputMat$randFx[[i]] + randFx[,i]),
                         self$n, self$nObservations)
     }
     # slopes and higher
     if(i>1)
     {
-      re[[i]] <- matrix(self$unStdRandFxMean$randFx[[i]] + randFx[,i]) %*%
+      re[[i]] <- matrix(self$unStdInputMat$randFx[[i]] + randFx[,i]) %*%
         t(self$designMat$Time^(i-1))
       # QC - should be strictly linear for i==2
       #longCatEDA::longContPlot(re[[i]])

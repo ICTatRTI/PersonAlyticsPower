@@ -17,7 +17,7 @@ variances <- list(totalVar = totalVar,
 # initial values
 expectedVariances <- expectedVar(randFxCovMat, designMat, variances,
 								randFxMean, nObservations, n)
-unStdRandFxMean      <- expectedVariances$randFxMean
+unStdInputMat      <- expectedVariances$randFxMean
 
 #*# find homes for these documentation items
 #'

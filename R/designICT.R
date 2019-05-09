@@ -27,6 +27,15 @@
       }
     },
 
+    randFxCor = function(value)
+    {
+      if( missing(value) ){ private$.randFxCor }
+      else
+      {
+        private$.randFxCor <- value
+      }
+    },
+
     randFxCorMat = function(value)
     {
       if( missing(value) ){ private$.randFxCorMat }
@@ -137,12 +146,12 @@
       }
     },
 
-    unStdRandFxMean = function(value)
+    unStdInputMat = function(value)
     {
-      if( missing(value) ){ private$.unStdRandFxMean }
+      if( missing(value) ){ private$.unStdInputMat }
       else
       {
-        private$.unStdRandFxMean <- value
+        private$.unStdInputMat <- value
       }
     },
 
@@ -221,13 +230,59 @@
 #'
 #' @export
 #'
-#' @examples
-#' # create a basic ABA design
-#' basicICT <- designICT$new(n=10, phases=makePhase(), propErrVar=.5)
-#' basicICT
-#' basicICT$n <- 20
-#' basicICT$n <- 'A'
-#' basicICT$propErrVar <- 2
+#' @description
+#' The \code{designICT} class is a parent class to \code{\link{polyICT}} and
+#' other future planned classes such as \code{expICT} for exponential growth
+#' models and \code{logisticICT} for logistic ICT growth models. The
+#' \code{designICT} class contains methods (functions common to all child
+#' classes) and fields (variables common to all child classes) and is not
+#' to be used directly.
+#'
+#' @section Methods:
+#' \describe{
+#'
+#'   \item{\code{print}}{
+#'
+#'     A method for printing a the primary inputs for an ICT design.
+#'
+#'   }
+#'
+#'   \item{\code{designCheck}}{
+#'
+#'     This method simulates one dataset using the current ICT design and
+#'     plots average trajectories and histograms of the outcome by phase and
+#'     by group. This allows the user to visually check whether the inputs they
+#'     provided match their intendend design. The default is to do this with
+#'     large samples (N=5,000 per group) to show the asypmtotic behavior. For
+#'     comparison, smaller sample sizes can also be used to see the possible
+#'     deviations from the population. If smaller sample sizes are used, this
+#'     should be repeated several times to prevent over-interpretation of one
+#'     sample. See the examples in \code{\link{polyICT}}.
+#'
+#'     \code{file} Character. A file name for saving the resulting data. The
+#'     default is NULL, in which case the data are not saved.
+#'
+#'     \code{ylim} Numeric vector of length 2. Limits for the y-axis. This is
+#'     useful when variance is high and/or effect sizes are small, making it
+#'     difficult to visualize average change over time. The default is NULL, in
+#'     which case default limits are used.
+#'
+#'     \code{fitMod} Logical. Should the model implied by the design be fit to
+#'     the simulated data? The default is FALSE.
+#'
+#'     - \code{seed} Numeric. A random seed for enabling replication. The default
+#'     is 123.
+#'
+#'     \code{npg} Numeric (integer). The number per group. The default is
+#'     n=5,000 per group. If a small value is used, the user should repeat the
+#'     check with several different seeds. See the examples in
+#'     \code{\link{polyICT}}.
+#'   }
+#'
+#' }
+#'
+#'
+
 
 designICT <- R6::R6Class("designICT",
 
@@ -238,6 +293,7 @@ designICT <- R6::R6Class("designICT",
                            # editable without a new call to $new
                            .inputMat          = NULL,
                            .randFxVar         = NULL,
+                           .randFxCor         = NULL,
                            .randFxCorMat      = NULL,
                            .randFxCovMat      = NULL,
                            .propErrVar        = NULL,
@@ -252,7 +308,7 @@ designICT <- R6::R6Class("designICT",
                            .groups            = NULL,
                            .phases            = NULL,
                            .designMat         = NULL,
-                           .unStdRandFxMean   = NULL,
+                           .unStdInputMat   = NULL,
                            .phaseNames        = NULL,
                            .groupNames        = NULL,
                            .randFxOrder       = NULL,
@@ -347,7 +403,7 @@ designICT <- R6::R6Class("designICT",
                                #TODO this only works for linear models
                                #TODO needs better matching, force name matching in polyICT
                                Estimates <- round(rbind(summary(mod0)$tTable[,1]),3 )
-                               Inputs    <- round(c(unlist(self$unStdRandFxMean))[c(1,3,2,4)],3)
+                               Inputs    <- round(c(unlist(self$unStdInputMat))[c(1,3,2,4)],3)
                                cat('\n\nCheck the effect size estimates against inputs:\n')
                                print( data.frame(Inputs=Inputs, Estimates=t(Estimates)) )
 
