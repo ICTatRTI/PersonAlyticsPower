@@ -209,7 +209,7 @@ makeEta <- function(n, mu, Sigma, seed=1)
 #'                       randFxVar=randFxVar)
 #'
 #' # first simulate multivariate normal data
-#' Y <- mvrnorm( design$n, rep(0, design$maxRandFx + 1),  design$randFxCorMat)
+#' Y <- mvrnorm( design$n, rep(0, design$randFxOrder + 1),  design$randFxCorMat)
 #' psych::pairs.panels(Y)
 #' all.equal(cor(Y), randFxCorMat, tolerance=.03)
 #'

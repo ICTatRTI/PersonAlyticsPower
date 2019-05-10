@@ -409,7 +409,7 @@ polyICT <- R6::R6Class("polyICT",
 
                              self$designMat <- makeDesignMat(self$phases,
                                                              self$phaseNames,
-                                                             self$maxRandFx,
+                                                             self$randFxOrder,
                                                              'polyICT')
 
                              self$nObs <- length(c(unlist(self$phases)))
@@ -419,7 +419,9 @@ polyICT <- R6::R6Class("polyICT",
                            options(warn=0)
                            #self$edit <- FALSE
 
-                           # return self to allow for chaining of method calls
+                           # return self to allow for chaining of method calls,
+                           # as well as lazy cloning (though this must be
+                           # tested)
                            invisible(self)
                          },
 

@@ -1,4 +1,5 @@
-#' ICTpower - get simulated power for an ICT design using parametric bootstrap.
+#' ICTpower - get simulated power for an ICT design using parametric or
+#' non-parametric bootstrap.
 #'
 #' @export
 #' @import gamlss
@@ -15,40 +16,39 @@
 #' or \code{file=c('condition2', 'Rdata')}. Only `csv` and `RData` are supported.
 #'
 #' @param design An \code{\link{designICT}} object such as
-#' \code{\link{polyICT}}.
+#' \code{\link{polyICT}}. This must be provided for a parametric bootstrap
+#' esstimate of power.
 #'
 #' @param B The number of simulated dataset (or parametric bootstrap replications).
 #'
-#' @param dataFile Character. A file name for already simulated data. Use this option to
-#' do a non-parametric bootstrap. If \code{dataFile} is provide, \code{design}
+#' @param dataFile Character. A file name for exntant data. Use this option to
+#' do a non-parametric bootstrap (e.g., for finite sample power).
+#' If \code{dataFile} is provide, \code{design}
 #' will be ignored. The \code{dataFile} must be a *.csv file with the variables
 #' 'id' and 'Time', optionally 'phase' and/or 'group', and dependent variables
 #' labeled 'y'. Alternatively, \code{dataFile} may be a *.Rdata file named 'Data'
 #' with the same columns as described for the *.csv file.
 #'
-#' @param sampleSize Numeric. The sample size to be drawn \code{B} times from the
-#' \code{dataFile} data.
-#'
-#' @param checkDesign Logical. Default is \code{FALSE}. If \code{TRUE}, an
-#' initial sumulated dataset with n=1,000 participants will be simulated and the
-#' model fit to the data. This will show whether the design inputs in \code{design}
-#' are recovered under large sample. The data for the 1st 10 participants will
-#' also be plotted. This allows users to check their inputs.
+#' @param sampleSize Numeric. The sample size to be drawn \code{B} times from
+#' the \code{dataFile} data.
 #'
 #' @param alpha Numeric. Default is .05. The Type I error rate for computing
-#' emprical power (the proportion of p-values across \code{B} data sets that are
-#' less than or equal to \code{alpha}.
+#' emprical power (i.e., the proportion of p-values across \code{B} data sets
+#' that are less than or equal to \code{alpha}).
 #'
 #' @param seed A random seed for replicating the power analysis.
 #'
-#' @param cores The number of cores used in parralelized simulation. The default
-#' is to use one fewer cores than are detected on the computer. Do not exceed the
-#' maximum available cores or unexpected results may occur and R may crash.
+#' @param cores The number of cores used in parralelized simulation (for a
+#' parametric bootstrap) and for fitting models to the data for both bootstrap
+#' types (see \code{\link{PersonAlytic}}). The default
+#' is to use one fewer cores than are detected on the computer. Do not exceed
+#' the maximum available cores or unexpected results may occur and R may crash.
 #'
-#' @param savePowerReport Should the power report be saved using the \code{file}
-#' name? If \code{TRUE}, a `txt` file is saved in the working directory. This
-#' option is set to \code{FALSE} in the function \code{\link{ICTpowerSim}} which
-#' instead saves the reports from several conditions in a `csv` file.
+#' @param savePowerReport Should the power report be saved using the
+#' \code{outFile} name? If \code{TRUE}, a `txt` file is saved in the working
+#' directory. This option is set to \code{FALSE} in the function
+#' \code{\link{ICTpowerSim}} which instead saves the reports from several
+#' conditions in a `csv` file.
 #'
 #' @param ... Further arguments to be passed to \code{\link{PersonAlytic}} for
 #' analysis. All options in \code{PersonAlytic} can be passed except for
@@ -57,22 +57,26 @@
 #'
 #' @examples
 #'
+#' example(polyICT)
+#' myPolyICT$inputMat
+#'
 #' \dontrun{
-#' ICTpower(c('testICTpower10', 'csv'),
-#'   polyICT$new(n=10),
-#'   randFxSeed = 54, errorSeed=89496,
-#'   checkDesign='only')
-#' ICTpower(c('testICTpower10', 'csv'),
-#'   polyICT$new(n=200),
-#'   randFxSeed = 23, errorSeed=923,
-#'   checkDesign='only')
-#' ICTpower(c('testICTpower20_2', 'csv'), polyICT$new(randFxVar=c(5,2)),
-#'   B=10, checkDesign='only', randFxSeed=20342, errorSeed=4202)
-#' }
+#'
+#' testICTpower10 <- ICTpower(c('testICTpower10', 'csv'),
+#'   myPolyICT, B=100,
+#'   seed = 54)
+#' testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
+#'   myPolyICT$update(groups=c(group1=20, group2=20)), B=100,
+#'   seed = 23)
+#' testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
+#'   myPolyICT$update(groups=c(group1=20, group2=20), phases=makePhase(c(20,60,20))),
+#'   B=100, seed = 23)
+#'
+#'  }
 
 
 ICTpower <- function(outFile         = NULL                      ,
-                     design          = polyICT$new()             ,
+                     design          = NULL                      ,
                      B               = 100                       ,
                      dataFile        = NULL                      ,
                      sampleSize      = NULL                      ,
@@ -83,6 +87,16 @@ ICTpower <- function(outFile         = NULL                      ,
                      ...
 )
 {
+  #
+  if(is.null(design) & is.null(dataFile))
+  {
+    stop('Please provide `design` or `dataFile`, both are `NULL`.')
+  }
+  if(!is.null(design) & !is.null(dataFile))
+  {
+    stop('Please provide only on of `design` or `dataFile` but not both.')
+  }
+
   #argList <-  as.list(match.call(expand.dots = TRUE)[-1]) # only explicitly passed
   argList <- mget(names(formals()),sys.frame(sys.nframe()))
   print(argList)
@@ -93,6 +107,7 @@ ICTpower <- function(outFile         = NULL                      ,
   # generate seeds
   seeds <- .makeSeeds(seed, B)
 
+  # parametric bootstrap
   if(is.null(dataFile))
   {
     #
@@ -165,6 +180,7 @@ ICTpower <- function(outFile         = NULL                      ,
 
   }
 
+  # non-parametric bootstrap
   # TODO - still needs testing
   if(!is.null(dataFile))
   {
@@ -221,22 +237,29 @@ ICTpower <- function(outFile         = NULL                      ,
     detectAR    <- FALSE
   }
   if(!exists('detectTO'))   detectTO   <- FALSE
-  if(!exists('time_power')) time_power <- design$maxRandFx
+  if(!exists('time_power')) time_power <- design$randFxOrder
 
   #
   # analyze the data using PersonAlytics, treating y1,...,yB
   # as separate outcomes
   #
-  paout <- PersonAlytic(output      = outFile$outFile                  ,
-                        data        = Data                             ,
-                        ids         = 'id'                             ,
-                        dvs         = as.list(paste('y', 1:B, sep='')) ,
-                        time        = 'Time'                           ,
-                        phase       = 'phase'                          ,
-                        time_power  = time_power                       ,
-                        correlation = correlation                      ,
-                        detectAR    = detectAR                         ,
-                        detectTO    = detectTO                         ,
+  phase <- ifelse( length(design$phases)>1, 'phase', NULL)
+  ivs   <- ifelse( length(design$groups)>1, 'group', NULL)
+  int   <- ifelse( is.null(ivs), NULL,
+                   list(c(ivs, phase), c(ivs, 'Time')))
+  paout <- PersonAlytic(output       = outFile$outFile                  ,
+                        data         = Data                             ,
+                        ids          = 'id'                             ,
+                        dvs          = as.list(paste('y', 1:B, sep='')) ,
+                        time         = 'Time'                           ,
+                        phase        = phase                            ,
+                        ivs          = ivs                              ,
+                        interactions = int                              ,
+                        time_power   = time_power                       ,
+                        correlation  = correlation                      ,
+                        detectAR     = detectAR                         ,
+                        detectTO     = detectTO                         ,
+                        cores        = cores                            ,
                         ...
   )
 
@@ -256,9 +279,8 @@ ICTpower <- function(outFile         = NULL                      ,
     samplingDist(paout)
   }
 
-  #
-  print(powerL)
-  return(powerL)
+  # return
+  invisible(powerL)
 
 
 }
@@ -294,7 +316,7 @@ powerReport <- function(paout, alpha, file, saveReport=TRUE)
   }
 
   # return results
-  return( unlist(powerL) )
+  return( powerL )
 }
 
 

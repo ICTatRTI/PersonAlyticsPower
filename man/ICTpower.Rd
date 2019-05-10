@@ -2,10 +2,11 @@
 % Please edit documentation in R/ICTpower.R
 \name{ICTpower}
 \alias{ICTpower}
-\title{ICTpower - get simulated power for an ICT design using parametric bootstrap.}
+\title{ICTpower - get simulated power for an ICT design using parametric or
+non-parametric bootstrap.}
 \usage{
-ICTpower(outFile = NULL, design = polyICT$new(), B = 100,
-  dataFile = NULL, sampleSize = NULL, alpha = 0.05, seed = 123,
+ICTpower(outFile = NULL, design = NULL, B = 100, dataFile = NULL,
+  sampleSize = NULL, alpha = 0.05, seed = 123,
   cores = parallel::detectCores() - 1, savePowerReport = TRUE, ...)
 }
 \arguments{
@@ -16,62 +17,62 @@ file extension in a list. For example,
 or \code{file=c('condition2', 'Rdata')}. Only `csv` and `RData` are supported.}
 
 \item{design}{An \code{\link{designICT}} object such as
-\code{\link{polyICT}}.}
+\code{\link{polyICT}}. This must be provided for a parametric bootstrap
+esstimate of power.}
 
 \item{B}{The number of simulated dataset (or parametric bootstrap replications).}
 
-\item{dataFile}{Character. A file name for already simulated data. Use this option to
-do a non-parametric bootstrap. If \code{dataFile} is provide, \code{design}
+\item{dataFile}{Character. A file name for exntant data. Use this option to
+do a non-parametric bootstrap (e.g., for finite sample power).
+If \code{dataFile} is provide, \code{design}
 will be ignored. The \code{dataFile} must be a *.csv file with the variables
 'id' and 'Time', optionally 'phase' and/or 'group', and dependent variables
 labeled 'y'. Alternatively, \code{dataFile} may be a *.Rdata file named 'Data'
 with the same columns as described for the *.csv file.}
 
-\item{sampleSize}{Numeric. The sample size to be drawn \code{B} times from the
-\code{dataFile} data.}
+\item{sampleSize}{Numeric. The sample size to be drawn \code{B} times from
+the \code{dataFile} data.}
 
 \item{alpha}{Numeric. Default is .05. The Type I error rate for computing
-emprical power (the proportion of p-values across \code{B} data sets that are
-less than or equal to \code{alpha}.}
+emprical power (i.e., the proportion of p-values across \code{B} data sets
+that are less than or equal to \code{alpha}).}
 
 \item{seed}{A random seed for replicating the power analysis.}
 
-\item{cores}{The number of cores used in parralelized simulation. The default
-is to use one fewer cores than are detected on the computer. Do not exceed the
-maximum available cores or unexpected results may occur and R may crash.}
+\item{cores}{The number of cores used in parralelized simulation (for a
+parametric bootstrap) and for fitting models to the data for both bootstrap
+types (see \code{\link{PersonAlytic}}). The default
+is to use one fewer cores than are detected on the computer. Do not exceed
+the maximum available cores or unexpected results may occur and R may crash.}
 
-\item{savePowerReport}{Should the power report be saved using the \code{file}
-name? If \code{TRUE}, a `txt` file is saved in the working directory. This
-option is set to \code{FALSE} in the function \code{\link{ICTpowerSim}} which
-instead saves the reports from several conditions in a `csv` file.}
+\item{savePowerReport}{Should the power report be saved using the
+\code{outFile} name? If \code{TRUE}, a `txt` file is saved in the working
+directory. This option is set to \code{FALSE} in the function
+\code{\link{ICTpowerSim}} which instead saves the reports from several
+conditions in a `csv` file.}
 
 \item{...}{Further arguments to be passed to \code{\link{PersonAlytic}} for
 analysis. All options in \code{PersonAlytic} can be passed except for
 \code{output}, \code{data}, \code{ids}, \code{dvs}, \code{time}, and
 \code{phase} as these are taken from the \code{design}.}
-
-\item{checkDesign}{Logical. Default is \code{FALSE}. If \code{TRUE}, an
-initial sumulated dataset with n=1,000 participants will be simulated and the
-model fit to the data. This will show whether the design inputs in \code{design}
-are recovered under large sample. The data for the 1st 10 participants will
-also be plotted. This allows users to check their inputs.}
 }
 \description{
-ICTpower - get simulated power for an ICT design using parametric bootstrap.
+ICTpower - get simulated power for an ICT design using parametric or
+non-parametric bootstrap.
 }
 \examples{
 
+example(polyICT)
+myPolyICT$inputMat
+
 \dontrun{
-ICTpower(c('testICTpower10', 'csv'),
-  polyICT$new(n=10),
-  randFxSeed = 54, errorSeed=89496,
-  checkDesign='only')
-ICTpower(c('testICTpower10', 'csv'),
-  polyICT$new(n=200),
-  randFxSeed = 23, errorSeed=923,
-  checkDesign='only')
-ICTpower(c('testICTpower20_2', 'csv'), polyICT$new(randFxVar=c(5,2)),
-  B=10, checkDesign='only', randFxSeed=20342, errorSeed=4202)
+
+testICTpower10 <- ICTpower(c('testICTpower10', 'csv'),
+  myPolyICT, B=100,
+  seed = 54)
+testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
+  myPolyICT$update(groups=c(group1=20, group2=20)), B=100,
+  seed = 23)
 }
 }
 \author{

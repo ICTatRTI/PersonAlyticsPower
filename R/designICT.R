@@ -341,7 +341,7 @@ designICT <- R6::R6Class("designICT",
                                  "An ICT with ", sum(self$n), " participants, ",
                                  length(c(unlist(self$phases))), " time points, and ",
                                  ifelse(!is.null(self$groupNames), nGroups, 1),
-                                 ifelse(nGroups==1, " group.", " groups.\n"), .hl(),
+                                 ifelse(nGroups==1, " group.\n", " groups.\n"), .hl(),
                                  "\nPhases:\n",
                                  paste(phases, collapse = ''),
                                  "\nGroups:\n", paste(self$groupNames, 'n=', self$n, '\n'),
@@ -418,7 +418,7 @@ designICT <- R6::R6Class("designICT",
                                                                      'phase',list(NULL))),
                                                  ivs=unlist(ifelse(length(self$groupNames)>1,
                                                                    'group',list(NULL))),
-                                                 time_power = self$maxRandFx,
+                                                 time_power = self$randFxOrder,
                                                  correlation = correlation)
                              if(fitMod) # runs slow with some examples, qc why
                              {

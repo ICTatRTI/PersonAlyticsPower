@@ -18,48 +18,9 @@ cor2cov <- function(randFxCorMat    = matrix(c(1,.2,.2,1), 2, 2) ,
   return(Sigma)
 }
 
-#' makeDesignMat - create the fixed effects design matrix for n=1
-#' @author Stephen Tueller \email{stueller@@rti.org}
-#' @export
-makeDesignMat <- function(phases      = makePhase() ,
-                          phaseNames  = NULL        ,
-                          maxRandFx   = 2           ,
-                          design      = 'polyICT'
-)
-{
-  # make names if null
-  if(is.null(phaseNames)) phaseNames <- paste('phase', 1:length(phases))
 
-  # get the number of observations
-  nObservations <- length(c(unlist((phases))))
-
-  if(design == 'polyICT')
-  {
-    # generate the times
-    times      <- list()
-    times[['Time']] <- seq(0, nObservations-1, 1)
-    if(maxRandFx>1)
-    {
-      for(i in 2:maxRandFx)
-      {
-        times[[paste('Time', i, sep='')]] <- times[['Time']]^i
-      }
-    }
-    time    <- data.frame( do.call(cbind, times) )
-    #varTime <- apply(time, 2, var)
-
-    # clean up phases
-    phase <- as.numeric(factor( c(unlist(phases)) ) ) - 1
-    phase <- factor(phase, labels=phaseNames)
-
-    designMat <- cbind(phase, time)
-
-    return(designMat)
-  }
-
-}
-
-# TODO this isn't a fully functional function
+# TODO this isn't a fully functional function, fixing it is a low priority as
+# of 20190510
 #' samplingDist - function to plot the sampling distributions of
 #' \code{\link{PersonAlytic}} output produce by \code{\link{ICTpower}}.
 #'
