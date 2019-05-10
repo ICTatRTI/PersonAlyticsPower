@@ -52,9 +52,6 @@
 #' The default \code{randFxCorMat}s are ceated using \code{randFxCor} for all
 #' off-diagonal entries. These can be edited as illustrated in the Examples.
 #'
-#' @field randFxCovMat A list of covariance matrices implied by
-#' \code{randFxCorMat} and the \code{randFxVar}.
-#'
 #' @field propErrVar See \code{propErrVar} in the \code{new} Method. See also
 #' \code{inputMat} and the Examples for making these inputs phase and/or group
 #' specific.
@@ -299,7 +296,6 @@ polyICT <- R6::R6Class("polyICT",
                            private$.randFxVar         <- design$randFxVar
                            private$.randFxCor         <- randFxCor
                            private$.randFxCorMat      <- design$randFxCorMat
-                           private$.randFxCovMat      <- design$randFxCovMat
                            private$.propErrVar        <- design$propErrVar
                            private$.error             <- error
                            private$.merror            <- merror
@@ -386,7 +382,6 @@ polyICT <- R6::R6Class("polyICT",
                              self$inputMat      <- design$inputMat
                              self$randFxVar     <- design$randFxVar
                              self$randFxCorMat  <- design$randFxCorMat
-                             self$randFxCovMat  <- design$randFxCovMat
                              self$propErrVar    <- design$propErrVar
                              self$n             <- design$n
                              self$nObs          <- design$nObs
@@ -496,6 +491,7 @@ polyICT <- R6::R6Class("polyICT",
 #'
 #' @keywords internal
 #'
+# NOTE: randFxCovMat IS DEPRECATED
 expectedVar <- function(randFxCovMat, designMat, variances,
                         randFxMean, nObs, n)
 {

@@ -31,7 +31,7 @@ makeDesign <- function(randFxOrder, phases, groups, propErrVar,
 
   # construct randFx correlation matrices that can be
   # edited later
-  randFxCorMat <- randFxCovMat <- list()
+  randFxCorMat <- list()
   CorMat <- matrix(randFxCor,
                    length(randFxOrder),
                    length(randFxOrder))
@@ -46,8 +46,6 @@ makeDesign <- function(randFxOrder, phases, groups, propErrVar,
       .V <- inputMat[inputMat$Phase==.np &
                        inputMat$Group==.ng,
                      varNames]
-      randFxCovMat[[.np]][[.ng]] <- cor2cov(CorMat,
-                                            unlist(.V))
     }
   }
   rm(p, g, .np, .ng, .V)
@@ -70,7 +68,6 @@ makeDesign <- function(randFxOrder, phases, groups, propErrVar,
     inputMat        = inputMat        ,
     randFxVar       = randFxVar       ,
     randFxCorMat    = randFxCorMat    ,
-    randFxCovMat    = randFxCovMat    ,
     propErrVar      = propErrVar      ,
     n               = n               ,
     nObs            = nObs            ,

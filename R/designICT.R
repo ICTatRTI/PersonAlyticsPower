@@ -45,15 +45,6 @@
       }
     },
 
-    randFxCovMat = function(value)
-    {
-      if( missing(value) ){ private$.randFxCovMat }
-      else
-      {
-        private$.randFxCovMat <- value
-      }
-    },
-
     propErrVar = function(value)
     {
       if( missing(value) ){ private$.propErrVar }
@@ -286,7 +277,6 @@ designICT <- R6::R6Class("designICT",
                            .randFxVar         = NULL,
                            .randFxCor         = NULL,
                            .randFxCorMat      = NULL,
-                           .randFxCovMat      = NULL,
                            .propErrVar        = NULL,
                            .error             = NULL,
                            .merror            = NULL,

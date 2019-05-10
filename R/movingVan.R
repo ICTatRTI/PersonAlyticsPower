@@ -7,6 +7,7 @@ if(1==2)
 # phase and group specific
 # get the total variance and the error variance @ time = 1
 #*# moving from polyICT to either polyICT$makeData or a dataMaker function
+# NOTE: randFxCovMat IS DEPRECATED BUT WE MAY NEED TO RESSURECT IT FOR THIS
 totalVar  <- sum(randFxCovMat)/(1-propErrVar)
 errorVar  <- propErrVar * totalVar
 variances <- list(totalVar = totalVar,

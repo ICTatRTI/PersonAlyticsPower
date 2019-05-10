@@ -248,15 +248,6 @@ makeFam <- function(Y, parms, family="NO")
 
   # rescale the data - this may be problamtic if the user specifies a
   # discrete distribution for random effects, may add a warning here
-  # Note: zero mean is specified hear b/c the mean off the random effects
-  # is added later in the $makeData method of an designICT child class. This
-  # may not be the best approach, especially with non-normal data, but I don't
-  # know whether the method of running pnorm through q* quantile functions
-  # preserves means at all
-  # -- Note: rescaling not done here, instead we sim according to design$randFxCovMat
-  # and choose the error variance commensurate to design$propErrVar
-
-  #Y <- scale(Y, TRUE, TRUE) * sqrt(1-design$propErrVar)
 
   return(Y)
 }

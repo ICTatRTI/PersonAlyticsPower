@@ -43,6 +43,7 @@
 #' @keywords internal
 # TODO consider making this a method for designICT that is passed by inheritence
 # to polyICT, etc.
+# NOTE: randFxCovMat IS DEPRECATED
 .totalVar <- function(randFxCovMat, propErrVar, designMat, randFxMean,
                      nObservations, n)
 {
