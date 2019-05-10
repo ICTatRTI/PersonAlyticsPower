@@ -52,14 +52,6 @@ makeDesign <- function(randFxOrder, phases, groups, propErrVar,
   }
   rm(p, g, .np, .ng, .V)
 
-  # get unstandardized random effects means by multiplying by sqrt(var)
-  unStdInputMat <- inputMat
-  for(i in seq_along(randFxOrder))
-  {
-    unStdInputMat[[meanNames[i]]] <- unStdInputMat[[meanNames[i]]] *
-      sqrt(unStdInputMat[[varNames[i]]])
-  }
-
   # construct the fixed effects design matrix, only one
   # is needed across all combinations of group and phase
   # by using randFxOrder, any unneeded columns will be
@@ -85,7 +77,6 @@ makeDesign <- function(randFxOrder, phases, groups, propErrVar,
     groups          = groups          ,
     phases          = phases          ,
     designMat       = designMat       ,
-    unStdInputMat   = unStdInputMat   ,
     meanNames       = meanNames       ,
     varNames        = varNames
   ))

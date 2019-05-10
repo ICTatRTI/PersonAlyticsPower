@@ -78,13 +78,10 @@
 #'
 #' @field designMat The design matrix with phases and timepoints.
 #'
-#' @field unStdInputMat A copy of \code{InputMat} with unstandardized effect
-#' sizes in the \code{Mean} columns.
-#'
-#' @field meanNames The columns of \code{InputMat} and \code{unStdInputMat}
+#' @field meanNames The columns of \code{InputMat}
 #' corresponding to the effect sizes/random effect means.
 #'
-#' @field varNames The columns of \code{InputMat} and \code{unStdInputMat}
+#' @field varNames The columns of \code{InputMat}
 #' corresponding to the random effect variances.
 #'
 #' @field phaseNames The names of the phases, taken from \code{phases}.
@@ -315,7 +312,6 @@ polyICT <- R6::R6Class("polyICT",
                            private$.groups            <- design$groups
                            private$.phases            <- design$phases
                            private$.designMat         <- design$designMat
-                           private$.unStdInputMat     <- design$unStdInputMat
                            private$.meanNames         <- design$meanNames
                            private$.varNames          <- design$varNames
                            private$.phaseNames        <- names(phases)
@@ -387,17 +383,16 @@ polyICT <- R6::R6Class("polyICT",
                                randFxCor   = self$randFxCor     ,
                                design      = 'polyICT'          )
 
-                             self$inputMat          <- design$inputMat
-                             self$randFxVar         <- design$randFxVar
-                             self$randFxCorMat      <- design$randFxCorMat
-                             self$randFxCovMat      <- design$randFxCovMat
-                             self$propErrVar        <- design$propErrVar
-                             self$n                 <- design$n
-                             self$nObs              <- design$nObs
-                             self$groups            <- design$groups
-                             self$phases            <- design$phases
-                             self$designMat         <- design$designMat
-                             self$unStdInputMat   <- design$unStdInputMat
+                             self$inputMat      <- design$inputMat
+                             self$randFxVar     <- design$randFxVar
+                             self$randFxCorMat  <- design$randFxCorMat
+                             self$randFxCovMat  <- design$randFxCovMat
+                             self$propErrVar    <- design$propErrVar
+                             self$n             <- design$n
+                             self$nObs          <- design$nObs
+                             self$groups        <- design$groups
+                             self$phases        <- design$phases
+                             self$designMat     <- design$designMat
                              self$meanNames     <- design$meanNames
                              self$varNames      <- design$varNames
                              rm(design)

@@ -101,7 +101,7 @@
 #' not match the variance of the simulated data unless n is large. See the \code{checkDesign}
 #' parameter in \code{\link{ICTpower}}.}
 #' \item{unStdInputMat    }{The unstandardized effect sizes constructed from the total
-#' \code{expectedVariance} and the \code{randFxMean}.}
+#' \code{expectedVariance} and the \code{randFxMean}. TODO: unStdInputMat is DEPRECATED!}
 
 #'
 #' @examples

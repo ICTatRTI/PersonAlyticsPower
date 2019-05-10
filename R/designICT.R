@@ -146,15 +146,6 @@
       }
     },
 
-    unStdInputMat = function(value)
-    {
-      if( missing(value) ){ private$.unStdInputMat }
-      else
-      {
-        private$.unStdInputMat <- value
-      }
-    },
-
     phaseNames = function(value)
     {
       if( missing(value) ){ private$.phaseNames }
@@ -308,7 +299,6 @@ designICT <- R6::R6Class("designICT",
                            .groups            = NULL,
                            .phases            = NULL,
                            .designMat         = NULL,
-                           .unStdInputMat   = NULL,
                            .phaseNames        = NULL,
                            .groupNames        = NULL,
                            .randFxOrder       = NULL,
@@ -403,7 +393,7 @@ designICT <- R6::R6Class("designICT",
                                #TODO this only works for linear models
                                #TODO needs better matching, force name matching in polyICT
                                Estimates <- round(rbind(summary(mod0)$tTable[,1]),3 )
-                               Inputs    <- round(c(unlist(self$unStdInputMat))[c(1,3,2,4)],3)
+                               Inputs    <- round(c(unlist(self$InputMat))[c(1,3,2,4)],3)
                                cat('\n\nCheck the effect size estimates against inputs:\n')
                                print( data.frame(Inputs=Inputs, Estimates=t(Estimates)) )
 
