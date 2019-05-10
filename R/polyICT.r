@@ -297,7 +297,7 @@ polyICT <- R6::R6Class("polyICT",
                            #
                            #private$.edit              <- TRUE
 
-                           # editable without a new call to $new
+                           # editable without a new call to $new or via $update
                            private$.inputMat          <- design$inputMat
                            private$.randFxVar         <- design$randFxVar
                            private$.randFxCor         <- randFxCor
@@ -315,7 +315,7 @@ polyICT <- R6::R6Class("polyICT",
                            private$.groups            <- design$groups
                            private$.phases            <- design$phases
                            private$.designMat         <- design$designMat
-                           private$.unStdInputMat   <- design$unStdInputMat
+                           private$.unStdInputMat     <- design$unStdInputMat
                            private$.meanNames         <- design$meanNames
                            private$.varNames          <- design$varNames
                            private$.phaseNames        <- names(phases)
@@ -444,17 +444,19 @@ polyICT <- R6::R6Class("polyICT",
                                # the slope variance (and higher polynomial terms)
                                # get scaled twice
                                Sigma <- self$randFxCorMat[[thisp]][[thisg]]
-                               mu    <- self$inputMat[
-                                 self$inputMat$Phase==thisp &
-                                   self$inputMat$Group==thisg,
-                                 self$meanNames]
-                               n     <- self$groups[[thisg]]
-                               nObs  <- length(self$phases[[thisp]])
-                               dM    <- self$designMat[self$designMat$phase==thisp,]
                                rFxVr <- self$inputMat[
                                  self$inputMat$Phase==thisp &
                                    self$inputMat$Group==thisg,
                                  self$varNames]
+                               # multiply mu by sqrt(rFxVr) to get unstandardized
+                               # means
+                               mu    <- self$inputMat[
+                                 self$inputMat$Phase==thisp &
+                                   self$inputMat$Group==thisg,
+                                 self$meanNames]*sqrt(rFxVr)
+                               n     <- self$groups[[thisg]]
+                               nObs  <- length(self$phases[[thisp]])
+                               dM    <- self$designMat[self$designMat$phase==thisp,]
                                propErrVar <- self$inputMat[
                                  self$inputMat$Phase==thisp &
                                    self$inputMat$Group==thisg,
