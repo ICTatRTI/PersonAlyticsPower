@@ -1,5 +1,6 @@
 makeDesign <- function(randFxOrder, phases, groups, propErrVar,
-                       randFxVar, randFxCor, design = 'polyICT')
+                       randFxVar, randFxCor, design = 'polyICT',
+                       makeInputMat = TRUE, self = NULL, isNew = NULL)
 {
   # input check
   if(length(randFxOrder) != length(randFxVar))
@@ -9,23 +10,64 @@ makeDesign <- function(randFxOrder, phases, groups, propErrVar,
   }
 
   # expand groups and phases into a input matrix
-  inputMat <- cbind(
-    expand.grid(names(phases), names(groups)),
-    expand.grid(lapply(phases, length), groups))
-  names(inputMat) <- c('Phase', 'Group', 'nObs', 'n')
-  for(i in seq_along(randFxOrder))
+  if( makeInputMat                                                    |
+      'randFxOrder' %in% isNew                                        |
+      ('phases' %in% isNew & (length(phases) != length(self$phases))) |
+      ('groups' %in% isNew & (length(groups) != length(self$groups))) |
+      ('randFxCor' %in% isNew)
+    )
   {
-    inputMat[[paste('Mean', randFxOrder[i], sep='')]] <- 0
+    inputMat <- cbind(
+      expand.grid(names(phases), names(groups)),
+      expand.grid(lapply(phases, length), groups))
+    names(inputMat) <- c('Phase', 'Group', 'nObs', 'n')
+    for(i in seq_along(randFxOrder))
+    {
+      inputMat[[paste('Mean', randFxOrder[i], sep='')]] <- 0
+    }
+    for(i in seq_along(randFxOrder))
+    {
+      inputMat[[paste('Var' , randFxOrder[i], sep='')]] <- randFxVar[i]
+    }
+    for(i in seq_along(propErrVar))
+    {
+      inputMat[[names(propErrVar)[i]]] <- propErrVar[i]
+    }
+    rm(i)
+
   }
-  for(i in seq_along(randFxOrder))
+
+  else
   {
-    inputMat[[paste('Var' , randFxOrder[i], sep='')]] <- randFxVar[i]
+    if( 'propErrVar' %in% isNew )
+    {
+      wc <- which( names(self$inputMat) %in% c('randFx', 'res', 'mserr') )
+      self$inputMat[,wc] <- matrix(propErrVar, nrow(self$inputMat), 3, byrow=TRUE)
+    }
+    if( 'randFxVar' %in% isNew )
+    {
+      wc <- which( names(self$inputMat) %in% self$varNames )
+      self$inputMat[,wc] <- matrix(randFxVar, nrow(self$inputMat), length(wc),
+                                   byrow=TRUE)
+    }
+    if( 'phases' %in% isNew )
+    {
+      .phases <- unlist( lapply(phases, length) )
+      for(p in seq_along(.phases))
+      {
+        self$inputMat[self$inputMat$Phase==names(.phases)[p],'nObs'] <- .phases[p]
+      }
+    }
+    if( 'groups' %in% isNew )
+    {
+      .groups <- unlist( lapply(groups, length) )
+      for(g in seq_along(.groups))
+      {
+        self$inputMat[self$inputMat$Group==names(.groups)[g]] <- .groups[g]
+      }
+    }
+    inputMat <- self$inputMat
   }
-  for(i in seq_along(propErrVar))
-  {
-    inputMat[[names(propErrVar)[i]]] <- propErrVar[i]
-  }
-  rm(i)
   meanNames <- names(inputMat)[grepl('Mean', names(inputMat))]
   varNames  <- names(inputMat)[grepl('Var', names(inputMat))]
 

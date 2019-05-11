@@ -54,9 +54,6 @@ initializing a \code{polyICT} object.}
 The default \code{randFxCorMat}s are ceated using \code{randFxCor} for all
 off-diagonal entries. These can be edited as illustrated in the Examples.}
 
-\item{\code{randFxCovMat}}{A list of covariance matrices implied by
-\code{randFxCorMat} and the \code{randFxVar}.}
-
 \item{\code{propErrVar}}{See \code{propErrVar} in the \code{new} Method. See also
 \code{inputMat} and the Examples for making these inputs phase and/or group
 specific.}
@@ -80,13 +77,10 @@ specific.}
 
 \item{\code{designMat}}{The design matrix with phases and timepoints.}
 
-\item{\code{unStdInputMat}}{A copy of \code{InputMat} with unstandardized effect
-sizes in the \code{Mean} columns.}
-
-\item{\code{meanNames}}{The columns of \code{InputMat} and \code{unStdInputMat}
+\item{\code{meanNames}}{The columns of \code{InputMat}
 corresponding to the effect sizes/random effect means.}
 
-\item{\code{varNames}}{The columns of \code{InputMat} and \code{unStdInputMat}
+\item{\code{varNames}}{The columns of \code{InputMat}
 corresponding to the random effect variances.}
 
 \item{\code{phaseNames}}{The names of the phases, taken from \code{phases}.}
@@ -185,10 +179,6 @@ distribution specified in \code{randFxFam}. Not implemented.}
     reproducibility. If multiple calls are made to \code{makeData}, the seed
     should change for each call as is done automatically by
     \code{\link{ICTpower}}.
-
-    \code{yMean} Numeric. Seed \code{yMean} in \code{new}.
-
-    \code{ySD} Numeric. Seed \code{ySD} in \code{new}.
   }
 }
 }

@@ -73,7 +73,11 @@ testICTpower10 <- ICTpower(c('testICTpower10', 'csv'),
 testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
   myPolyICT$update(groups=c(group1=20, group2=20)), B=100,
   seed = 23)
-}
+testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
+  myPolyICT$update(groups=c(group1=20, group2=20), phases=makePhase(c(20,60,20))),
+  B=100, seed = 23)
+
+ }
 }
 \author{
 Stephen Tueller \email{stueller@rti.org}

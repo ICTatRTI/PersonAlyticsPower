@@ -175,10 +175,6 @@
 #'     reproducibility. If multiple calls are made to \code{makeData}, the seed
 #'     should change for each call as is done automatically by
 #'     \code{\link{ICTpower}}.
-#'
-#'     \code{yMean} Numeric. Seed \code{yMean} in \code{new}.
-#'
-#'     \code{ySD} Numeric. Seed \code{ySD} in \code{new}.
 #'   }
 #' }
 #'
@@ -356,6 +352,81 @@ polyICT <- R6::R6Class("polyICT",
                            {
                              if( dotsNames[i] %in% names(self) )
                              {
+                               if( dotsNames[i] == 'randFxOrder' )
+                               {
+                                 warning('Updating `randFxOrder` will overwrite',
+                                         '`inputMat`.')
+                                 ans <- readline(prompt =
+                                          'Do you want to do this? y/n: ')
+                                 if(ans=='n') stop('Call to $update() canceled.')
+                               }
+                               if( dotsNames[i] == 'phases' )
+                               {
+                                 pNew <- length(dots[[i]])
+                                 if(pNew != length(self$phases))
+                                 {
+                                   warning('Updating the number of `phases` ',
+                                           'will overwrite `inputMat`.')
+                                   ans <- readline(prompt =
+                                            'Do you want to do this? y/n: ')
+                                   if(ans=='n') stop('Call to $update() canceled.')
+                                 }
+                               }
+                               if( dotsNames[i] == 'groups' )
+                               {
+                                 gNew <- length(dots[[i]])
+                                 if(gNew != length(self$groups))
+                                 {
+                                   warning('Updating the number of `groups` ',
+                                           'will overwrite `inputMat`.')
+                                   ans <- readline(prompt =
+                                                     'Do you want to do this? y/n: ')
+                                   if(ans=='n') stop('Call to $update() canceled.')
+                                 }
+                               }
+                               if( dotsNames[i] == 'propErrVar' )
+                               {
+                                 warning('Updating `propErrVar` will apply the',
+                                         ' new values to all groups and phases\n')
+                                 ans <- readline(prompt =
+                                                   'Do you want to do this? y/n: ')
+                                 if(ans=='n') stop('Call to $update() canceled.')
+                                 if(ans=='y')
+                                 {
+                                   message('Use `edit(myPolyICT$inputMat)` for\n',
+                                           ' group and/or phase specific values',
+                                           ' of `propErrVar`.')
+                                 }
+                               }
+                               if( dotsNames[i] == 'randFxVar' )
+                               {
+                                 warning('Updating `randFxVar` will apply the',
+                                         ' new values to all groups and phases\n')
+                                 ans <- readline(prompt =
+                                                   'Do you want to do this? y/n: ')
+                                 if(ans=='n') stop('Call to $update() canceled.')
+                                 if(ans=='y')
+                                 {
+                                   message('Use `edit(myPolyICT$inputMat)` for\n',
+                                           ' group and/or phase specific values',
+                                           ' of `randFxVar`.')
+                                 }
+                               }
+                               if( dotsNames[i] == 'randFxCor' )
+                               {
+                                 warning('Updating `randFxCor` will apply the',
+                                         ' new values to all groups and phases\n')
+                                 ans <- readline(prompt =
+                                                   'Do you want to do this? y/n: ')
+                                 if(ans=='n') stop('Call to $update() canceled.')
+                                 if(ans=='y')
+                                 {
+                                   message('Use `edit(myPolyICT$randFxCorMat)`\n',
+                                           ' or see ?polyICT for',
+                                           ' group and/or\nphase specific values',
+                                           ' of `randFxCorMat`.')
+                                 }
+                               }
                                self[[dotsNames[i]]] <- dots[[i]]
                              }
                              if( ! dotsNames[i] %in% names(self) )
@@ -371,13 +442,16 @@ polyICT <- R6::R6Class("polyICT",
                                                  'randFxCor', 'randFxVar'))
                            {
                              design <- makeDesign(
-                               randFxOrder = 0:self$randFxOrder ,
-                               phases      = self$phases        ,
-                               groups      = self$groups        ,
-                               propErrVar  = self$propErrVar    ,
-                               randFxVar   = self$randFxVar     ,
-                               randFxCor   = self$randFxCor     ,
-                               design      = 'polyICT'          )
+                               randFxOrder  = 0:self$randFxOrder ,
+                               phases       = self$phases        ,
+                               groups       = self$groups        ,
+                               propErrVar   = self$propErrVar    ,
+                               randFxVar    = self$randFxVar     ,
+                               randFxCor    = self$randFxCor     ,
+                               design       = 'polyICT'          ,
+                               makeInputMat = FALSE              ,
+                               self         = self               ,
+                               isNew        = dotsNames          )
 
                              self$inputMat      <- design$inputMat
                              self$randFxVar     <- design$randFxVar
@@ -417,7 +491,7 @@ polyICT <- R6::R6Class("polyICT",
 
                          # TODO we don't want to make the user pass multiple
                          # randFx and errors, so we pass the parameters
-                         makeData = function(seed=123, yMean=100, ySD=15)
+                         makeData = function(seed=123)
                          {
                            seeds <- .makeSeeds(seed, length(self$phaseNames) *
                                                 length(self$groupNames))
@@ -468,12 +542,8 @@ polyICT <- R6::R6Class("polyICT",
                            }
                            data <- do.call(rbind, data)
 
-                           # rescale the y variance if !is.null
-                           if(is.null(yMean)) yMean <- mean(data$y)
-                           if(is.null(ySD))     ySD <- sd(data$y)
-                           # rescaling is done regardless of yMean and ySD just
-                           # in case only one is non-null
-                           data$y <- scale(data$y)*ySD + yMean
+                           # rescale y
+                           data$y <- scale(data$y)*self$ySD + self$yMean
 
                            # the makeData method is terminal, self is not returned
                            # which means chaining is not possible past this point

@@ -243,10 +243,12 @@ ICTpower <- function(outFile         = NULL                      ,
   # analyze the data using PersonAlytics, treating y1,...,yB
   # as separate outcomes
   #
-  phase <- ifelse( length(design$phases)>1, 'phase', NULL)
-  ivs   <- ifelse( length(design$groups)>1, 'group', NULL)
-  int   <- ifelse( is.null(ivs), NULL,
-                   list(c(ivs, phase), c(ivs, 'Time')))
+  phase <- NULL
+  ivs   <- NULL
+  int   <- NULL
+  if( length(design$phases)>1) phase <- 'phase'
+  if( length(design$groups)>1) ivs   <- 'group'
+  if( !is.null(ivs) )          int   <- list(c(ivs, phase), c(ivs, 'Time'))
   paout <- PersonAlytic(output       = outFile$outFile                  ,
                         data         = Data                             ,
                         ids          = 'id'                             ,
