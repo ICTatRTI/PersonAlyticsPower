@@ -6,7 +6,8 @@
 \usage{
 ICTpowerSim(designs, pReportName = "ICTpowerSimResults", B = 1000,
   seed = 1, save = NULL, alpha = 0.05,
-  cores = parallel::detectCores() - 1, dotar = FALSE, ...)
+  cores = parallel::detectCores() - 1, standardize = list(dv = TRUE,
+  ivs = FALSE, byids = TRUE), dotar = FALSE, ...)
 }
 \arguments{
 \item{designs}{A named list of designs.
@@ -28,6 +29,8 @@ in \code{\link{ICTpower}}.}
 \item{alpha}{See \code{\link{ICTpower}}.}
 
 \item{cores}{See \code{\link{ICTpower}}.}
+
+\item{standardize}{See \code{\link{ICTpower}}.}
 
 \item{dotar}{Logical. The default is \code{FALSE}. Should the data files
 (if requested, see \code{save}) and analysis results be saved in a *.tar

@@ -7,7 +7,8 @@ non-parametric bootstrap.}
 \usage{
 ICTpower(outFile = NULL, design = NULL, B = 100, dataFile = NULL,
   sampleSize = NULL, alpha = 0.05, seed = 123,
-  cores = parallel::detectCores() - 1, savePowerReport = TRUE, ...)
+  cores = parallel::detectCores() - 1, savePowerReport = TRUE,
+  standardize = list(dv = TRUE, ivs = FALSE, byids = TRUE), ...)
 }
 \arguments{
 \item{outFile}{The file name for saving power analysis results.
@@ -50,6 +51,10 @@ the maximum available cores or unexpected results may occur and R may crash.}
 directory. This option is set to \code{FALSE} in the function
 \code{\link{ICTpowerSim}} which instead saves the reports from several
 conditions in a `csv` file.}
+
+\item{standardize}{Named list of length 3. Default is
+\code{list(dv = TRUE, ivs = FALSE, byids = TRUE)}. See
+\code{\link{PersonAlytic}} or \code{\link{Palytic}}.}
 
 \item{...}{Further arguments to be passed to \code{\link{PersonAlytic}} for
 analysis. All options in \code{PersonAlytic} can be passed except for
