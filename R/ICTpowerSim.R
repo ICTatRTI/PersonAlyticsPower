@@ -23,7 +23,20 @@
 #' combined with the names of \code{designs} to pass to the \code{file} option
 #' in \code{\link{ICTpower}}.
 #'
-#' The remaining parameters are as explained in \code{\link{ICTpower}}.
+#' @param alpha See \code{\link{ICTpower}}.
+#'
+#' @param cores See \code{\link{ICTpower}}.
+#'
+#' @param dotar Logical. The default is \code{FALSE}. Should the data files
+#' (if requested, see \code{save}) and analysis results be saved in a *.tar
+#' file with the same name as \code{pReportName} and then delete the unzipped
+#' copies of these files? This is suggested wheth the number of designs is
+#' large. The summary of power across all conditions will no be included in the
+#' *.tar archive. It is strongly encourage that a test run with only three
+#' designs and B=3 is attempted at first to make sure archiving is done
+#' correctly. If the path names resulting from your working directory are
+#' too long, archiving will fail with the error "storing paths of more than 100
+#' bytes is not portable". See \code{\link{tar}}.
 #'
 #' @examples
 #'
@@ -42,6 +55,7 @@ ICTpowerSim <- function(designs                                  ,
                         save         = NULL                      ,
                         alpha        = .05                       ,
                         cores        = parallel::detectCores()-1 ,
+                        dotar        = FALSE                     ,
                         ...
                         )
 {
@@ -86,25 +100,31 @@ ICTpowerSim <- function(designs                                  ,
              )
   }
 
-  # find csvs created since the start of the run
-  csvs       <- dir(getwd(), glob2rx("*.csv"))
-  csvsCtime  <- unlist( lapply(as.list(csvs), function(x) file.info(x)$ctime) )
-  sinceStart <- csvsCtime > start
-  csvs       <- csvs[sinceStart]
-
-  # find Rdatas created since the start of the run
-  Rdatas      <- dir(getwd(), glob2rx("*.Rdata"))
-  RdatasCtime <- unlist( lapply(as.list(Rdatas), function(x) file.info(x)$ctime) )
-  sinceStart  <- RdatasCtime > start
-  Rdatas      <- Rdatas[sinceStart]
-
-  # package all the results into a tar file
-  tarName    <- paste(pReportName, '.tar.gz', sep='')
-  tar(tarName, c(csvs, Rdatas), 'g')
-
   # delete text files
   txts <- dir(getwd(), glob2rx("*.txt"))
-  file.remove(txts, csvs, Rdatas, 'PAlogs')
+  file.remove(txts, 'PAlogs')
+
+  if(dotar)
+  {
+    # find csvs created since the start of the run
+    csvs       <- dir(getwd(), glob2rx("*.csv"), full.names = TRUE)
+    csvsCtime  <- unlist( lapply(as.list(csvs), function(x) file.info(x)$ctime) )
+    sinceStart <- csvsCtime > start
+    csvs       <- csvs[sinceStart]
+
+    # find Rdatas created since the start of the run
+    Rdatas      <- dir(getwd(), glob2rx("*.Rdata"), full.names = TRUE)
+    RdatasCtime <- unlist( lapply(as.list(Rdatas), function(x) file.info(x)$ctime) )
+    sinceStart  <- RdatasCtime > start
+    Rdatas      <- Rdatas[sinceStart]
+
+    # package all the results into a tar file
+    tarName    <- paste(pReportName, '.tar.gz', sep='')
+    tar(tarName, c(csvs, Rdatas), 'g')
+
+    # remove the other files if requested
+    file.remove(txts, csvs, Rdatas, 'PAlogs')
+  }
 
   # save the results
   powerL <- do.call(rbind, powerL)
