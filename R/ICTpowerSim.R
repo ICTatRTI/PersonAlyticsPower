@@ -123,7 +123,7 @@ ICTpowerSim <- function(designs                                  ,
     tar(tarName, c(csvs, Rdatas), 'g')
 
     # remove the other files if requested
-    file.remove(txts, csvs, Rdatas, 'PAlogs')
+    file.remove(txts, csvs, Rdatas)
   }
 
   # save the results

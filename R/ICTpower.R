@@ -99,7 +99,7 @@ ICTpower <- function(outFile         = NULL                      ,
 
   #argList <-  as.list(match.call(expand.dots = TRUE)[-1]) # only explicitly passed
   argList <- mget(names(formals()),sys.frame(sys.nframe()))
-  print(argList)
+  #print(argList) # this is cluttering up the console
 
   # check file name
   if(!is.null(outFile)) outFile <- .checkFile(outFile)
