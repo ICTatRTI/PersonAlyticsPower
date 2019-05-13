@@ -6,7 +6,7 @@
 \usage{
 ICTpowerSim(designs, pReportName = "ICTpowerSimResults", B = 1000,
   seed = 1, save = NULL, alpha = 0.05,
-  cores = parallel::detectCores() - 1, ...)
+  cores = parallel::detectCores() - 1, dotar = FALSE, ...)
 }
 \arguments{
 \item{designs}{A named list of designs.
@@ -23,9 +23,22 @@ in \code{designs}.}
 (the default) raw data will not be saved. Other
 options include \code{save='csv'} and \code{save='RData'}. This will be
 combined with the names of \code{designs} to pass to the \code{file} option
-in \code{\link{ICTpower}}.
+in \code{\link{ICTpower}}.}
 
-The remaining parameters are as explained in \code{\link{ICTpower}}.}
+\item{alpha}{See \code{\link{ICTpower}}.}
+
+\item{cores}{See \code{\link{ICTpower}}.}
+
+\item{dotar}{Logical. The default is \code{FALSE}. Should the data files
+(if requested, see \code{save}) and analysis results be saved in a *.tar
+file with the same name as \code{pReportName} and then delete the unzipped
+copies of these files? This is suggested wheth the number of designs is
+large. The summary of power across all conditions will no be included in the
+*.tar archive. It is strongly encourage that a test run with only three
+designs and B=3 is attempted at first to make sure archiving is done
+correctly. If the path names resulting from your working directory are
+too long, archiving will fail with the error "storing paths of more than 100
+bytes is not portable". See \code{\link{tar}}.}
 
 \item{Seed}{Numeric (integer). The random seed for ensuring the simulation
 can be replicated.}
