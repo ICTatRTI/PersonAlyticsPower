@@ -46,18 +46,16 @@ ICTpowerSim <- function(designs                                  ,
                         )
 {
   # check whether `pReportName` is already used
-  pReports <- dir(getwd(), glob2rx(paste("*", pReportName, "*")))
-  if( length(pReports) > 0 )
+  if( file.exists(pReportName) )
   {
     stop("The `pReportName` ", pReportName, "is already used in this directory.",
          "\nUse a different `pReportName`.")
   }
 
-  # create a temporory directory
+  # create a analysis directory
   upDir   <- getwd()
-  tempDir <- tempfile(pattern='', getwd())
-  dir.create(tempDir)
-  setwd(tempDir)
+  dir.create(pReportName)
+  setwd(pReportName)
 
   start  <- Sys.time()
 
@@ -88,20 +86,25 @@ ICTpowerSim <- function(designs                                  ,
              )
   }
 
-  #TODO: if savePowerReport = TRUE, the glob2rx must include txt files
-
-  # package all the results into a tar file
-  csvs       <- dir(getwd(), glob2rx("*.csv"), full.names = TRUE)
+  # find csvs created since the start of the run
+  csvs       <- dir(getwd(), glob2rx("*.csv"))
   csvsCtime  <- unlist( lapply(as.list(csvs), function(x) file.info(x)$ctime) )
   sinceStart <- csvsCtime > start
   csvs       <- csvs[sinceStart]
-  tarName    <- paste(upDir, '/', pReportName, '.tar.gz', sep='')
-  setwd(upDir)
-  tempDir <- unlist( strsplit(tempDir, '\\\\') )[2]
-  tar(tarName, tempDir, 'g')
-  #TODO: this only empties the directory
-  unlink(dir(getwd(), glob2rx(paste("*",tempDir,"*",sep="")), full.names = TRUE),
-         TRUE, TRUE)
+
+  # find Rdatas created since the start of the run
+  Rdatas      <- dir(getwd(), glob2rx("*.Rdata"))
+  RdatasCtime <- unlist( lapply(as.list(Rdatas), function(x) file.info(x)$ctime) )
+  sinceStart  <- RdatasCtime > start
+  Rdatas      <- Rdatas[sinceStart]
+
+  # package all the results into a tar file
+  tarName    <- paste(pReportName, '.tar.gz', sep='')
+  tar(tarName, c(csvs, Rdatas), 'g')
+
+  # delete text files
+  txts <- dir(getwd(), glob2rx("*.txt"))
+  file.remove(txts, csvs, Rdatas, 'PAlogs')
 
   # save the results
   powerL <- do.call(rbind, powerL)

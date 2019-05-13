@@ -249,7 +249,7 @@ ICTpower <- function(outFile         = NULL                      ,
   if( length(design$phases)>1) phase <- 'phase'
   if( length(design$groups)>1) ivs   <- 'group'
   if( !is.null(ivs) )          int   <- list(c(ivs, phase), c(ivs, 'Time'))
-  paout <- PersonAlytic(output       = outFile$outFile                  ,
+  paout <- PersonAlytic(output       = outFile$file                    ,
                         data         = Data                             ,
                         ids          = 'id'                             ,
                         dvs          = as.list(paste('y', 1:B, sep='')) ,
