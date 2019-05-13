@@ -50,6 +50,10 @@
 #' \code{\link{ICTpowerSim}} which instead saves the reports from several
 #' conditions in a `csv` file.
 #'
+#' @param standardize Named list of length 3. Default is
+#' \code{list(dv = TRUE, ivs = FALSE, byids = TRUE)}. See
+#' \code{\link{PersonAlytic}} or \code{\link{Palytic}}.
+#'
 #' @param ... Further arguments to be passed to \code{\link{PersonAlytic}} for
 #' analysis. All options in \code{PersonAlytic} can be passed except for
 #' \code{output}, \code{data}, \code{ids}, \code{dvs}, \code{time}, and
@@ -84,6 +88,9 @@ ICTpower <- function(outFile         = NULL                      ,
                      seed            = 123                       ,
                      cores           = parallel::detectCores()-1 ,
                      savePowerReport = TRUE                      ,
+                     standardize     = list(dv    = TRUE ,
+                                            ivs   = FALSE,
+                                            byids = TRUE )      ,
                      ...
 )
 {
@@ -262,6 +269,7 @@ ICTpower <- function(outFile         = NULL                      ,
                         detectAR     = detectAR                         ,
                         detectTO     = detectTO                         ,
                         cores        = cores                            ,
+                        standardize  = standardize                      ,
                         ...
   )
 
@@ -294,6 +302,7 @@ ICTpower <- function(outFile         = NULL                      ,
 #' @keywords internal
 powerReport <- function(paout, alpha, file, saveReport=TRUE)
 {
+  # power estimates are the proportion of p < alpha
   whichP <- names(paout)[ grepl('p.value', names(paout)) ]
   powerL <- list()
   for(i in whichP)
@@ -301,14 +310,33 @@ powerReport <- function(paout, alpha, file, saveReport=TRUE)
     powerL[[i]] <- mean(paout[[i]] <= alpha, na.rm = TRUE)
   }
 
+  # effect size estimates (value)
+  whichV <- names(paout)[ grepl('Value', names(paout)) ]
+  whichV <- whichV[! grepl('statValue', whichV)]
+  valueLm <- valueLsd <- list()
+  for(i in whichV)
+  {
+    valueLm[[i]]  <- mean(paout[[i]], na.rm = TRUE)
+    valueLsd[[i]] <- sd(paout[[i]], na.rm = TRUE)
+  }
+
   # print the report to the screen
   names(powerL) <- gsub('.p.value', '', names(powerL))
   names(powerL) <- gsub("\\s", " ", format(names(powerL),
                                            width=max(nchar(names(powerL)))) )
-  powerOutput <- paste(names(powerL), '\t', round(unlist(powerL),2), '\n' )
+  powerOutput <- paste(names(powerL)                                , '\t',
+                       sprintf("% 2.2f", round(unlist(valueLm),2))  , '\t\t',
+                       sprintf("% 2.2f", round(unlist(valueLsd),2)) , '\t\t',
+                       sprintf("% 2.2f", round(unlist(powerL),2))   , '\t\t',
+                       '\n' )
+  powerOutput <- c(
+    paste(gsub("\\s", " ", format("Predictor",
+                                  width=max(nchar(names(powerL))))),
+      '\tMean Estimates\tSD Estimates\tPower\n'), .hl(),
+    powerOutput
+  )
 
-  message( .hl(), "Power Estimates:\n", .hl(),
-    powerOutput, .hl() )
+  message(.hl(), powerOutput, .hl() )
 
   # save the report
   if(saveReport)

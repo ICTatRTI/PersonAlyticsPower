@@ -27,6 +27,8 @@
 #'
 #' @param cores See \code{\link{ICTpower}}.
 #'
+#' @param standardize See \code{\link{ICTpower}}.
+#'
 #' @param dotar Logical. The default is \code{FALSE}. Should the data files
 #' (if requested, see \code{save}) and analysis results be saved in a *.tar
 #' file with the same name as \code{pReportName} and then delete the unzipped
@@ -55,6 +57,9 @@ ICTpowerSim <- function(designs                                  ,
                         save         = NULL                      ,
                         alpha        = .05                       ,
                         cores        = parallel::detectCores()-1 ,
+                        standardize  = list(dv    = TRUE ,
+                                            ivs   = FALSE,
+                                            byids = TRUE )        ,
                         dotar        = FALSE                     ,
                         ...
                         )
