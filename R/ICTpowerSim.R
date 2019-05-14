@@ -107,7 +107,7 @@ ICTpowerSim <- function(designs                                  ,
 
   # delete text files
   txts <- dir(getwd(), glob2rx("*.txt"))
-  file.remove(txts, 'PAlogs')
+  file.remove(txts)
 
   if(dotar)
   {
@@ -132,11 +132,20 @@ ICTpowerSim <- function(designs                                  ,
   }
 
   # save the results
-  powerL <- do.call(rbind, powerL)
-  row.names(powerL) <- fnames
-  reportName <- paste(pReportName, 'PAP', packageVersion('PersonAlyticsPower'),
+  power <- data.frame(do.call(rbind, lapply(powerL, function(x) x$power))   )
+  mEst  <- data.frame(do.call(rbind, lapply(powerL, function(x) x$meanEst)) )
+  sdEst <- data.frame(do.call(rbind, lapply(powerL, function(x) x$sdEst))   )
+  row.names(power) <- fnames
+  row.names(mEst)  <- fnames
+  row.names(sdEst) <- fnames
+  power$type <- "power"
+  mEst $type <- "meanEst"
+  sdEst$type <- "sdEst"
+  reportName  <- paste(pReportName, 'PAP', packageVersion('PersonAlyticsPower'),
                       'PA', packageVersion('PersonAlytics'), '.csv', sep='_')
-  write.csv(powerL, file=reportName)
+  powerOut <- rbind(power, mEst, sdEst)
+  names(powerOut) <- c(row.names(powerL[[1]]), 'type')
+  write.csv(powerOut, file=reportName)
 
   # move back to the parent directory
   setwd(upDir)
