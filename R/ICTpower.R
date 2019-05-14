@@ -346,7 +346,9 @@ powerReport <- function(paout, alpha, file, saveReport=TRUE)
   }
 
   # return results
-  return( powerL )
+  return( data.frame(meanEst = unlist(valueLm),
+                     sdEst   = unlist(valueLsd),
+                     power   = unlist(powerL ) ) )
 }
 
 
