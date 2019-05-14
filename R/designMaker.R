@@ -63,7 +63,7 @@ makeDesign <- function(randFxOrder, phases, groups, propErrVar,
       .groups <- unlist( lapply(groups, length) )
       for(g in seq_along(.groups))
       {
-        self$inputMat[self$inputMat$Group==names(.groups)[g]] <- .groups[g]
+        self$inputMat[self$inputMat$Group==names(.groups)[g],'n'] <- groups[g]
       }
     }
     inputMat <- self$inputMat

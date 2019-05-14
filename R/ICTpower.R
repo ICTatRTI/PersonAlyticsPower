@@ -29,7 +29,8 @@
 #' labeled 'y'. Alternatively, \code{dataFile} may be a *.Rdata file named 'Data'
 #' with the same columns as described for the *.csv file.
 #'
-#' @param sampleSize Numeric. The sample size to be drawn \code{B} times from
+#' @param sampleSizes Numeric vector of the same length as the number of groups
+#' in the data. The group specific sample sizes to be drawn \code{B} times from
 #' the \code{dataFile} data.
 #'
 #' @param alpha Numeric. Default is .05. The Type I error rate for computing
@@ -61,21 +62,64 @@
 #'
 #' @examples
 #'
+#' \dontrun{
+#'
 #' example(polyICT)
 #' myPolyICT$inputMat
 #'
-#' \dontrun{
+#' # parametric bootstrap examples
 #'
-#' testICTpower10 <- ICTpower(c('testICTpower10', 'csv'),
-#'   myPolyICT, B=100,
-#'   seed = 54)
+#' # lazy cloning - this can lead to errors as `myPolyICT` is updated with each
+#' # call to `myPolyICT$update`
+#'
+#' #testICTpower10 <- ICTpower(c('testICTpower10', 'csv'),
+#' #  myPolyICT, B=3,
+#' #  seed = 54)
+#' #testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
+#' #  myPolyICT$update(groups=c(group1=20, group2=20)), B=3,
+#' #  seed = 23)
+#' #testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
+#' #  myPolyICT$update(groups=c(group1=20, group2=20),
+#' #  phases=makePhase(c(20,60,20))),
+#' #  B=3, seed = 23)
+#'
+#' # safe cloning
+#' myPolyICT2 <- myPolyICT$clone(deep=TRUE)
+#' myPolyICT2$update(groups=c(group1=20, group2=20))
 #' testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
-#'   myPolyICT$update(groups=c(group1=20, group2=20)), B=100,
-#'   seed = 23)
-#' testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
-#'   myPolyICT$update(groups=c(group1=20, group2=20), phases=makePhase(c(20,60,20))),
-#'   B=100, seed = 23)
+#'   myPolyICT2, B=3, seed = 23)
 #'
+#' myPolyICT3 <- myPolyICT$clone(deep=TRUE)
+#' myPolyICT3$update(groups=c(group1=20, group2=20),
+#'   phases=makePhase(c(20,60,20)))
+#' testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
+#'   myPolyICT3, B=3, seed = 23)
+#'
+#' myPolyICT4 <- myPolyICT$clone(deep=TRUE)
+#' myPolyICT4$update(groups=c(group1=20, group2=20),
+#'   phases=makePhase(c(20,60,20)))
+#' testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
+#'   myPolyICT4, B=3, seed = 23)
+#'
+#'
+#' # non-parametric bootstrap examples
+#'
+#' # create a population with 500 participants per group
+#' myPolyICTnonPar <- myPolyICT$clone(deep=TRUE)
+#' myPolyICTnonPar$update(groups=c(group1=500, group2=500))
+#' Data <- myPolyICTnonPar$makeData()
+#' save(Data, file = "Data.RData")
+#'
+#' # non parametric bootstrap samlpes of 25 participants each group
+#' ICTpower(outFile    = c("npbsTest", "csv"),
+#'          B          = 100                 ,
+#'          dataFile   = "Data.RData"        ,
+#'          sampleSizes = c(25,25)           )
+#'
+#' # clean up
+#' txts <- dir(getwd(), glob2rx("*.txt"))
+#' csvs <- dir(getwd(), glob2rx("*.csv"))
+#' file.remove("Data.RData", txts, csvs)
 #'  }
 
 
@@ -83,7 +127,7 @@ ICTpower <- function(outFile         = NULL                      ,
                      design          = NULL                      ,
                      B               = 100                       ,
                      dataFile        = NULL                      ,
-                     sampleSize      = NULL                      ,
+                     sampleSizes     = NULL                      ,
                      alpha           = .05                       ,
                      seed            = 123                       ,
                      cores           = parallel::detectCores()-1 ,
@@ -184,6 +228,31 @@ ICTpower <- function(outFile         = NULL                      ,
     message("Data simulation took: ",
             capture.output(Sys.time() - start), ".\n\n")
 
+    #
+    # process inputs in `...` that may be passed to `PersonAlytic`
+    #
+    # get the ARMA order from `correlation` if it is passed by ...
+    if(!exists('correlation'))
+    {
+      ar          <- length(design$error$parms$ar[design$error$parms$ar!=0])
+      ma          <- length(design$error$parms$ma[design$error$parms$ma!=0])
+      correlation <- paste('corARMA(p=', ar, ',q=', ma, ')', sep='')
+      detectAR    <- FALSE
+    }
+    if(!exists('detectTO'))   detectTO   <- FALSE
+    if(!exists('time_power')) time_power <- design$randFxOrder
+
+    #
+    # analyze the data using PersonAlytics, treating y1,...,yB
+    # as separate outcomes
+    #
+    phase <- NULL
+    ivs   <- NULL
+    int   <- NULL
+    if( length(design$phases)>1) phase <- 'phase'
+    if( length(design$groups)>1) ivs   <- 'group'
+    if( !is.null(ivs) )          int   <- list(c(ivs, phase), c(ivs, 'Time'))
+
 
   }
 
@@ -198,7 +267,13 @@ ICTpower <- function(outFile         = NULL                      ,
     }
     if(ext %in% c('RData', 'rdata', 'Rdata', 'RDATA'))
     {
-      load(Data)
+      load(dataFile)
+      if( !exists("Data") )
+      {
+        stop('The file you provided for `dataFile`:\n',
+          dataFile, '\nDoes not contain a data.frame named `Data`. Please ',
+          'rename you data.frame to `Data`.')
+      }
     }
     else
     {
@@ -206,57 +281,98 @@ ICTpower <- function(outFile         = NULL                      ,
            'See the documentation for `dataFile` in ?ICTpower.')
     }
 
-    uid <- unique(Data$id)
-    if(length(uid) <= sampleSize)
+    # data checks
+    nameCheck <- function(Data, name)
     {
-      stop('There are ', length(uid), ' unique ids in the data in `dataFile`,\n',
-           'which is greater than `sampleSize`. Select a `sampleSize` that is\n',
-           'smaller than the number of unique ids.')
+      if(! name %in% names(Data) )
+      {
+        stop('The variable`', name, '`` is not in the data set.')
+      }
+    }
+    nameCheck(Data, 'id')
+    nameCheck(Data, 'y')
+    nameCheck(Data, 'Time')
+    # phase and group are optional
+
+    # group check
+    if( "group" %in% names(Data) )
+    {
+      if( length(sampleSizes) != length(unique(Data$group)) )
+      {
+        stop('The variable `group` in the data has ', length(unique(Data$group)),
+             ' groups, but `sampleSizes` has length ', length(sampleSizes), '.')
+      }
+    }
+    if( ! "group" %in% names(Data) )
+    {
+      Data$group <- 'group1'
     }
 
-
-    datL <- list()
+    uid    <- table(Data$id, Data$group)
+    nchars <- max(nchar(as.character(Data$id)))
+    datL   <- list()
     for(b in 1:B)
     {
-      set.seed(seeds[b])
-      wid <- sample(uid, size = sampleSize, replace = FALSE)
-      dat <- Data[Data$id==wid,]
-      names(dat)[which(names(dat)=='y')] <- paste('y', b, sep='')
-      dat$id <- as.numeric(factor(dat$id, labels=1:sampleSize))
-      dat <- dat[order(dat$id, dat$Time),]
-      datL[[b]] <- dat
+      datG <- list()
+      for(g in seq_along(unique(Data$group)) )
+      {
+        if(b==1)
+        {
+          uidg <- length(uid[,g] != 0)
+          if( uidg <= sampleSizes[g] )
+          {
+            stop('There are ', uidg, ' unique ids in ', colnames(uid)[g],
+                 'which is less than `sampleSizes` which is ', sampleSizes[g],
+                 '.\nSelect `sampleSizes` that is smaller than the number of',
+                 'unique ids.')
+          }
+        }
+
+        set.seed(seeds[b] + g)
+        wid <- sample(uid[uid[,g]!=0,g], size = sampleSizes, replace = FALSE)
+        dat <- Data[Data$id %in% as.numeric(names(wid)),]
+        names(dat)[which(names(dat)=='y')] <- paste('y', b, sep='')
+
+        # create new ids that will be the same across samples for merging, noting
+        # that the original ids will be last
+        dat$id    <- as.numeric(factor(dat$id, labels=1:sampleSizes[g])) +
+                       (10*g)^nchars
+        dat       <- dat[order(dat$id, dat$Time),]
+        datG[[g]] <- dat
+      }
+      datL[[b]] <- do.call(rbind, datG)
     }
     mergeby <- names(datL[[1]])
     mergeby <- mergeby[mergeby != 'y1']
     Data    <- Reduce(function(df1, df2) merge(df1, df2, by=mergeby, all = TRUE),
-                      Data)
+                      datL)
+
+    #
+    # process inputs in `...` that may be passed to `PersonAlytic`
+    #
+    # get the ARMA order from `correlation` if it is passed by ...
+    if(!exists('correlation'))
+    {
+      correlation <- 'corARMA(p=1, q=1)'
+    }
+    if(!exists('detectAR'))   detectAR   <- FALSE
+    if(!exists('detectTO'))   detectTO   <- FALSE
+    if(!exists('time_power')) time_power <- 1
+
+    #
+    # analyze the data using PersonAlytics, treating y1,...,yB
+    # as separate outcomes
+    #
+    phase <- NULL
+    ivs   <- NULL
+    int   <- NULL
+    if( length(unique(Data$phases))>1 ) phase <- 'phase'
+    if( length(unique(Data$groups))>1 ) ivs   <- 'group'
+    if( !is.null(ivs) ) int   <- list(c(ivs, phase), c(ivs, 'Time'))
   }
 
-  #
-  # process inputs in `...` that may be passed to `PersonAlytic`
-  #
-  # get the ARMA order from `correlation` if it is passed by ...
-  if(!exists('correlation'))
-  {
-    ar          <- length(design$error$parms$ar[design$error$parms$ar!=0])
-    ma          <- length(design$error$parms$ma[design$error$parms$ma!=0])
-    correlation <- paste('corARMA(p=', ar, ',q=', ma, ')', sep='')
-    detectAR    <- FALSE
-  }
-  if(!exists('detectTO'))   detectTO   <- FALSE
-  if(!exists('time_power')) time_power <- design$randFxOrder
 
-  #
-  # analyze the data using PersonAlytics, treating y1,...,yB
-  # as separate outcomes
-  #
-  phase <- NULL
-  ivs   <- NULL
-  int   <- NULL
-  if( length(design$phases)>1) phase <- 'phase'
-  if( length(design$groups)>1) ivs   <- 'group'
-  if( !is.null(ivs) )          int   <- list(c(ivs, phase), c(ivs, 'Time'))
-  paout <- PersonAlytic(output       = outFile$file                    ,
+  paout <- PersonAlytic(output       = outFile$file                     ,
                         data         = Data                             ,
                         ids          = 'id'                             ,
                         dvs          = as.list(paste('y', 1:B, sep='')) ,

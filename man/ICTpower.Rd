@@ -6,7 +6,7 @@
 non-parametric bootstrap.}
 \usage{
 ICTpower(outFile = NULL, design = NULL, B = 100, dataFile = NULL,
-  sampleSize = NULL, alpha = 0.05, seed = 123,
+  sampleSizes = NULL, alpha = 0.05, seed = 123,
   cores = parallel::detectCores() - 1, savePowerReport = TRUE,
   standardize = list(dv = TRUE, ivs = FALSE, byids = TRUE), ...)
 }
@@ -31,7 +31,8 @@ will be ignored. The \code{dataFile} must be a *.csv file with the variables
 labeled 'y'. Alternatively, \code{dataFile} may be a *.Rdata file named 'Data'
 with the same columns as described for the *.csv file.}
 
-\item{sampleSize}{Numeric. The sample size to be drawn \code{B} times from
+\item{sampleSizes}{Numeric vector of the same length as the number of groups
+in the data. The group specific sample sizes to be drawn \code{B} times from
 the \code{dataFile} data.}
 
 \item{alpha}{Numeric. Default is .05. The Type I error rate for computing
@@ -67,21 +68,64 @@ non-parametric bootstrap.
 }
 \examples{
 
+\dontrun{
+
 example(polyICT)
 myPolyICT$inputMat
 
-\dontrun{
+# parametric bootstrap examples
 
-testICTpower10 <- ICTpower(c('testICTpower10', 'csv'),
-  myPolyICT, B=100,
-  seed = 54)
+# lazy cloning - this can lead to errors as `myPolyICT` is updated with each
+# call to `myPolyICT$update`
+
+#testICTpower10 <- ICTpower(c('testICTpower10', 'csv'),
+#  myPolyICT, B=3,
+#  seed = 54)
+#testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
+#  myPolyICT$update(groups=c(group1=20, group2=20)), B=3,
+#  seed = 23)
+#testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
+#  myPolyICT$update(groups=c(group1=20, group2=20),
+#  phases=makePhase(c(20,60,20))),
+#  B=3, seed = 23)
+
+# safe cloning
+myPolyICT2 <- myPolyICT$clone(deep=TRUE)
+myPolyICT2$update(groups=c(group1=20, group2=20))
 testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
-  myPolyICT$update(groups=c(group1=20, group2=20)), B=100,
-  seed = 23)
-testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
-  myPolyICT$update(groups=c(group1=20, group2=20), phases=makePhase(c(20,60,20))),
-  B=100, seed = 23)
+  myPolyICT2, B=3, seed = 23)
 
+myPolyICT3 <- myPolyICT$clone(deep=TRUE)
+myPolyICT3$update(groups=c(group1=20, group2=20),
+  phases=makePhase(c(20,60,20)))
+testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
+  myPolyICT3, B=3, seed = 23)
+
+myPolyICT4 <- myPolyICT$clone(deep=TRUE)
+myPolyICT4$update(groups=c(group1=20, group2=20),
+  phases=makePhase(c(20,60,20)))
+testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
+  myPolyICT4, B=3, seed = 23)
+
+
+# non-parametric bootstrap examples
+
+# create a population with 500 participants per group
+myPolyICTnonPar <- myPolyICT$clone(deep=TRUE)
+myPolyICTnonPar$update(groups=c(group1=500, group2=500))
+Data <- myPolyICTnonPar$makeData()
+save(Data, file = "Data.RData")
+
+# non parametric bootstrap samlpes of 25 participants each group
+ICTpower(outFile    = c("npbsTest", "csv"),
+         B          = 100                 ,
+         dataFile   = "Data.RData"        ,
+         sampleSizes = c(25,25)           )
+
+# clean up
+txts <- dir(getwd(), glob2rx("*.txt"))
+csvs <- dir(getwd(), glob2rx("*.csv"))
+file.remove("Data.RData", txts, csvs)
  }
 }
 \author{
