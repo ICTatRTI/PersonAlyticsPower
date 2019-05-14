@@ -1,7 +1,7 @@
 Package: PersonAlyticsPower
 Type: Package
 Title: PersonAlyticsPower: Power Analysis and Simulation for PersonAlytics
-Version: 0.1.5.3
+Version: 0.1.5.5
 Author: person("Stephen", "Tueller", email = "stueller@rti.org", role = c("aut", "cre"))
 Maintainer: Stephen Tueller <stueller@rti.org>
 Description: Power analysis and simulation tools for idiographic clinical trials. Funded by NCATS R21TR00240201A1.
