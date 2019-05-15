@@ -15,7 +15,9 @@
       else
       {
         private$.inputMat <- value
+        self
       }
+
     },
 
     randFxVar = function(value)
@@ -24,6 +26,7 @@
       else
       {
         private$.randFxVar <- value
+        self
       }
     },
 
@@ -33,6 +36,7 @@
       else
       {
         private$.randFxCor <- value
+        self
       }
     },
 
@@ -42,6 +46,7 @@
       else
       {
         private$.randFxCorMat <- value
+        self
       }
     },
 
@@ -51,6 +56,7 @@
       else
       {
         private$.propErrVar <- value
+        self
       }
     },
 
@@ -60,6 +66,7 @@
       else
       {
         private$.error <- value
+        self
       }
     },
 
@@ -69,6 +76,7 @@
       else
       {
         private$.merror <- value
+        self
       }
     },
 
@@ -78,6 +86,7 @@
       else
       {
         private$.yMean <- value
+        self
       }
     },
 
@@ -87,6 +96,7 @@
       else
       {
         private$.ySD <- value
+        self
       }
     },
 
@@ -98,6 +108,7 @@
       else
       {
         private$.n <- value
+        self
       }
     },
 
@@ -107,6 +118,7 @@
       else
       {
         private$.nObs <- value
+        self
       }
     },
 
@@ -116,6 +128,7 @@
       else
       {
         private$.groups <- value
+        self
       }
     },
 
@@ -125,6 +138,7 @@
       else
       {
         private$.phases <- value
+        self
       }
     },
 
@@ -134,6 +148,7 @@
       else
       {
         private$.designMat <- value
+        self
       }
     },
 
@@ -143,6 +158,7 @@
       else
       {
         private$.phaseNames <- value
+        self
       }
     },
 
@@ -152,6 +168,7 @@
       else
       {
         private$.groupNames <- value
+        self
       }
     },
 
@@ -161,6 +178,7 @@
       else
       {
         private$.randFxOrder <- value
+        self
       }
     },
 
@@ -170,6 +188,7 @@
       else
       {
         private$.meanNames <- value
+        self
       }
     },
 
@@ -179,6 +198,7 @@
       else
       {
         private$.varNames <- value
+        self
       }
     },
 
@@ -190,6 +210,7 @@
       else
       {
         private$.randFxFam <- value
+        self
       }
     },
 
@@ -199,6 +220,7 @@
       else
       {
         private$.randFxFamParms <- value
+        self
       }
     }
   )
@@ -270,164 +292,176 @@ designICT <- R6::R6Class("designICT",
 
                          # this list must contain all child slots, children cannot update
                          # private (to my knowledge)
-                         private = list(
+     private = list(
 
-                           # editable without a new call to $new
-                           .inputMat          = NULL,
-                           .randFxVar         = NULL,
-                           .randFxCor         = NULL,
-                           .randFxCorMat      = NULL,
-                           .propErrVar        = NULL,
-                           .error             = NULL,
-                           .merror            = NULL,
-                           .yMean             = NULL,
-                           .ySD               = NULL,
+       # editable without a new call to $new
+       .inputMat          = NULL,
+       .randFxVar         = NULL,
+       .randFxCor         = NULL,
+       .randFxCorMat      = NULL,
+       .propErrVar        = NULL,
+       .error             = NULL,
+       .merror            = NULL,
+       .yMean             = NULL,
+       .ySD               = NULL,
 
-                           # not editable
-                           .n                 = NULL,
-                           .nObs              = NULL,
-                           .groups            = NULL,
-                           .phases            = NULL,
-                           .designMat         = NULL,
-                           .phaseNames        = NULL,
-                           .groupNames        = NULL,
-                           .randFxOrder       = NULL,
-                           .meanNames         = NULL,
-                           .varNames          = NULL,
+       # not editable
+       .n                 = NULL,
+       .nObs              = NULL,
+       .groups            = NULL,
+       .phases            = NULL,
+       .designMat         = NULL,
+       .phaseNames        = NULL,
+       .groupNames        = NULL,
+       .randFxOrder       = NULL,
+       .meanNames         = NULL,
+       .varNames          = NULL,
 
-                           # not implemented
-                           .randFxFam         = NULL,
-                           .randFxFamParms    = NULL
-                         ),
+       # not implemented
+       .randFxFam         = NULL,
+       .randFxFamParms    = NULL
+     ),
 
-                         # Child classes of designICT will inherit active bindings and
-                         # all active bindings for children will stay in active()
-                         active = .active(),
+     # Child classes of designICT will inherit active bindings and
+     # all active bindings for children will stay in active()
+     active = .active(),
 
-                         public = list(
+     public = list(
 
-                           # initialize is child-specific, so designICT does not have an
-                           # initialize function
+       # initialize is child-specific, so designICT does not have an
+       # initialize function
 
-                           print = function(...)
-                           {
-                             phases <- paste(lapply(self$phases, function(x) shQuote(x[1])),
-                                             'for',
-                                             lapply(self$phases, length), 'time points\n')
-                             phases  <- paste(c('', rep(' ', length(phases)-1)), phases)
-                             nGroups <- length(self$groupNames)
-                             if(nGroups==0) nGroups <- 1
-                             cat(.hl(),
-                                 "An ICT with ", sum(self$n), " participants, ",
-                                 length(c(unlist(self$phases))), " time points, and ",
-                                 ifelse(!is.null(self$groupNames), nGroups, 1),
-                                 ifelse(nGroups==1, " group.\n", " groups.\n"), .hl(),
-                                 "\nPhases:\n",
-                                 paste(phases, collapse = ''),
-                                 "\nGroups:\n", paste(self$groupNames, 'n=', self$n, '\n'),
-                                 .hl(),
-                                 sep=""
-                             )
-                             cat("Input Matrix:\n")
-                             cat(.hl())
-                             print( self$inputMat )
-                             cat(.hl())
-                             cat("The input matrix can be edited by typing `edit(x$inputmat)`\n",
-                                 "where `x` is the name of your ICT design object.\n")
-                             invisible(self)
-                           },
+       print = function(...)
+       {
+         phases <- paste(lapply(self$phases, function(x) shQuote(x[1])),
+                         'for',
+                         lapply(self$phases, length), 'time points\n')
+         phases  <- paste(c('', rep(' ', length(phases)-1)), phases)
+         nGroups <- length(self$groupNames)
+         if(nGroups==0) nGroups <- 1
+         cat(.hl(),
+             "An ICT with ", sum(self$n), " participants, ",
+             length(c(unlist(self$phases))), " time points, and ",
+             ifelse(!is.null(self$groupNames), nGroups, 1),
+             ifelse(nGroups==1, " group.\n", " groups.\n"), .hl(),
+             "\nPhases:\n",
+             paste(phases, collapse = ''),
+             "\nGroups:\n", paste(self$groupNames, 'n=', self$n, '\n'),
+             .hl(),
+             sep=""
+         )
+         cat("Input Matrix:\n")
+         cat(.hl())
+         print( self$inputMat )
+         cat(.hl())
+         cat("The input matrix can be edited by typing `edit(x$inputmat)`\n",
+             "where `x` is the name of your ICT design object.\n",
+             "Phase : the labels of the study phases.\n",
+             "Group : the names of the groups.\n",
+             "nObs  : the number of observations per phase.\n",
+             "n     : the number of participants per group.\n",
+             "Mean# : the effect size (Cohen's d) per phase & group, where\n",
+             "        `#` is the random effect order (0=intercepts, 1=slopes, etc.)\n",
+             "Var#  : the variance per phase & group, where",
+             "`#` is as explained above.\n",
+             "The proportion of the total variance at time 1:\n",
+             "randFx: due to random effects.\n",
+             "res   : due to residual autocorrelation.\n",
+             "mserr : due to measurement error.\n")
+         invisible(self)
+       },
 
-                           designCheck = function(file=NULL, ylim=NULL, fitMod=FALSE,
-                                                  seed=123, npg=5000)
-                           {
+       designCheck = function(file=NULL, ylim=NULL, fitMod=FALSE,
+                              seed=123, npg=5000)
+       {
 
-                             # save and reset n, due to inheritance design will get overwritten, fix
-                             # n below
-                             originaln <- self$groups
-                             tempn <- rep(npg, length(originaln))
-                             names(tempn) <- names(self$groups)
-                             self$groups <- tempn; rm(tempn)
+         # save and reset n, due to inheritance design will get overwritten, fix
+         # n below
+         originaln <- self$groups
+         tempn <- rep(npg, length(originaln))
+         names(tempn) <- names(self$groups)
+         self$groups <- tempn; rm(tempn)
 
-                             # simulate data
-                             dat <- self$makeData(seed=seed)
+         # simulate data
+         dat <- self$makeData(seed=seed)
 
-                             # needs to be reimplemented
-                             if(1==2)
-                             {
-                               # get expected means and variances
-                               expectedVar <- self$expectedVariances
+         # needs to be reimplemented
+         if(1==2)
+         {
+           # get expected means and variances
+           expectedVar <- self$expectedVariances
 
-                               # compare expected to observed variances
-                               expObsVar   <- cbind( expectedVar$Variances,
-                                                     aggregate(dat$y, by=list(dat$Time), var)$x)
-                               # get the correlation of expected and observed variances
-                               expObsVcor <- round(cor(expObsVar)[1,2],4)
-                               cat("The correlation between the expected variances and the observed\n",
-                                   "variances are ", expObsVcor, "\n\n")
+           # compare expected to observed variances
+           expObsVar   <- cbind( expectedVar$Variances,
+                                 aggregate(dat$y, by=list(dat$Time), var)$x)
+           # get the correlation of expected and observed variances
+           expObsVcor <- round(cor(expObsVar)[1,2],4)
+           cat("The correlation between the expected variances and the observed\n",
+               "variances are ", expObsVcor, "\n\n")
 
-                               # compare expected to observed means
-                               expObsMean <- cbind( expectedVar$Means,
-                                                    aggregate(dat$y, by=list(dat$Time), mean)$x)
-                               expObsMcor <- round(cor(expObsMean)[1,2],4)
-                               cat("The correlation between the expected means and the observed\n",
-                                   "means are ", expObsMcor, "\n\n")
+           # compare expected to observed means
+           expObsMean <- cbind( expectedVar$Means,
+                                aggregate(dat$y, by=list(dat$Time), mean)$x)
+           expObsMcor <- round(cor(expObsMean)[1,2],4)
+           cat("The correlation between the expected means and the observed\n",
+               "means are ", expObsMcor, "\n\n")
 
-                               # compare expected to observed total
-                               TotalMean <- mean(dat$y)
-                               TotalVar  <- var(dat$y)
-                               cat("The observed total mean is ", TotalMean,
-                                   "\nThe expected total mean is ", expectedVar$TotalMean,
-                                   "\nThe observed total variance is ", TotalVar,
-                                   "\nThe expected total variance is ", expectedVar$TotalVar, "\n\n")
+           # compare expected to observed total
+           TotalMean <- mean(dat$y)
+           TotalVar  <- var(dat$y)
+           cat("The observed total mean is ", TotalMean,
+               "\nThe expected total mean is ", expectedVar$TotalMean,
+               "\nThe observed total variance is ", TotalVar,
+               "\nThe expected total variance is ", expectedVar$TotalVar, "\n\n")
 
-                               #TODO this only works for linear models
-                               #TODO needs better matching, force name matching in polyICT
-                               Estimates <- round(rbind(summary(mod0)$tTable[,1]),3 )
-                               Inputs    <- round(c(unlist(self$InputMat))[c(1,3,2,4)],3)
-                               cat('\n\nCheck the effect size estimates against inputs:\n')
-                               print( data.frame(Inputs=Inputs, Estimates=t(Estimates)) )
+           #TODO this only works for linear models
+           #TODO needs better matching, force name matching in polyICT
+           Estimates <- round(rbind(summary(mod0)$tTable[,1]),3 )
+           Inputs    <- round(c(unlist(self$InputMat))[c(1,3,2,4)],3)
+           cat('\n\nCheck the effect size estimates against inputs:\n')
+           print( data.frame(Inputs=Inputs, Estimates=t(Estimates)) )
 
-                               cat("\n\n\n")
-                             }
+           cat("\n\n\n")
+         }
 
-                             # get the data and, if requested, fit the model
-                             correlation <- paste("corARMA(p=", length(self$error$parms$ar), ", ",
-                                                  "q=", length(self$error$parms$ma), ")", sep="")
-                             pa   <- Palytic$new(data=dat, ids='id', dv='y', time='Time',
-                                                 phase=unlist(ifelse(length(self$phaseNames)>1,
-                                                                     'phase',list(NULL))),
-                                                 ivs=unlist(ifelse(length(self$groupNames)>1,
-                                                                   'group',list(NULL))),
-                                                 time_power = self$randFxOrder,
-                                                 correlation = correlation)
-                             if(fitMod) # runs slow with some examples, qc why
-                             {
-                               mod0 <- pa$lme()
-                               print( summary( mod0 ) )
-                             }
+         # get the data and, if requested, fit the model
+         correlation <- paste("corARMA(p=", length(self$error$parms$ar), ", ",
+                              "q=", length(self$error$parms$ma), ")", sep="")
+         pa   <- Palytic$new(data=dat, ids='id', dv='y', time='Time',
+                             phase=unlist(ifelse(length(self$phaseNames)>1,
+                                                 'phase',list(NULL))),
+                             ivs=unlist(ifelse(length(self$groupNames)>1,
+                                               'group',list(NULL))),
+                             time_power = self$randFxOrder,
+                             correlation = correlation)
+         if(fitMod) # runs slow with some examples, qc why
+         {
+           mod0 <- pa$lme()
+           print( summary( mod0 ) )
+         }
 
-                             # save data if requested
-                             if(!is.null(file)) save(mod0, file=paste(file[1],
-                                                                      'designCheck.RData',
-                                                                      sep='_'))
-
-
-                             # plot
-                             if( length( self$groupNames ) == 1 ) print( pa$plot(ylim=ylim) )
-                             if( length( self$groupNames ) >= 2 ) print( pa$plot(groupvar = 'group',
-                                                                                 ylim=ylim) )
-
-                             # restore the original sample sizes
-                             self$groups <- originaln
-
-                             # if the model was fit, return it
-                             # TODO consider the conseuences of returning pa intsead of self
-                             if(fitMod)  invisible(pa)
-                           }
+         # save data if requested
+         if(!is.null(file)) save(mod0, file=paste(file[1],
+                                                  'designCheck.RData',
+                                                  sep='_'))
 
 
+         # plot
+         if( length( self$groupNames ) == 1 ) print( pa$plot(ylim=ylim) )
+         if( length( self$groupNames ) >= 2 ) print( pa$plot(groupvar = 'group',
+                                                             ylim=ylim) )
 
-                         )
+         # restore the original sample sizes
+         self$groups <- originaln
+
+         # if the model was fit, return it
+         # TODO consider the conseuences of returning pa intsead of self
+         if(fitMod)  invisible(pa)
+       }
+
+
+
+   )
 ) # end of designICT class definition
 
 
