@@ -314,7 +314,8 @@ polyICT <- R6::R6Class("polyICT",
                            private$.randFxFam         <- randFxFam
                            private$.randFxFamParms    <- randFxFamParms
 
-                           # variances TODO repopulate these after moving their function to ??
+                           # variances
+                           # TODO repopulate these after moving their function to ??
                            #private$.variances         <- variances
                            #private$.expectedVariances <- expectedVariances
                            # internals
@@ -489,8 +490,7 @@ polyICT <- R6::R6Class("polyICT",
                            invisible(self)
                          },
 
-                         # TODO we don't want to make the user pass multiple
-                         # randFx and errors, so we pass the parameters
+                         # makeData method
                          makeData = function(seed=123)
                          {
                            seeds <- .makeSeeds(seed, length(self$phaseNames) *

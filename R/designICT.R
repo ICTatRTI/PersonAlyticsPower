@@ -454,9 +454,9 @@ designICT <- R6::R6Class("designICT",
          # restore the original sample sizes
          self$groups <- originaln
 
-         # if the model was fit, return it
-         # TODO consider the conseuences of returning pa intsead of self
+         # if the model was fit, return it (cannot method chain after this)
          if(fitMod)  invisible(pa)
+         if(!fitMod) invisible(self)
        }
 
 

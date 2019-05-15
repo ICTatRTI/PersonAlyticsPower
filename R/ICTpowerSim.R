@@ -55,7 +55,6 @@
 #'
 #' }
 
-#TODO: move items explicitly passed by ICTsimSetup() to top
 ICTpowerSim <- function(designs                                  ,
                         pReportName  = "ICTpowerSimResults"      ,
                         B            = 1000                      ,
@@ -178,8 +177,6 @@ simStatus <- function(studyName, studyDirectory=getwd())
   # get the designI file
   if(! file.exists('ICT_Sim_Conditions.Rdata') )
   {
-    #TODO: make this a unique extension that the user can name, eg
-    #mySimStudy.dsgn
     stop("The file `ICT_Sim_Conditions.Rdata` does not exist in the directory\n",
          studyDirectory)
   }
@@ -289,6 +286,7 @@ simStatus <- function(studyName, studyDirectory=getwd())
 #'   nFolders          ,
 #'   ICTpowerSimOptions)
 #' }
+
 ICTsimSetup <- function(seed                      ,
                         nL                        ,
                         phasesL                   ,

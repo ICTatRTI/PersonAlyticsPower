@@ -92,9 +92,6 @@
   .L[[length(.L) + 1]] <- sqrt(propErrVar[2]) *  err
   .L[[length(.L) + 1]] <- sqrt(propErrVar[3]) * merr
 
-  # TODO consider rescaling to unit variance first, otherwise propErrVar will
-  # be off
-
   # now put it all together
   Y <- Reduce('+', .L)
 

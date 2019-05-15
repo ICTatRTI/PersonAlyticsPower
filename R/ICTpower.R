@@ -257,7 +257,6 @@ ICTpower <- function(outFile         = NULL                      ,
   }
 
   # non-parametric bootstrap
-  # TODO - still needs testing
   if(!is.null(dataFile))
   {
     ext <- tools::file_ext(dataFile)

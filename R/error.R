@@ -225,7 +225,7 @@ armaErr <- R6::R6Class("errARMA",
 
     },
 
-    # TODO documentation for this method
+
     makeErrors = function(n, nObservations, seed=123)
     {
       # get seeds
