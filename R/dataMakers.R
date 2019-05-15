@@ -86,10 +86,10 @@ polyData <- function(seed=123, n, nObs, mu, Sigma, self, dM,
   # errors w/ scaling
    err <- scale(self$error$makeErrors(n, nObs, seeds[2]))
   merr <- scale(self$merror$makeErrors(n, nObs, seeds[3]))
-  attr(err, "scaled:center") <- NULL
-  attr(err, "scaled:scale") <- NULL
+  attr(err, "scaled:center")  <- NULL
+  attr(err, "scaled:scale")   <- NULL
   attr(merr, "scaled:center") <- NULL
-  attr(merr, "scaled:scale") <- NULL
+  attr(merr, "scaled:scale")  <- NULL
   .L[[length(.L) + 1]] <- sqrt(propErrVar[2]) *  err
   .L[[length(.L) + 1]] <- sqrt(propErrVar[3]) * merr
 

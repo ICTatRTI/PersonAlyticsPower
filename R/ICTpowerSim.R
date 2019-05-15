@@ -42,12 +42,18 @@
 #'
 #' @examples
 #'
+#' \dontrun{
+#'
+#' # set up two designs
 #' designs <- list()
-#' designs[["defaults"]] <- polyICT$new()
-#' designs[["defaultsN20"]] <- designs[["defaults"]]$clone(deep=TRUE)
-#' designs[["defaultsN20"]]$n <- 20
+#' designs[["defaultsN20"]] <- polyICT$new()
+#' designs[["defaultsN40"]] <- designs[["defaultsN20"]]$clone(deep=TRUE)
+#' designs[["defaultsN40"]]$update(groups = c(group1=40, group2=40))
+#'
+#' # run the simulation (without saving output, console print only)
 #' ICTpowerSim(designs, B=3)
 #'
+#' }
 
 #TODO: move items explicitly passed by ICTsimSetup() to top
 ICTpowerSim <- function(designs                                  ,
