@@ -1,6 +1,6 @@
 # this file will contain the the *Data functions [consider moving to repsective *ICT files]
 #
-#  polyData
+#  .polyData
 #  hyperData
 #  invPolyData
 #  expData
@@ -32,16 +32,15 @@
 # -- categorical: achieve by categarizing continuous covariates
 
 
-# TODO document @param
-#' polyData - function to simulate polynomial growth data, used by the polyICT
+#' .polyData - function to simulate polynomial growth data, used by the polyICT
 #' class
 #'
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
-#' @export
+#' @keywords internal
 #'
 #'
-polyData <- function(seed=123, n, nObs, mu, Sigma, self, dM,
+.polyData <- function(seed=123, n, nObs, mu, Sigma, self, dM,
                      rFxVr, propErrVar, group=NULL)
 {
   # get seeds
@@ -133,8 +132,8 @@ polyData <- function(seed=123, n, nObs, mu, Sigma, self, dM,
 
 
 
-#' makeEta - a wrapper for mvrnorm that currenty does nothing else but set the seed
-#' and call mvrnorm. Retained as we may need to extend its functionality
+#' makeEta - a wrapper for mvrnorm that currenty does nothing else but set the
+#' seed and call mvrnorm. Retained as we may need to extend its functionality
 #'
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'

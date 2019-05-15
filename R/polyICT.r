@@ -526,8 +526,8 @@ polyICT <- R6::R6Class("polyICT",
                                    self$inputMat$Group==thisg,
                                  c('randFx', 'res', 'mserr')]
 
-                               # calls to polyData() here
-                               data[[d]] <- polyData(seed       = seeds[p,g]         ,
+                               # calls to .polyData() here
+                               data[[d]] <- .polyData(seed       = seeds[p,g]         ,
                                                      n          = n                  ,
                                                      nObs       = nObs               ,
                                                      mu         = unlist(mu)         ,

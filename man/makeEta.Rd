@@ -2,8 +2,8 @@
 % Please edit documentation in R/dataMakers.R
 \name{makeEta}
 \alias{makeEta}
-\title{makeEta - a wrapper for mvrnorm that currenty does nothing else but set the seed
-and call mvrnorm. Retained as we may need to extend its functionality}
+\title{makeEta - a wrapper for mvrnorm that currenty does nothing else but set the
+seed and call mvrnorm. Retained as we may need to extend its functionality}
 \usage{
 makeEta(n, mu, Sigma, seed = 1)
 }
@@ -17,8 +17,8 @@ makeEta(n, mu, Sigma, seed = 1)
 \item{seed}{Default 1. A random seed for replication.}
 }
 \description{
-makeEta - a wrapper for mvrnorm that currenty does nothing else but set the seed
-and call mvrnorm. Retained as we may need to extend its functionality
+makeEta - a wrapper for mvrnorm that currenty does nothing else but set the
+seed and call mvrnorm. Retained as we may need to extend its functionality
 }
 \examples{
 Y  <- makeEta(1000, c(0,0), matrix(c(1,.3,.3,1), 2, 2))
