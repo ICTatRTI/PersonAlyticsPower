@@ -116,12 +116,19 @@
 #'          dataFile   = "Data.RData"        ,
 #'          sampleSizes = c(25,25)           )
 #'
+#' # with a finite power correction passing `fpc` by ...
+#' ICTpower(outFile    = c("npbsFPCtest", "csv") ,
+#'          B          = 3                       ,
+#'          dataFile   = "Data.RData"            ,
+#'          sampleSizes = c(25,25)               ,
+#'          fpc        = 100                     )
+#'
 #' # clean up
 #' txts <- dir(getwd(), glob2rx("*.txt"))
 #' csvs <- dir(getwd(), glob2rx("*.csv"))
 #' file.remove("Data.RData", txts, csvs)
 #'  }
-
+#'
 
 ICTpower <- function(outFile         = NULL                      ,
                      design          = NULL                      ,
@@ -259,12 +266,17 @@ ICTpower <- function(outFile         = NULL                      ,
   # non-parametric bootstrap
   if(!is.null(dataFile))
   {
+    if(!file.exists(dataFile))
+    {
+      stop('The file `', dataFile, '` does not exist. The non-parametric\n',
+           'bootsrap estimates of power cannot be estitmated.')
+    }
     ext <- tools::file_ext(dataFile)
-    if(ext %in% c('csv', 'CSV', 'Csv'))
+    if(tolower(ext) == tolower('CSV'))
     {
       Data <- read.csv(dataFile)
     }
-    if(ext %in% c('RData', 'rdata', 'Rdata', 'RDATA'))
+    if(tolower(ext) == tolower('RDATA'))
     {
       load(dataFile)
       if( !exists("Data") )
@@ -394,6 +406,11 @@ ICTpower <- function(outFile         = NULL                      ,
   powerL <- powerReport(paout, alpha, file=outFile$outFile,
                         saveReport=savePowerReport)
 
+  if(exists("fpc"))
+  {
+    powerLFPC <- powerReport(paout, alpha, file=outFile$outFile,
+                             saveReport=savePowerReport, fpc=TRUE)
+  }
 
   #
   # distributions of the estimates
@@ -405,8 +422,8 @@ ICTpower <- function(outFile         = NULL                      ,
   }
 
   # return
-  invisible(powerL)
-
+  if(!fpc) invisible(powerL)
+  if( fpc) invisible( list(powerL=powerL, powerLFPC=powerLFPC) )
 
 }
 
@@ -415,10 +432,19 @@ ICTpower <- function(outFile         = NULL                      ,
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @keywords internal
-powerReport <- function(paout, alpha, file, saveReport=TRUE)
+powerReport <- function(paout, alpha, file, saveReport=TRUE, fpc=FALSE)
 {
   # power estimates are the proportion of p < alpha
   whichP <- names(paout)[ grepl('p.value', names(paout)) ]
+
+  # select whichP based on FPC
+  whichFPC <- grepl('FPC', whichP)
+  if(any(whichFPC))
+  {
+    if( fpc) whichP <- whichP[ whichFPC]
+    if(!fpc) whichP <- whichP[!whichFPC]
+  }
+
   powerL <- list()
   for(i in whichP)
   {
@@ -451,12 +477,16 @@ powerReport <- function(paout, alpha, file, saveReport=TRUE)
     powerOutput
   )
 
+  if(!fpc) message("Power Report")
+  if( fpc) message("Power Report with Finite Population Correction")
   message(.hl(), powerOutput, .hl() )
 
   # save the report
   if(saveReport)
   {
-    powerfile <- paste(file, 'PowerReport.txt', sep='_')
+    fileExt <- 'PowerReport.txt'
+    if(fpc) fileExt <- 'PowerReportFPC.txt'
+    powerfile <- paste(file, fileExt, sep='_')
     cat( powerOutput, file = powerfile)
   }
 

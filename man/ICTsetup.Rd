@@ -125,8 +125,8 @@ makePhase()
 g2exampleDesignMatrix
 
 # visualize this design using truncated standard normal
-ICTviz(fam = 'NO', parms=list(mu=0, sigma=1),
-       designMatrix = g2exampleDesignMatrix)
+#ICTviz(fam = 'NO', parms=list(mu=0, sigma=1),
+#       designMatrix = g2exampleDesignMatrix)
 
 \dontrun{
 # two phase example with 5 time points each

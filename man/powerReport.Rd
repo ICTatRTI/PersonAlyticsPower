@@ -4,7 +4,7 @@
 \alias{powerReport}
 \title{powerReport - print power results to screen and to a file}
 \usage{
-powerReport(paout, alpha, file, saveReport = TRUE)
+powerReport(paout, alpha, file, saveReport = TRUE, fpc = FALSE)
 }
 \description{
 powerReport - print power results to screen and to a file

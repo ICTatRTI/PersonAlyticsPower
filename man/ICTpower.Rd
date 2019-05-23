@@ -122,11 +122,19 @@ ICTpower(outFile    = c("npbsTest", "csv"),
          dataFile   = "Data.RData"        ,
          sampleSizes = c(25,25)           )
 
+# with a finite power correction passing `fpc` by ...
+ICTpower(outFile    = c("npbsFPCtest", "csv") ,
+         B          = 3                       ,
+         dataFile   = "Data.RData"            ,
+         sampleSizes = c(25,25)               ,
+         fpc        = 100                     )
+
 # clean up
 txts <- dir(getwd(), glob2rx("*.txt"))
 csvs <- dir(getwd(), glob2rx("*.csv"))
 file.remove("Data.RData", txts, csvs)
  }
+
 }
 \author{
 Stephen Tueller \email{stueller@rti.org}
