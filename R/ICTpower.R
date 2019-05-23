@@ -422,7 +422,7 @@ ICTpower <- function(outFile         = NULL                      ,
   }
 
   # return
-  if(!fpc) invisible(powerL)
+  if(!fpc) invisible( powerL )
   if( fpc) invisible( list(powerL=powerL, powerLFPC=powerLFPC) )
 
 }

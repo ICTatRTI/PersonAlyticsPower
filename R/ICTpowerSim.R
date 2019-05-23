@@ -91,14 +91,14 @@ ICTpowerSim <- function(designs                                  ,
 
   msgDelim <- paste('\n\n', paste(rep('*', 80), collapse = ''), '\n\n')
 
-  powerL <- list()
+  powerL <- powerLFPC <- list()
   for(i in seq_along(designs))
   {
     message(msgDelim, ' Starting design: ', names(designs)[i],
             " (", i, " of ",
             length(designs), " designs)",
             msgDelim)
-    powerL[[i]] <-
+    temp <-
     ICTpower(outFile         = c(fnames[i]  , save) ,
              design          = designs[[i]]         ,
              B               = B                    ,
@@ -108,6 +108,15 @@ ICTpowerSim <- function(designs                                  ,
              savePowerReport = TRUE                 ,
              ...
              )
+    if(fpc | length(temp) == 2)
+    {
+      powerL[[i]] <- temp$powerL
+      powerLFPC[[i]] <- temp$powerLFPC
+    }
+    if(!fpc & length(temp) == 1)
+    {
+      powerL[[i]] <- temp
+    }
   }
 
   # delete text files
@@ -137,20 +146,40 @@ ICTpowerSim <- function(designs                                  ,
   }
 
   # save the results
-  power <- data.frame(do.call(rbind, lapply(powerL, function(x) x$power))   )
-  mEst  <- data.frame(do.call(rbind, lapply(powerL, function(x) x$meanEst)) )
-  sdEst <- data.frame(do.call(rbind, lapply(powerL, function(x) x$sdEst))   )
-  row.names(power) <- fnames
-  row.names(mEst)  <- fnames
-  row.names(sdEst) <- fnames
-  power$type <- "power"
-  mEst $type <- "meanEst"
-  sdEst$type <- "sdEst"
-  reportName  <- paste(pReportName, 'PAP', packageVersion('PersonAlyticsPower'),
-                      'PA', packageVersion('PersonAlytics'), '.csv', sep='_')
-  powerOut <- rbind(power, mEst, sdEst)
-  names(powerOut) <- c(row.names(powerL[[1]]), 'type')
-  write.csv(powerOut, file=reportName)
+  if(!exists('fpc'))
+  {
+    power <- data.frame(do.call(rbind, lapply(powerL, function(x) x$power))   )
+    mEst  <- data.frame(do.call(rbind, lapply(powerL, function(x) x$meanEst)) )
+    sdEst <- data.frame(do.call(rbind, lapply(powerL, function(x) x$sdEst))   )
+    row.names(power) <- fnames
+    row.names(mEst)  <- fnames
+    row.names(sdEst) <- fnames
+    power$type <- "power"
+    mEst $type <- "meanEst"
+    sdEst$type <- "sdEst"
+    reportName  <- paste(pReportName, 'PAP', packageVersion('PersonAlyticsPower'),
+                        'PA', packageVersion('PersonAlytics'), '.csv', sep='_')
+    powerOut <- rbind(power, mEst, sdEst)
+    names(powerOut) <- c(row.names(powerL[[1]]), 'type')
+    write.csv(powerOut, file=reportName)
+  }
+  if( exists('fpc'))
+  {
+    power <- data.frame(do.call(rbind, lapply(powerLFPC, function(x) x$power))   )
+    mEst  <- data.frame(do.call(rbind, lapply(powerLFPC, function(x) x$meanEst)) )
+    sdEst <- data.frame(do.call(rbind, lapply(powerLFPC, function(x) x$sdEst))   )
+    row.names(power) <- fnames
+    row.names(mEst)  <- fnames
+    row.names(sdEst) <- fnames
+    power$type <- "power"
+    mEst $type <- "meanEst"
+    sdEst$type <- "sdEst"
+    reportName  <- paste(pReportName, 'PAP', packageVersion('PersonAlyticsPower'),
+                         'PA', packageVersion('PersonAlytics'), '.FPC.csv', sep='_')
+    powerOut <- rbind(power, mEst, sdEst)
+    names(powerOut) <- c(row.names(powerL[[1]]), 'type')
+    write.csv(powerOut, file=reportName)
+  }
 
   # move back to the parent directory
   setwd(upDir)
