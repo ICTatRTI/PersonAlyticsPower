@@ -64,7 +64,7 @@ ICTpowerSim <- function(designs                                  ,
                         cores        = parallel::detectCores()-1 ,
                         standardize  = list(dv    = TRUE ,
                                             ivs   = FALSE,
-                                            byids = TRUE )        ,
+                                            byids = TRUE )       ,
                         dotar        = FALSE                     ,
                         ...
                         )

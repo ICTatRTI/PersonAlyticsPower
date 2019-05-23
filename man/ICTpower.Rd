@@ -118,7 +118,7 @@ save(Data, file = "Data.RData")
 
 # non parametric bootstrap samlpes of 25 participants each group
 ICTpower(outFile    = c("npbsTest", "csv"),
-         B          = 100                 ,
+         B          = 3                   ,
          dataFile   = "Data.RData"        ,
          sampleSizes = c(25,25)           )
 
