@@ -8,7 +8,8 @@ non-parametric bootstrap.}
 ICTpower(outFile = NULL, design = NULL, B = 100, dataFile = NULL,
   sampleSizes = NULL, alpha = 0.05, seed = 123,
   cores = parallel::detectCores() - 1, savePowerReport = TRUE,
-  standardize = list(dv = TRUE, ivs = FALSE, byids = TRUE), ...)
+  standardize = list(dv = TRUE, ivs = FALSE, byids = TRUE),
+  prompt = TRUE, ...)
 }
 \arguments{
 \item{outFile}{The file name for saving power analysis results.
@@ -56,6 +57,12 @@ conditions in a `csv` file.}
 \item{standardize}{Named list of length 3. Default is
 \code{list(dv = TRUE, ivs = FALSE, byids = TRUE)}. See
 \code{\link{PersonAlytic}} or \code{\link{Palytic}}.}
+
+\item{prompt}{Logical. Default is \code{TRUE}. If TRUE, a check for
+whether \code{outFile} already exists will be done and if so, the user
+will be prompted whether they want to overwirte \code{outFile}. The
+\code{\link{ICTpowerSim}} function turns this off so the user does not
+have to monitor a series of simulations.}
 
 \item{...}{Further arguments to be passed to \code{\link{PersonAlytic}} for
 analysis. All options in \code{PersonAlytic} can be passed except for

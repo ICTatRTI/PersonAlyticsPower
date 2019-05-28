@@ -1,4 +1,4 @@
-#' ICTpowerSim
+#' ICTpowerSim - automate a series of parametric bootstrap power simulations.
 #'
 #' @export
 #'
@@ -51,7 +51,10 @@
 #' designs[["defaultsN40"]]$update(groups = c(group1=40, group2=40))
 #'
 #' # run the simulation (without saving output, console print only)
-#' ICTpowerSim(designs, B=3)
+#' ICTpowerSim(designs, pReportName  = "ex1", B=3)
+#'
+#' # rerun with a finite population correction
+#' ICTpowerSim(designs, pReportName  = "ex1fpc", B=3, seed=2, fpc=100)
 #'
 #' }
 
@@ -75,6 +78,11 @@ ICTpowerSim <- function(designs                                  ,
     stop("The `pReportName` ", pReportName, "is already used in this directory.",
          "\nUse a different `pReportName`.")
   }
+
+  # process dots
+  dots <-  list(...)
+  dotsNames <- names(dots)
+  if(any(dotsNames %in% 'fpc')) fpc <- dots$fpc
 
   # create a analysis directory
   upDir   <- getwd()
@@ -106,14 +114,15 @@ ICTpowerSim <- function(designs                                  ,
              seed            = seeds[i]             ,
              cores           = cores                ,
              savePowerReport = TRUE                 ,
+             prompt          = FALSE                ,
              ...
              )
-    if(fpc | length(temp) == 2)
+    if( exists("fpc") | length(temp) == 2)
     {
       powerL[[i]] <- temp$powerL
       powerLFPC[[i]] <- temp$powerLFPC
     }
-    if(!fpc & length(temp) == 1)
+    if(!exists("fpc") & length(temp) == 1)
     {
       powerL[[i]] <- temp
     }
@@ -161,7 +170,8 @@ ICTpowerSim <- function(designs                                  ,
                         'PA', packageVersion('PersonAlytics'), '.csv', sep='_')
     powerOut <- rbind(power, mEst, sdEst)
     names(powerOut) <- c(row.names(powerL[[1]]), 'type')
-    write.csv(powerOut, file=reportName)
+    powerOut <- data.frame(design=row.names(powerOut), type=powerOut$type, powerOut)
+    write.csv(powerOut, file=reportName, row.names=F)
   }
   if( exists('fpc'))
   {
@@ -178,7 +188,8 @@ ICTpowerSim <- function(designs                                  ,
                          'PA', packageVersion('PersonAlytics'), '.FPC.csv', sep='_')
     powerOut <- rbind(power, mEst, sdEst)
     names(powerOut) <- c(row.names(powerL[[1]]), 'type')
-    write.csv(powerOut, file=reportName)
+    powerOut <- data.frame(design=row.names(powerOut), type=powerOut$type, powerOut)
+    write.csv(powerOut, file=reportName, row.names=F)
   }
 
   # move back to the parent directory

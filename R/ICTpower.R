@@ -55,6 +55,12 @@
 #' \code{list(dv = TRUE, ivs = FALSE, byids = TRUE)}. See
 #' \code{\link{PersonAlytic}} or \code{\link{Palytic}}.
 #'
+#' @param prompt Logical. Default is \code{TRUE}. If TRUE, a check for
+#' whether \code{outFile} already exists will be done and if so, the user
+#' will be prompted whether they want to overwirte \code{outFile}. The
+#' \code{\link{ICTpowerSim}} function turns this off so the user does not
+#' have to monitor a series of simulations.
+#'
 #' @param ... Further arguments to be passed to \code{\link{PersonAlytic}} for
 #' analysis. All options in \code{PersonAlytic} can be passed except for
 #' \code{output}, \code{data}, \code{ids}, \code{dvs}, \code{time}, and
@@ -141,7 +147,8 @@ ICTpower <- function(outFile         = NULL                      ,
                      savePowerReport = TRUE                      ,
                      standardize     = list(dv    = TRUE ,
                                             ivs   = FALSE,
-                                            byids = TRUE )      ,
+                                            byids = TRUE )       ,
+                     prompt          = TRUE                      ,
                      ...
 )
 {
@@ -160,10 +167,15 @@ ICTpower <- function(outFile         = NULL                      ,
   #print(argList) # this is cluttering up the console
 
   # check file name
-  if(!is.null(outFile)) outFile <- .checkFile(outFile)
+  if(!is.null(outFile)) outFile <- .checkFile(outFile, prompt)
 
   # generate seeds
   seeds <- .makeSeeds(seed, B)
+
+  # process dots
+  dots <-  list(...)
+  dotsNames <- names(dots)
+  if(any(dotsNames %in% 'fpc')) fpc <- dots$fpc
 
   # parametric bootstrap
   if(is.null(dataFile))
@@ -288,7 +300,7 @@ ICTpower <- function(outFile         = NULL                      ,
     }
     else
     {
-      stop('`dataFile` has the extension ', ext, ' which is not supported.\n',
+      stop('`dataFile` has the extension `', ext, '` which is not supported.\n',
            'See the documentation for `dataFile` in ?ICTpower.')
     }
 
@@ -422,8 +434,8 @@ ICTpower <- function(outFile         = NULL                      ,
   }
 
   # return
-  if(!fpc) invisible( powerL )
-  if( fpc) invisible( list(powerL=powerL, powerLFPC=powerLFPC) )
+  if(!exists("fpc")) invisible( powerL )
+  if( exists("fpc")) invisible( list(powerL=powerL, powerLFPC=powerLFPC) )
 
 }
 
@@ -466,9 +478,9 @@ powerReport <- function(paout, alpha, file, saveReport=TRUE, fpc=FALSE)
   names(powerL) <- gsub("\\s", " ", format(names(powerL),
                                            width=max(nchar(names(powerL)))) )
   powerOutput <- paste(names(powerL)                                , '\t',
-                       sprintf("% 2.2f", round(unlist(valueLm),2))  , '\t\t',
-                       sprintf("% 2.2f", round(unlist(valueLsd),2)) , '\t\t',
-                       sprintf("% 2.2f", round(unlist(powerL),2))   , '\t\t',
+                       sprintf("% 2.3f", round(unlist(valueLm),3))  , '\t\t',
+                       sprintf("% 2.3f", round(unlist(valueLsd),3)) , '\t\t',
+                       sprintf("% 2.3f", round(unlist(powerL),3))   , '\t\t',
                        '\n' )
   powerOutput <- c(
     paste(gsub("\\s", " ", format("Predictor",

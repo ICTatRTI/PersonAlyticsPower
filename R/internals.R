@@ -92,15 +92,15 @@
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @keywords internal
-.checkFile <- function(file)
+.checkFile <- function(file, prompt=TRUE)
 {
   sfile <- isRData <- iscsv <- NULL
   if(length(file)>1)
   {
-    iscsv   <- file[2] %in% c('csv', 'CSV', 'Csv')
-    isRData <- file[2] %in% c('RData', 'rdata', 'Rdata', 'RDATA')
+    iscsv   <- tolower(file[2]) == 'csv'
+    isRData <- tolower(file[2]) == 'rdata'
 
-    sfile <- paste(file[1],file[2], sep='.')
+    sfile <- paste(file[1], 'Data', file[2], sep='.')
 
     hasPath <- grepl(glob2rx("*/*"), file[1])
     if(!hasPath) sfile <- paste(getwd(), sfile, sep='/')
@@ -114,14 +114,26 @@
 
     if(fileExists)
     {
-      message("The file\n\n", sfile, "\n\nexists and will be overwritten.")
+      message("The file\n\n", sfile, "\n\nexists and will be overwritten. ")
+      if(prompt)
+      {
+        ok <- readline("Is this OK? y/n:")
+        if(tolower(ok) != 'y')
+        {
+          stop('\nYou did not say `y` it was ok to overwrite. Move `', sfile, '`',
+               '\nto another directory or change your working directory.')
+        }
+      }
+
     }
     if(!fileExists)
     {
       # test if the file can be created
+      # TODO: if this fails, the resulting error message won't help a user
       test=1
       if(iscsv  ) write.csv(test, sfile)
       if(isRData) save(test, file=sfile)
+      file.remove(sfile)
     }
   }
   invisible( list(file=file[1], isRData=isRData, iscsv=iscsv, sfile=sfile))

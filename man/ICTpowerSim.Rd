@@ -2,7 +2,7 @@
 % Please edit documentation in R/ICTpowerSim.R
 \name{ICTpowerSim}
 \alias{ICTpowerSim}
-\title{ICTpowerSim}
+\title{ICTpowerSim - automate a series of parametric bootstrap power simulations.}
 \usage{
 ICTpowerSim(designs, pReportName = "ICTpowerSimResults", B = 1000,
   seed = 1, save = NULL, alpha = 0.05,
@@ -47,7 +47,7 @@ bytes is not portable". See \code{\link{tar}}.}
 can be replicated.}
 }
 \description{
-ICTpowerSim
+ICTpowerSim - automate a series of parametric bootstrap power simulations.
 }
 \examples{
 
@@ -60,7 +60,10 @@ designs[["defaultsN40"]] <- designs[["defaultsN20"]]$clone(deep=TRUE)
 designs[["defaultsN40"]]$update(groups = c(group1=40, group2=40))
 
 # run the simulation (without saving output, console print only)
-ICTpowerSim(designs, B=3)
+ICTpowerSim(designs, pReportName  = "ex1", B=3)
+
+# rerun with a finite population correction
+ICTpowerSim(designs, pReportName  = "ex1fpc", B=3, seed=2, fpc=100)
 
 }
 }

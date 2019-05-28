@@ -4,7 +4,7 @@
 \alias{.checkFile}
 \title{.checkFile - check whether a file is writable and a csv or Rdata file}
 \usage{
-.checkFile(file)
+.checkFile(file, prompt = TRUE)
 }
 \description{
 .checkFile - check whether a file is writable and a csv or Rdata file
