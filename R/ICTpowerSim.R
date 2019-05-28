@@ -155,24 +155,23 @@ ICTpowerSim <- function(designs                                  ,
   }
 
   # save the results
-  if(!exists('fpc'))
-  {
-    power <- data.frame(do.call(rbind, lapply(powerL, function(x) x$power))   )
-    mEst  <- data.frame(do.call(rbind, lapply(powerL, function(x) x$meanEst)) )
-    sdEst <- data.frame(do.call(rbind, lapply(powerL, function(x) x$sdEst))   )
-    row.names(power) <- fnames
-    row.names(mEst)  <- fnames
-    row.names(sdEst) <- fnames
-    power$type <- "power"
-    mEst $type <- "meanEst"
-    sdEst$type <- "sdEst"
-    reportName  <- paste(pReportName, 'PAP', packageVersion('PersonAlyticsPower'),
-                        'PA', packageVersion('PersonAlytics'), '.csv', sep='_')
-    powerOut <- rbind(power, mEst, sdEst)
-    names(powerOut) <- c(row.names(powerL[[1]]), 'type')
-    powerOut <- data.frame(design=row.names(powerOut), type=powerOut$type, powerOut)
-    write.csv(powerOut, file=reportName, row.names=F)
-  }
+  power <- data.frame(do.call(rbind, lapply(powerL, function(x) x$power))   )
+  mEst  <- data.frame(do.call(rbind, lapply(powerL, function(x) x$meanEst)) )
+  sdEst <- data.frame(do.call(rbind, lapply(powerL, function(x) x$sdEst))   )
+  row.names(power) <- fnames
+  row.names(mEst)  <- fnames
+  row.names(sdEst) <- fnames
+  power$type <- "power"
+  mEst $type <- "meanEst"
+  sdEst$type <- "sdEst"
+  reportName  <- paste(pReportName, 'PAP', packageVersion('PersonAlyticsPower'),
+                      'PA', packageVersion('PersonAlytics'), '.csv', sep='_')
+  powerOut <- rbind(power, mEst, sdEst)
+  names(powerOut) <- c(row.names(powerL[[1]]), 'type')
+  powerOut <- data.frame(design=row.names(powerOut), type=powerOut$type, powerOut)
+  write.csv(powerOut, file=reportName, row.names=F)
+
+  # save the fpc results if fpc exists
   if( exists('fpc'))
   {
     power <- data.frame(do.call(rbind, lapply(powerLFPC, function(x) x$power))   )
