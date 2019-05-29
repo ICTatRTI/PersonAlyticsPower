@@ -134,7 +134,7 @@ ICTpower(outFile    = c("npbsFPCtest", "csv") ,
          B          = 3                       ,
          dataFile   = "Data.RData"            ,
          sampleSizes = c(25,25)               ,
-         fpc        = 100                     )
+         fpc        = length(table(Data$id))  )
 
 # piecewise growth model example
 ICTpower(outFile     = c("piecewise", "csv"),

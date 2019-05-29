@@ -127,7 +127,7 @@
 #'          B          = 3                       ,
 #'          dataFile   = "Data.RData"            ,
 #'          sampleSizes = c(25,25)               ,
-#'          fpc        = 100                     )
+#'          fpc        = length(table(Data$id))  )
 #'
 #' # piecewise growth model example
 #' ICTpower(outFile     = c("piecewise", "csv"),
@@ -168,10 +168,6 @@ ICTpower <- function(outFile         = NULL                      ,
   {
     stop('Please provide only on of `design` or `dataFile` but not both.')
   }
-
-  #argList <-  as.list(match.call(expand.dots = TRUE)[-1]) # only explicitly passed
-  argList <- mget(names(formals()),sys.frame(sys.nframe()))
-  #print(argList) # this is cluttering up the console
 
   # check file name
   if(!is.null(outFile)) outFile <- .checkFile(outFile, prompt)
@@ -398,9 +394,13 @@ ICTpower <- function(outFile         = NULL                      ,
     phase <- NULL
     ivs   <- NULL
     int   <- NULL
-    if( length(unique(Data$phases))>1 ) phase <- 'phase'
-    if( length(unique(Data$group  ))>1 |
-        length(unique(Data$groups ))>1 ) ivs   <- 'group'
+
+    wp <- which(tolower(names(Data)) %in% c('phase', 'phases'))
+    wg <- which(tolower(names(Data)) %in% c('group', 'groups'))
+
+    if( length(unique((Data[[wp]]))) > 1 ) phase <- names(Data)[wp]
+    if( length(unique((Data[[wg]]))) > 1 ) ivs   <- names(Data)[wg]
+
     if( !is.null(ivs) ) int   <- list(c(ivs, phase), c(ivs, 'Time'))
   }
 
@@ -439,6 +439,10 @@ ICTpower <- function(outFile         = NULL                      ,
   {
     stop('\nThe call to `PersonAlytic` returned output with 0 rows.',
          '\nPower analysis cannot be completed.')
+  }
+  if(all(paout$converge=="Model did not converge"))
+  {
+    stop('\nNone of the models converged. Power analysis cannot be completed.')
   }
 
   #

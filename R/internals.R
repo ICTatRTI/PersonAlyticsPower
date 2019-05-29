@@ -136,7 +136,7 @@
       file.remove(sfile)
     }
   }
-  invisible( list(file=file[1], isRData=isRData, iscsv=iscsv, sfile=sfile))
+  invisible( list(file=file[1], isRData=isRData, iscsv=iscsv, sfile=sfile) )
 }
 
 
