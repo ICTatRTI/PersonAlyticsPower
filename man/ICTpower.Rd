@@ -94,25 +94,25 @@ myPolyICT$inputMat
 #testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
 #  myPolyICT$update(groups=c(group1=20, group2=20),
 #  phases=makePhase(c(20,60,20))),
-#  B=3, seed = 23)
+#  B=3, seed = 24)
 
 # safe cloning
 myPolyICT2 <- myPolyICT$clone(deep=TRUE)
 myPolyICT2$update(groups=c(group1=20, group2=20))
 testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
-  myPolyICT2, B=3, seed = 23)
+  myPolyICT2, B=3, seed = 25)
 
 myPolyICT3 <- myPolyICT$clone(deep=TRUE)
 myPolyICT3$update(groups=c(group1=20, group2=20),
   phases=makePhase(c(20,60,20)))
 testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
-  myPolyICT3, B=3, seed = 23)
+  myPolyICT3, B=3, seed = 26)
 
 myPolyICT4 <- myPolyICT$clone(deep=TRUE)
 myPolyICT4$update(groups=c(group1=20, group2=20),
   phases=makePhase(c(20,60,20)))
 testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
-  myPolyICT4, B=3, seed = 23)
+  myPolyICT4, B=3, seed = 27)
 
 
 # non-parametric bootstrap examples
@@ -135,6 +135,13 @@ ICTpower(outFile    = c("npbsFPCtest", "csv") ,
          dataFile   = "Data.RData"            ,
          sampleSizes = c(25,25)               ,
          fpc        = 100                     )
+
+# piecewise growth model example
+ICTpower(outFile     = c("piecewise", "csv"),
+         B           = 3                    ,
+         dataFile    = "Data.RData"         ,
+         sampleSizes = c(25,25)             ,
+         alignPhase  = 'piecewise'          )
 
 # clean up
 txts <- dir(getwd(), glob2rx("*.txt"))

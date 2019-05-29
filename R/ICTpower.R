@@ -87,25 +87,25 @@
 #' #testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
 #' #  myPolyICT$update(groups=c(group1=20, group2=20),
 #' #  phases=makePhase(c(20,60,20))),
-#' #  B=3, seed = 23)
+#' #  B=3, seed = 24)
 #'
 #' # safe cloning
 #' myPolyICT2 <- myPolyICT$clone(deep=TRUE)
 #' myPolyICT2$update(groups=c(group1=20, group2=20))
 #' testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
-#'   myPolyICT2, B=3, seed = 23)
+#'   myPolyICT2, B=3, seed = 25)
 #'
 #' myPolyICT3 <- myPolyICT$clone(deep=TRUE)
 #' myPolyICT3$update(groups=c(group1=20, group2=20),
 #'   phases=makePhase(c(20,60,20)))
 #' testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
-#'   myPolyICT3, B=3, seed = 23)
+#'   myPolyICT3, B=3, seed = 26)
 #'
 #' myPolyICT4 <- myPolyICT$clone(deep=TRUE)
 #' myPolyICT4$update(groups=c(group1=20, group2=20),
 #'   phases=makePhase(c(20,60,20)))
 #' testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
-#'   myPolyICT4, B=3, seed = 23)
+#'   myPolyICT4, B=3, seed = 27)
 #'
 #'
 #' # non-parametric bootstrap examples
@@ -128,6 +128,13 @@
 #'          dataFile   = "Data.RData"            ,
 #'          sampleSizes = c(25,25)               ,
 #'          fpc        = 100                     )
+#'
+#' # piecewise growth model example
+#' ICTpower(outFile     = c("piecewise", "csv"),
+#'          B           = 3                    ,
+#'          dataFile    = "Data.RData"         ,
+#'          sampleSizes = c(25,25)             ,
+#'          alignPhase  = 'piecewise'          )
 #'
 #' # clean up
 #' txts <- dir(getwd(), glob2rx("*.txt"))
@@ -390,7 +397,8 @@ ICTpower <- function(outFile         = NULL                      ,
     ivs   <- NULL
     int   <- NULL
     if( length(unique(Data$phases))>1 ) phase <- 'phase'
-    if( length(unique(Data$groups))>1 ) ivs   <- 'group'
+    if( length(unique(Data$group  ))>1 |
+        length(unique(Data$groups ))>1 ) ivs   <- 'group'
     if( !is.null(ivs) ) int   <- list(c(ivs, phase), c(ivs, 'Time'))
   }
 
@@ -411,6 +419,13 @@ ICTpower <- function(outFile         = NULL                      ,
                         standardize  = standardize                      ,
                         ...
   )
+
+  # check for failed PersonAlytic calls
+  if(nrow(paout)==0)
+  {
+    stop('\nThe call to `PersonAlytic` returned output with 0 rows.',
+         '\nPower analysis cannot be completed.')
+  }
 
   #
   # power analysis specific summary of results
