@@ -237,19 +237,6 @@ ICTpower <- function(outFile         = NULL                      ,
     Data    <- Reduce(function(df1, df2) merge(df1, df2, by=mergeby, all = TRUE),
                       Data)
 
-    # if requested, save the data
-    if(!is.null(outFile$sfile))
-    {
-      if(outFile$isRData)
-      {
-        save(Data, file=outFile$sfile)
-      }
-      if(outFile$iscsv)
-      {
-        write.csv(Data, file=outFile$sfile, row.names = FALSE)
-      }
-    }
-
     # print timing message
     message("Data simulation took: ",
             capture.output(Sys.time() - start), ".\n\n")
@@ -338,6 +325,20 @@ ICTpower <- function(outFile         = NULL                      ,
       Data$group <- 'group1'
     }
 
+    # start message
+    message("\nStarting bootstrap resampling of n=", sum(sampleSizes),
+            " participants repeated B=", B, " times.\n",
+            ifelse(!is.null(outFile$sfile),
+                    paste("Data will be saved in the file:\n\n", outFile$sfile,
+                          "\n\nwhere the outcome for each bootstrap sample will",
+                          " be labeled y1, ..., y", B,
+                          ".\n\n NOTE: Individual ids are not saved and are",
+                          "\narbitrarily relabeled to create a data structure",
+                          "\nthat conforms to PersonAlytic() requirements.\n\n",
+                          sep=""),
+                    '\n\n')
+    )
+
     uid    <- table(Data$id, Data$group)
     nchars <- max(nchar(as.character(Data$id)))
     datL   <- list()
@@ -377,6 +378,7 @@ ICTpower <- function(outFile         = NULL                      ,
     Data    <- Reduce(function(df1, df2) merge(df1, df2, by=mergeby, all = TRUE),
                       datL)
 
+
     #
     # process inputs in `...` that may be passed to `PersonAlytic`
     #
@@ -402,6 +404,18 @@ ICTpower <- function(outFile         = NULL                      ,
     if( !is.null(ivs) ) int   <- list(c(ivs, phase), c(ivs, 'Time'))
   }
 
+  # if requested, save the data
+  if(!is.null(outFile$sfile))
+  {
+    if(outFile$isRData)
+    {
+      save(Data, file=outFile$sfile)
+    }
+    if(outFile$iscsv)
+    {
+      write.csv(Data, file=outFile$sfile, row.names = FALSE)
+    }
+  }
 
   paout <- PersonAlytic(output       = outFile$file                     ,
                         data         = Data                             ,
@@ -492,10 +506,10 @@ powerReport <- function(paout, alpha, file, saveReport=TRUE, fpc=FALSE)
   names(powerL) <- gsub('.p.value', '', names(powerL))
   names(powerL) <- gsub("\\s", " ", format(names(powerL),
                                            width=max(nchar(names(powerL)))) )
-  powerOutput <- paste(names(powerL)                                , '\t',
-                       sprintf("% 2.3f", round(unlist(valueLm),3))  , '\t\t',
-                       sprintf("% 2.3f", round(unlist(valueLsd),3)) , '\t\t',
-                       sprintf("% 2.3f", round(unlist(powerL),3))   , '\t\t',
+  powerOutput <- paste(sprintf("%s"    , names(powerL))            , '\t',
+                       sprintf("% 2.3f", round(unlist(valueLm),3))  , '\t',
+                       sprintf("% 2.3f", round(unlist(valueLsd),3)) , '\t',
+                       sprintf("% 2.3f", round(unlist(powerL),3))   , '\t',
                        '\n' )
   powerOutput <- c(
     paste(gsub("\\s", " ", format("Predictor",
