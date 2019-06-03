@@ -164,7 +164,7 @@ ICTpowerSim <- function(designs                                  ,
   power$type <- "power"
   mEst $type <- "meanEst"
   sdEst$type <- "sdEst"
-  reportName  <- paste(pReportName, 'PAP', packageVersion('PersonAlyticsPower'),
+  reportName  <- paste(pReportName, 'POWER', packageVersion('PersonAlyticsPower'),
                       'PA', packageVersion('PersonAlytics'), '.csv', sep='_')
   powerOut <- rbind(power, mEst, sdEst)
   names(powerOut) <- c(row.names(powerL[[1]]), 'type')
@@ -183,7 +183,7 @@ ICTpowerSim <- function(designs                                  ,
     power$type <- "power"
     mEst $type <- "meanEst"
     sdEst$type <- "sdEst"
-    reportName  <- paste(pReportName, 'PAP', packageVersion('PersonAlyticsPower'),
+    reportName  <- paste(pReportName, 'POWER', packageVersion('PersonAlyticsPower'),
                          'PA', packageVersion('PersonAlytics'), '.FPC.csv', sep='_')
     powerOut <- rbind(power, mEst, sdEst)
     names(powerOut) <- c(row.names(powerL[[1]]), 'type')
