@@ -25,7 +25,7 @@ test_that("piecewise",
   ICTpower(outFile     = c("piecewise", "csv"),
            B           = 3                    ,
            dataFile    = "Data.RData"         ,
-           sampleSizes = c(400,400)           ,
+           sampleSizes = c(500,500)           ,
            alignPhase  = 'piecewise'          )
 
 

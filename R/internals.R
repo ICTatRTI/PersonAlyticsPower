@@ -134,6 +134,7 @@
       if(iscsv  ) write.csv(test, sfile)
       if(isRData) save(test, file=sfile)
       file.remove(sfile)
+      rm(test)
     }
   }
   invisible( list(file=file[1], isRData=isRData, iscsv=iscsv, sfile=sfile) )

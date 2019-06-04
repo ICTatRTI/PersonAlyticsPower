@@ -164,11 +164,13 @@ ICTpowerSim <- function(designs                                  ,
   power$type <- "power"
   mEst $type <- "meanEst"
   sdEst$type <- "sdEst"
-  reportName  <- paste(pReportName, 'POWER', packageVersion('PersonAlyticsPower'),
-                      'PA', packageVersion('PersonAlytics'), '.csv', sep='_')
+  reportName  <- paste(pReportName, 'csv', sep='')
   powerOut <- rbind(power, mEst, sdEst)
   names(powerOut) <- c(row.names(powerL[[1]]), 'type')
   powerOut <- data.frame(design=row.names(powerOut), type=powerOut$type, powerOut)
+  powerOut$PersonAlyticsPower <- paste("Version",
+                                       packageVersion("PersonAlyticsPower"))
+  powerOut$PersonAyltics <- paste("Version", packageVersion('PersonAlytics'))
   write.csv(powerOut, file=reportName, row.names=F)
 
   # save the fpc results if fpc exists
@@ -183,11 +185,13 @@ ICTpowerSim <- function(designs                                  ,
     power$type <- "power"
     mEst $type <- "meanEst"
     sdEst$type <- "sdEst"
-    reportName  <- paste(pReportName, 'POWER', packageVersion('PersonAlyticsPower'),
-                         'PA', packageVersion('PersonAlytics'), '.FPC.csv', sep='_')
+    reportName  <- paste(pReportName, 'FPC.csv', sep='_')
     powerOut <- rbind(power, mEst, sdEst)
     names(powerOut) <- c(row.names(powerL[[1]]), 'type')
     powerOut <- data.frame(design=row.names(powerOut), type=powerOut$type, powerOut)
+    powerOut$PersonAlyticsPower <- paste("Version",
+                                         packageVersion("PersonAlyticsPower"))
+    powerOut$PersonAyltics <- paste("Version", packageVersion('PersonAlytics'))
     write.csv(powerOut, file=reportName, row.names=F)
   }
 

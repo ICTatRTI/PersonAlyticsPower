@@ -448,12 +448,12 @@ ICTpower <- function(outFile         = NULL                      ,
   #
   # power analysis specific summary of results
   #
-  powerL <- powerReport(paout, alpha, file=outFile$outFile,
+  powerL <- powerReport(paout, alpha, file=outFile$file,
                         saveReport=savePowerReport)
 
   if(exists("fpc"))
   {
-    powerLFPC <- powerReport(paout, alpha, file=outFile$outFile,
+    powerLFPC <- powerReport(paout, alpha, file=outFile$file,
                              saveReport=savePowerReport, fpc=TRUE)
   }
 
@@ -532,7 +532,17 @@ powerReport <- function(paout, alpha, file, saveReport=TRUE, fpc=FALSE)
     fileExt <- 'PowerReport.txt'
     if(fpc) fileExt <- 'PowerReportFPC.txt'
     powerfile <- paste(file, fileExt, sep='_')
-    cat( powerOutput, file = powerfile)
+
+    if( file.exists(powerfile) )
+    {
+      message("\nThe file `", powerfile, "` already exists and will be overwritten.")
+    }
+
+    dt  <- format(Sys.time(), format='%Y%m%d_%H.%M%p')
+    pap <- paste("PersonAlyticsPower Version", packageVersion("PersonAlyticsPower"))
+    pa  <- paste("PersonAlytics Version", packageVersion('PersonAlytics'))
+
+    cat( dt, "\n", pap, "\n", pa, "\n\n", powerOutput, file = powerfile)
   }
 
   # return results
