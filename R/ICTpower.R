@@ -320,6 +320,7 @@ ICTpower <- function(outFile         = NULL                      ,
     {
       Data$group <- 'group1'
     }
+    groups <- unique(Data$group)
 
     # start message
     message("\nStarting bootstrap resampling of n=", sum(sampleSizes),
@@ -335,17 +336,16 @@ ICTpower <- function(outFile         = NULL                      ,
                     '\n\n')
     )
 
-    uid    <- table(Data$id, Data$group)
     nchars <- max(nchar(as.character(Data$id)))
     datL   <- list()
     for(b in 1:B)
     {
       datG <- list()
-      for(g in seq_along(unique(Data$group)) )
+      for(g in seq_along(groups) )
       {
         if(b==1)
         {
-          uidg <- length(uid[,g] != 0)
+          uidg <- length(unique(Data$id[Data$group==groups[g]]))
           if( uidg <= sampleSizes[g] )
           {
             stop('There are ', uidg, ' unique ids in ', colnames(uid)[g],
@@ -355,15 +355,22 @@ ICTpower <- function(outFile         = NULL                      ,
           }
         }
 
+        # When sampling from a finite population, we'd never sample the same
+        # person twice. To mimic this, we sample without replacement.
+
         set.seed(seeds[b] + g)
-        wid <- sample(uid[uid[,g]!=0,g], size = sampleSizes, replace = FALSE)
-        dat <- Data[Data$id %in% as.numeric(names(wid)),]
+        sid <- unique(Data$id[Data$group==groups[g]])
+        wid <- sample(sid, size = sampleSizes[g], replace = FALSE)
+        dat <- Data[Data$id %in% wid,]
         names(dat)[which(names(dat)=='y')] <- paste('y', b, sep='')
 
+        # before sorting, nullify row names as they can affect sorting
+        row.names(dat) <- NULL
         # create new ids that will be the same across samples for merging, noting
         # that the original ids will be last
         dat$id    <- as.numeric(factor(dat$id, labels=1:sampleSizes[g])) +
                        (10*g)^nchars
+        # now sort on the new names
         dat       <- dat[order(dat$id, dat$Time),]
         datG[[g]] <- dat
       }
@@ -381,7 +388,7 @@ ICTpower <- function(outFile         = NULL                      ,
     # get the ARMA order from `correlation` if it is passed by ...
     if(!exists('correlation'))
     {
-      correlation <- 'corARMA(p=1, q=1)'
+      correlation <- NULL
     }
     if(!exists('detectAR'))   detectAR   <- FALSE
     if(!exists('detectTO'))   detectTO   <- FALSE
@@ -417,6 +424,23 @@ ICTpower <- function(outFile         = NULL                      ,
     }
   }
 
+  if(exists("debugforeach"))
+  {
+    if(exists("alignPhase")) print(alignPhase)
+    print(outFile$file)
+    print(head(Data))
+    print(B)
+    print(phase)
+    print(ivs)
+    print(int)
+    print(time_power)
+    print(correlation)
+    print(detectAR)
+    print(detectTO)
+    print(cores)
+    print(standardize)
+  }
+
   paout <- PersonAlytic(output       = outFile$file                     ,
                         data         = Data                             ,
                         ids          = 'id'                             ,
@@ -435,40 +459,52 @@ ICTpower <- function(outFile         = NULL                      ,
   )
 
   # check for failed PersonAlytic calls
+  success <- TRUE
   if(nrow(paout)==0)
   {
-    stop('\nThe call to `PersonAlytic` returned output with 0 rows.',
+    warning('\nThe call to `PersonAlytic` returned output with 0 rows.',
          '\nPower analysis cannot be completed.')
+    success <- FALSE
   }
   if(all(paout$converge=="Model did not converge"))
   {
-    stop('\nNone of the models converged. Power analysis cannot be completed.')
+    warning('\nNone of the models converged. Power analysis cannot be completed.')
+    success <- FALSE
   }
-
-  #
-  # power analysis specific summary of results
-  #
-  powerL <- powerReport(paout, alpha, file=outFile$file,
-                        saveReport=savePowerReport)
-
-  if(exists("fpc"))
+  if(!success)
   {
-    powerLFPC <- powerReport(paout, alpha, file=outFile$file,
-                             saveReport=savePowerReport, fpc=TRUE)
+    message("\nPower analysis failed. See the `PersonAlytic` output in\n",
+            paste(outFile$file, "csv", sep="."), "\nfor error messages.")
   }
 
-  #
-  # distributions of the estimates
-  #
-  plotDists <- FALSE
-  if(plotDists)
+  if(success)
   {
-    samplingDist(paout)
+    #
+    # power analysis specific summary of results
+    #
+    powerL <- powerReport(paout, alpha, file=outFile$file,
+                          saveReport=savePowerReport)
+
+    if(exists("fpc"))
+    {
+      powerLFPC <- powerReport(paout, alpha, file=outFile$file,
+                               saveReport=savePowerReport, fpc=TRUE)
+    }
+
+    #
+    # distributions of the estimates
+    #
+    plotDists <- FALSE
+    if(plotDists)
+    {
+      samplingDist(paout)
+    }
+
+    # return
+    if(!exists("fpc")) invisible( powerL )
+    if( exists("fpc")) invisible( list(powerL=powerL, powerLFPC=powerLFPC) )
   }
 
-  # return
-  if(!exists("fpc")) invisible( powerL )
-  if( exists("fpc")) invisible( list(powerL=powerL, powerLFPC=powerLFPC) )
 
 }
 

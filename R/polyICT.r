@@ -498,12 +498,12 @@ polyICT <- R6::R6Class("polyICT",
                            seeds <- matrix(seeds, length(self$phaseNames),
                                            length(self$groupNames))
                            data <- list(); d <- 1
-                           for(p in seq_along(self$phaseNames))
+                           for(g in seq_along(self$groupNames))
                            {
-                             thisp <- self$phaseNames[[p]]
-                             for(g in seq_along(self$groupNames))
+                             thisg <- self$groupNames[[g]]
+                             for(p in seq_along(self$phaseNames))
                              {
-                               thisg <- self$groupNames[[g]]
+                               thisp <- self$phaseNames[[p]]
                                # Sigma should be CorMat, not CovMat, otherwhise
                                # the slope variance (and higher polynomial terms)
                                # get scaled twice
@@ -527,7 +527,7 @@ polyICT <- R6::R6Class("polyICT",
                                  c('randFx', 'res', 'mserr')]
 
                                # calls to .polyData() here
-                               data[[d]] <- .polyData(seed       = seeds[p,g]         ,
+                               data[[d]] <- .polyData(seed      = seeds[p,g]         ,
                                                      n          = n                  ,
                                                      nObs       = nObs               ,
                                                      mu         = unlist(mu)         ,
