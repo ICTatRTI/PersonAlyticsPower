@@ -364,7 +364,7 @@ designICT <- R6::R6Class("designICT",
              "        `#` is the random effect order (0=intercepts, 1=slopes, etc.)\n",
              "Var#  : the variance per phase & group, where",
              "`#` is as explained above.\n",
-             "The proportion of the total variance at time 1:\n",
+             "\nThe proportion of the total variance at time 1:\n",
              "randFx: due to random effects.\n",
              "res   : due to residual autocorrelation.\n",
              "mserr : due to measurement error.\n")

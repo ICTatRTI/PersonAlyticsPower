@@ -381,6 +381,9 @@ ICTpower <- function(outFile         = NULL                      ,
     Data    <- Reduce(function(df1, df2) merge(df1, df2, by=mergeby, all = TRUE),
                       datL)
 
+    # qc
+    #any(duplicated(Data$id[Data$group=='group1'], Data$id[Data$group=='group1']))
+
 
     #
     # process inputs in `...` that may be passed to `PersonAlytic`
@@ -426,7 +429,10 @@ ICTpower <- function(outFile         = NULL                      ,
 
   if(exists("debugforeach"))
   {
-    if(exists("alignPhase")) print(alignPhase)
+    for(i in seq_along(dotsNames))
+    {
+      print( paste(dotsNames[i], dots[i], sep=': '))
+    }
     print(outFile$file)
     print(head(Data))
     print(B)
@@ -462,19 +468,19 @@ ICTpower <- function(outFile         = NULL                      ,
   success <- TRUE
   if(nrow(paout)==0)
   {
-    warning('\nThe call to `PersonAlytic` returned output with 0 rows.',
+    message('\nThe call to `PersonAlytic` returned output with 0 rows.',
          '\nPower analysis cannot be completed.')
     success <- FALSE
   }
   if(all(paout$converge=="Model did not converge"))
   {
-    warning('\nNone of the models converged. Power analysis cannot be completed.')
+    message('\nNone of the models converged. Power analysis cannot be completed.')
     success <- FALSE
   }
   if(!success)
   {
-    message("\nPower analysis failed. See the `PersonAlytic` output in\n",
-            paste(outFile$file, "csv", sep="."), "\nfor error messages.")
+    message("\nPower analysis failed. See the `PersonAlytic` output in\n`",
+            paste(outFile$file, "csv", sep="."), "` for error messages.\n\n")
   }
 
   if(success)
