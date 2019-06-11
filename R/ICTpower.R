@@ -518,8 +518,26 @@ ICTpower <- function(outFile         = NULL                      ,
 #' powerReport - print power results to screen and to a file
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
-#' @keywords internal
-powerReport <- function(paout, alpha, file, saveReport=TRUE, fpc=FALSE)
+#' @export
+#'
+#' @param paout The *.cvs output from PersonAlytics read in to the object paout.
+#'
+#' @param alpha The type I error rate.
+#'
+#' @param file A file name for for saving the results if \code{saveReport} is
+#' \code{TRUE}.
+#'
+#' @param saveReport Logical. Should the report be saved (in addition to
+#' being printed to the console).
+#'
+#' @param fpc Logical. Should finite population corrected p-values be looked for
+#' in \code{paout}.
+#'
+#' @return A data frame with the mean of the parameter estimates, the standard
+#' deviation of the parameter estimates, and the power.
+#'
+powerReport <- function(paout, alpha, file, saveReport=TRUE, fpc=FALSE,
+                        printToScreen=TRUE)
 {
   # power estimates are the proportion of p < alpha
   whichP <- names(paout)[ grepl('p.value', names(paout)) ]
@@ -564,9 +582,12 @@ powerReport <- function(paout, alpha, file, saveReport=TRUE, fpc=FALSE)
     powerOutput
   )
 
-  if(!fpc) message("Power Report")
-  if( fpc) message("Power Report with Finite Population Correction")
-  message(.hl(), powerOutput, .hl() )
+  if(printToScreen)
+  {
+    if(!fpc) message("Power Report")
+    if( fpc) message("Power Report with Finite Population Correction")
+    message(.hl(), powerOutput, .hl() )
+  }
 
   # save the report
   if(saveReport)
