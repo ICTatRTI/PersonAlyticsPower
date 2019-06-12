@@ -4,7 +4,26 @@
 \alias{powerReport}
 \title{powerReport - print power results to screen and to a file}
 \usage{
-powerReport(paout, alpha, file, saveReport = TRUE, fpc = FALSE)
+powerReport(paout, alpha, file, saveReport = TRUE, fpc = FALSE,
+  printToScreen = TRUE)
+}
+\arguments{
+\item{paout}{The *.cvs output from PersonAlytics read in to the object paout.}
+
+\item{alpha}{The type I error rate.}
+
+\item{file}{A file name for for saving the results if \code{saveReport} is
+\code{TRUE}.}
+
+\item{saveReport}{Logical. Should the report be saved (in addition to
+being printed to the console).}
+
+\item{fpc}{Logical. Should finite population corrected p-values be looked for
+in \code{paout}.}
+}
+\value{
+A data frame with the mean of the parameter estimates, the standard
+deviation of the parameter estimates, and the power.
 }
 \description{
 powerReport - print power results to screen and to a file
@@ -12,4 +31,3 @@ powerReport - print power results to screen and to a file
 \author{
 Stephen Tueller \email{stueller@rti.org}
 }
-\keyword{internal}

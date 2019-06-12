@@ -559,6 +559,15 @@ powerReport <- function(paout, alpha, file, saveReport=TRUE, fpc=FALSE,
   # effect size estimates (value)
   whichV <- names(paout)[ grepl('Value', names(paout)) ]
   whichV <- whichV[! grepl('statValue', whichV)]
+
+  # select whichV based on FPC
+  whichFPC <- grepl('FPC', whichV)
+  if(any(whichFPC))
+  {
+    if( fpc) whichV <- whichV[ whichFPC]
+    if(!fpc) whichV <- whichV[!whichFPC]
+  }
+
   valueLm <- valueLsd <- list()
   for(i in whichV)
   {
