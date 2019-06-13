@@ -152,9 +152,9 @@ ICTpower <- function(outFile         = NULL                      ,
                      seed            = 123                       ,
                      cores           = parallel::detectCores()-1 ,
                      savePowerReport = TRUE                      ,
-                     standardize     = list(dv    = TRUE ,
-                                            ivs   = FALSE,
-                                            byids = TRUE )       ,
+                     standardize     = list(dv    = FALSE ,
+                                            ivs   = FALSE ,
+                                            byids = FALSE )      ,
                      prompt          = TRUE                      ,
                      ...
 )

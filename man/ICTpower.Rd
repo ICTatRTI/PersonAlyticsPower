@@ -8,7 +8,7 @@ non-parametric bootstrap.}
 ICTpower(outFile = NULL, design = NULL, B = 100, dataFile = NULL,
   sampleSizes = NULL, alpha = 0.05, seed = 123,
   cores = parallel::detectCores() - 1, savePowerReport = TRUE,
-  standardize = list(dv = TRUE, ivs = FALSE, byids = TRUE),
+  standardize = list(dv = FALSE, ivs = FALSE, byids = FALSE),
   prompt = TRUE, ...)
 }
 \arguments{
