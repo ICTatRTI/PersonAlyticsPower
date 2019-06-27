@@ -436,7 +436,7 @@ designICT <- R6::R6Class("designICT",
                              correlation = correlation)
          if(fitMod) # runs slow with some examples, qc why
          {
-           mod0 <- pa$lme()
+           mod0 <<- pa$lme()
            print( summary( mod0 ) )
          }
 
@@ -447,19 +447,13 @@ designICT <- R6::R6Class("designICT",
 
 
          # plot
-         if( length( self$groupNames ) == 1 ) print( pa$plot(ylim=ylim) )
-         if( length( self$groupNames ) >= 2 ) print( pa$plot(groupvar = 'group',
+         if( length( self$groupNames ) == 1 ) return( pa$plot(ylim=ylim) )
+         if( length( self$groupNames ) >= 2 ) return( pa$plot(groupvar = 'group',
                                                              ylim=ylim) )
 
          # restore the original sample sizes
          self$groups <- originaln
-
-         # if the model was fit, return it (cannot method chain after this)
-         if(fitMod)  invisible(pa)
-         if(!fitMod) invisible(self)
        }
-
-
 
    )
 ) # end of designICT class definition
