@@ -1,4 +1,27 @@
 
+#' .arima.sim - function to run arima.sim with potentially extraneous arguments
+#' intended for a gamlss.family distribution passed to rand.gen
+#'
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @keywords internal
+.arima.sim <- function(seed, doPlot=TRUE, ...)
+{
+  set.seed(seed)
+
+  testData <- R.utils::doCall(arima.sim, ...)
+
+  if(doPlot)
+  {
+    par(mfrow=c(2,1))
+    plot( testData )
+    acf(  testData )
+    par(mfrow=c(1,1))
+  }
+
+  invisible( testData )
+}
+
 #' errActive Active bindings for Err and its heirs
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
@@ -8,12 +31,12 @@ errActive <- function()
 {
   list(
 
-    parms = function(value)
+    model = function(value)
     {
-      if( missing(value) ){ private$.parms }
+      if( missing(value) ){ private$.model }
       else
       {
-        private$.parms <- value
+        private$.model <- value
         self
       }
     },
@@ -87,7 +110,7 @@ errActive <- function()
 #'
 #'
 #'
-#' @field parms The parameters for \code{FUN}.
+#' @field model The parameters for \code{FUN}.
 #'
 #' @field errVar The error variance.
 #'
@@ -95,14 +118,14 @@ errActive <- function()
 #'
 #' @field fam A random variable generator from the
 #' \code{\link{gamlss.family}} for the error term distribution.
-#' After data are simulated using \code{FUN} and its \code{parms}, it can be
+#' After data are simulated using \code{FUN} and its \code{model}, it can be
 #' transformed to have a distribution implied by \code{fam}.
 #'
 #' @field famParms Parameters to be passed to \code{fam}, see \code{\link{gamlss.family}}.
 Err <- R6::R6Class("err",
 
          private = list(
-           .parms    = NULL,
+           .model    = NULL,
            .errVar   = NULL,
            .FUN      = NULL,
            .fam      = NULL,
@@ -114,7 +137,7 @@ Err <- R6::R6Class("err",
          public = list(
 
            initialize = function(
-              parms    = NULL,
+              model    = NULL,
               errVar   = 1   ,
               FUN      = NULL,
               fam      = NULL,
@@ -124,7 +147,7 @@ Err <- R6::R6Class("err",
              # validate inputs
 
              # populate private
-             private$.parms    <- parms
+             private$.model    <- model
              private$.errVar   <- errVar
              private$.FUN      <- FUN
              private$.fam      <- fam
@@ -133,7 +156,7 @@ Err <- R6::R6Class("err",
 
            print = function(...)
            {
-             print(self$parms)
+             print(self$model)
              print(self$errVar)
              print(self$fam)
              print(self$famParms)
@@ -153,25 +176,33 @@ Err <- R6::R6Class("err",
 #'
 #'
 #'
-#' @field parms The parameters for \code{FUN}.
+#' @field model The parameters for \code{FUN}.
 #'
 #' @field errVar The error variance.
 #'
 #' @field FUN The function for simulating error terms.
 #'
 #' @field fam A \code{\link{gamlss.family}} family for the error term distribution.
-#' After data are simulated using \code{FUN} and its \code{parms}, it can be
+#' After data are simulated using \code{FUN} and its \code{model}, it can be
 #' transformed to have a distribution different from those available to \code{FUN}.
 #'
 #' @field famParms Parameters to be passed to \code{fam}, see \code{\link{gamlss.family}}.
 #'
 #' @examples
 #'
+#' # set up a stationary arma model
+#' testErr <- armaErr$new(model = list(ar=c(.5), ma=c(.2)))
+#' testErr$checkModel()
+#'
+#' # show testing for an unstationary ARMA model
+#' testFail <- armaErr$new(model = list(ar=c(-.8, .5), ma=c(.2)))
+#' testFail$checkModel()
+#'
 #' # show that r* functions from gamlss.family distribution functions can be
 #' # passed to arima.sim
 #' errBeta <- arima.sim(list(ar=c(.5)), 1000, innov = rBE(1000, mu=.5, sigma=.2))
 #'
-#' # note that the rand.gen option only allows teh defaults for the function
+#' # note that the rand.gen option only allows the defaults for the function
 #' # passed to rand.gen
 #' #errBeta <- arima.sim(list(ar=c(.5)), 1000, rand.gen = rBE)
 #' # that said, rand.gen's parameters can be passed via ...
@@ -188,53 +219,78 @@ armaErr <- R6::R6Class("errARMA",
 
   public = list(
     initialize = function(
-      parms    = list(ar=c(.5), ma=c(0)) ,
+      model    = list(ar=c(.5), ma=c(0)) ,
       fam      = "NO"                    ,
       famParms = list(mu=0, sigma=1)
     )
     {
       # validation
-      if( !is.list(parms) )
+      if( !is.list(model) )
       {
-        if( ! all(names(parms) %in% c('ar', 'ma')) )
+        if( ! all(names(model) %in% c('ar', 'ma')) )
         {
-          stop('\n`parms` must be a named list of length one or two with the\n',
-             'names `ar` and/or `ma`; `parms` can also be an empty list\n',
+          stop('\n`model` must be a named list of length one or two with the\n',
+             'names `ar` and/or `ma`; `model` can also be an empty list\n',
              'to generate white noise. See ?arima.')
         }
       }
-      if(length(parms)>0)
+      if(length(model)>0)
       {
-        for(p in 1:length(parms))
+        for(p in 1:length(model))
         {
-          if( !is.numeric(parms[[p]]) | !is.vector(parms[[p]]) )
+          if( !is.numeric(model[[p]]) | !is.vector(model[[p]]) )
           {
-            stop('`', names(parms)[p], '` must be a numeric vector.')
+            stop('`', names(model)[p], '` must be a numeric vector.')
           }
         }
       }
+
       # check family and famParms
       .checkFam(fam, famParms)
 
+      # define random generator for fam
+      fam <- paste('r', fam, sep='')
+
       # populate private
-      private$.parms    <- parms
+      private$.model    <- model
       private$.errVar   <- 1
       private$.FUN      <- arima.sim
-      private$.fam      <- paste('r', fam, sep='')
+      private$.fam      <- fam
       private$.famParms <- famParms
 
     },
 
+    checkModel = function(seed=1234, doPlot=TRUE)
+    {
+      # the following will yield an error if the ar and/or ma parameters yield a
+      # model that is not stationary
+
+      # note that we use eval parse without security concerns as .checkFam has
+      # already validated the input
+      check <- try(
+      .arima.sim(seed=seed, doPlot=doPlot, model=self$model, n = 1000,
+                 rand.gen = eval(parse(text=self$fam)),
+                 mu = self$famParms$mu, sigma = self$famParms$sigma,
+                 nu = self$famParms$nu, tau = self$famParms$tau))
+      if( is(check)[1] == 'try-error' )
+      {
+        cat(0, file='stationary.arma') # for chris's gui
+      }
+    },
 
     makeErrors = function(n, nObservations, seed=123)
     {
       # get seeds
-      seeds <- as.list( .makeSeeds(seed, nObservations) )
+      seeds <- as.list( .makeSeeds(seed, n) )
 
       # sim errors
-      errors <- .doLapply(seeds, self$fam, n=n,
-               mu = self$famParms$mu, sigma = self$famParms$sigma,
-               nu = self$famParms$nu, tau = self$famParms$tau)
+      errors <- lapply(seeds, .arima.sim, doPlot=FALSE,
+                       model=self$model, n = nObservations,
+                       rand.gen =  eval(parse(text=self$fam)),
+                       mu = self$famParms$mu, sigma = self$famParms$sigma,
+                       nu = self$famParms$nu, tau = self$famParms$tau)
+
+
 
       # TODO move this to a validation test or examples for this function.
       # rescale to have unit variances within time points then multiply
@@ -260,14 +316,12 @@ armaErr <- R6::R6Class("errARMA",
       #}
 
       # return
-      return(errors)
+      return( t( do.call(cbind, errors) ) )
 
     }
 
-
   )
 )
-
 
 # note that in ?arima.sim, the rand.gen option defualts to rnorm, so if we follow
 # Ty's model of E = a + e, we simply have a mixture of normal distributions, one

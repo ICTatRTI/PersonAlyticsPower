@@ -50,9 +50,8 @@ section.}
 group specific variances can be specified by editing \code{inputMat} after
 initializing a \code{polyICT} object.}
 
-\item{\code{randFxCorMat}}{A list of correlation matrices for each phase and group.
-The default \code{randFxCorMat}s are ceated using \code{randFxCor} for all
-off-diagonal entries. These can be edited as illustrated in the Examples.}
+\item{\code{randFxCor}}{A default correlation between the random effects. This can be
+edited later as shown in the examples.}
 
 \item{\code{propErrVar}}{See \code{propErrVar} in the \code{new} Method. See also
 \code{inputMat} and the Examples for making these inputs phase and/or group
@@ -152,7 +151,7 @@ distribution specified in \code{randFxFam}. Not implemented.}
   final data. See \code{makeData} in the \strong{Methods}
   section for more details.
 
-  \code{ySD} Numeric. The default is \code{100}. The mean of the
+  \code{ymean} Numeric. The default is \code{100}. The mean of the
   final data. See \code{makeData} in the \strong{Methods}
   section for more details.
 

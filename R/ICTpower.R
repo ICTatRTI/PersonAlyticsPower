@@ -12,8 +12,8 @@
 #' @param outFile The file name for saving power analysis results.
 #' It may be a full path. The simulated data are to be saved by including the
 #' file extension in a list. For example,
-#' \code{file=c('n10_medSlopeEffect', 'csv')}
-#' or \code{file=c('condition2', 'Rdata')}. Only `csv` and `RData` are supported.
+#' \code{outFile=c('n10_medSlopeEffect', 'csv')}
+#' or \code{outFile=c('condition2', 'Rdata')}. Only `csv` and `RData` are supported.
 #'
 #' @param design An \code{\link{designICT}} object such as
 #' \code{\link{polyICT}}. This must be provided for a parametric bootstrap

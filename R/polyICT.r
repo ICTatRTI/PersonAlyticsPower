@@ -48,9 +48,8 @@
 #' group specific variances can be specified by editing \code{inputMat} after
 #' initializing a \code{polyICT} object.
 #'
-#' @field randFxCorMat A list of correlation matrices for each phase and group.
-#' The default \code{randFxCorMat}s are ceated using \code{randFxCor} for all
-#' off-diagonal entries. These can be edited as illustrated in the Examples.
+#' @field randFxCor A default correlation between the random effects. This can be
+#' edited later as shown in the examples.
 #'
 #' @field propErrVar See \code{propErrVar} in the \code{new} Method. See also
 #' \code{inputMat} and the Examples for making these inputs phase and/or group
@@ -148,7 +147,7 @@
 #'   final data. See \code{makeData} in the \strong{Methods}
 #'   section for more details.
 #'
-#'   \code{ySD} Numeric. The default is \code{100}. The mean of the
+#'   \code{ymean} Numeric. The default is \code{100}. The mean of the
 #'   final data. See \code{makeData} in the \strong{Methods}
 #'   section for more details.
 #'
@@ -527,16 +526,16 @@ polyICT <- R6::R6Class("polyICT",
                                  c('randFx', 'res', 'mserr')]
 
                                # calls to .polyData() here
-                               data[[d]] <- .polyData(seed      = seeds[p,g]         ,
-                                                     n          = n                  ,
-                                                     nObs       = nObs               ,
-                                                     mu         = unlist(mu)         ,
-                                                     Sigma      = Sigma              ,
-                                                     self       = self               ,
-                                                     dM         = dM                 ,
-                                                     rFxVr      = unlist(rFxVr)      ,
-                                                     propErrVar = unlist(propErrVar) ,
-                                                     group      = thisg              )
+                               data[[d]] <- .polyData(seed       = seeds[p,g]         ,
+                                                      n          = n                  ,
+                                                      nObs       = nObs               ,
+                                                      mu         = unlist(mu)         ,
+                                                      Sigma      = Sigma              ,
+                                                      self       = self               ,
+                                                      dM         = dM                 ,
+                                                      rFxVr      = unlist(rFxVr)      ,
+                                                      propErrVar = unlist(propErrVar) ,
+                                                      group      = thisg              )
                                d <- d + 1
                              }
                            }

@@ -74,7 +74,8 @@
 #' @param Yp X a vector of probabilities to be passed to a quantile function
 #'
 #' @param .fcn A quantile function like \code{\link{qN0}} in \code{\link{gamlss}}
-#' or \code{\link{qnorm}}. See also \code{\link{R.utils::doCall}} in the `R.utils` package
+#' or \code{\link{qnorm}}. See also \code{\link{R.utils::doCall}} in the
+#' `R.utils` package
 #'
 #' @param ... other options passed to \code{\link{gamlss.family}} distribution
 #' functions, most commonly mu, sigma, nu, and tau.

@@ -1,0 +1,18 @@
+20190702_17.23PM 
+ PersonAlyticsPower Version 0.1.6.0 
+ PersonAlytics Version 0.2.6.8 
+
+ Predictor               	Mean Estimates	SD Estimates	Power
+ -------------------------------------------------------------------------------- 
+ X.Intercept.            	  98.997 	  1.443 	  1.000 	 
+ pwtime1                 	 -0.156 	  0.533 	  0.000 	 
+ pwtime2                 	 -0.026 	  0.222 	  0.000 	 
+ pwtime3                 	 -0.354 	  0.318 	  0.000 	 
+ phasephase2             	  3.698 	  5.873 	  0.333 	 
+ phasephase3             	  2.565 	  8.753 	  0.333 	 
+ groupgroup2             	 -1.739 	  1.087 	  0.000 	 
+ phasephase2.groupgroup2 	  0.819 	  5.645 	  0.333 	 
+ phasephase3.groupgroup2 	  4.736 	  8.622 	  0.333 	 
+ pwtime1.groupgroup2     	 -0.050 	  0.681 	  0.000 	 
+ pwtime2.groupgroup2     	 -0.000 	  0.128 	  0.000 	 
+ pwtime3.groupgroup2     	  0.554 	  0.396 	  0.000 	 

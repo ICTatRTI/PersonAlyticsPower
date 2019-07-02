@@ -14,14 +14,14 @@ armaErr
 \section{Fields}{
 
 \describe{
-\item{\code{parms}}{The parameters for \code{FUN}.}
+\item{\code{model}}{The parameters for \code{FUN}.}
 
 \item{\code{errVar}}{The error variance.}
 
 \item{\code{FUN}}{The function for simulating error terms.}
 
 \item{\code{fam}}{A \code{\link{gamlss.family}} family for the error term distribution.
-After data are simulated using \code{FUN} and its \code{parms}, it can be
+After data are simulated using \code{FUN} and its \code{model}, it can be
 transformed to have a distribution different from those available to \code{FUN}.}
 
 \item{\code{famParms}}{Parameters to be passed to \code{fam}, see \code{\link{gamlss.family}}.}
@@ -29,11 +29,19 @@ transformed to have a distribution different from those available to \code{FUN}.
 
 \examples{
 
+# set up a stationary arma model
+testErr <- armaErr$new(model = list(ar=c(.5), ma=c(.2)))
+testErr$checkModel()
+
+# show testing for an unstationary ARMA model
+testFail <- armaErr$new(model = list(ar=c(-.8, .5), ma=c(.2)))
+testFail$checkModel()
+
 # show that r* functions from gamlss.family distribution functions can be
 # passed to arima.sim
 errBeta <- arima.sim(list(ar=c(.5)), 1000, innov = rBE(1000, mu=.5, sigma=.2))
 
-# note that the rand.gen option only allows teh defaults for the function
+# note that the rand.gen option only allows the defaults for the function
 # passed to rand.gen
 #errBeta <- arima.sim(list(ar=c(.5)), 1000, rand.gen = rBE)
 # that said, rand.gen's parameters can be passed via ...

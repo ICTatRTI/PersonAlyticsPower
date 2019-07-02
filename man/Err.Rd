@@ -14,7 +14,7 @@ Err
 \section{Fields}{
 
 \describe{
-\item{\code{parms}}{The parameters for \code{FUN}.}
+\item{\code{model}}{The parameters for \code{FUN}.}
 
 \item{\code{errVar}}{The error variance.}
 
@@ -22,7 +22,7 @@ Err
 
 \item{\code{fam}}{A random variable generator from the
 \code{\link{gamlss.family}} for the error term distribution.
-After data are simulated using \code{FUN} and its \code{parms}, it can be
+After data are simulated using \code{FUN} and its \code{model}, it can be
 transformed to have a distribution implied by \code{fam}.}
 
 \item{\code{famParms}}{Parameters to be passed to \code{fam}, see \code{\link{gamlss.family}}.}
