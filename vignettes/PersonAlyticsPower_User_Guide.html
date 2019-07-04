@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Stephen Tueller, Ty Ridenour, Derek Ramirez" />
+
+<meta name="date" content="2019-07-03" />
+
+<title>PersonAlyticsPower© User’s Guide</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">PersonAlyticsPower© User’s Guide</h1>
+<h4 class="author"><em>Stephen Tueller, Ty Ridenour, Derek Ramirez</em></h4>
+<h4 class="date"><em>2019-07-03</em></h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction"><span class="toc-section-number">1</span> Introduction</a><ul>
+<li><a href="#terminology"><span class="toc-section-number">1.1</span> Terminology</a></li>
+</ul></li>
+<li><a href="#installing-personalyticspower"><span class="toc-section-number">2</span> Installing <code>PersonAlyticsPower</code></a></li>
+<li><a href="#starting-personalyticspower"><span class="toc-section-number">3</span> Starting <code>PersonAlyticsPower</code></a></li>
+<li><a href="#how-to-conduct-a-power-analysis"><span class="toc-section-number">4</span> How to Conduct a Power Analysis</a><ul>
+<li><a href="#inputs-common-to-parametric-and-non-parametric-bootstrap-power-analyses"><span class="toc-section-number">4.1</span> Inputs common to parametric and non-parametric bootstrap power analyses</a><ul>
+<li><a href="#naming-the-output-with-outfile"><span class="toc-section-number">4.1.1</span> Naming the output with <code>outFile</code></a></li>
+<li><a href="#the-number-of-replications-b"><span class="toc-section-number">4.1.2</span> The number of replications <code>B</code></a></li>
+<li><a href="#the-type-i-error-rate-alpha"><span class="toc-section-number">4.1.3</span> The Type-I error rate <code>alpha</code></a></li>
+<li><a href="#the-random-seed"><span class="toc-section-number">4.1.4</span> The random <code>seed</code></a></li>
+<li><a href="#parallelization-using-cores"><span class="toc-section-number">4.1.5</span> Parallelization using <code>cores</code></a></li>
+<li><a href="#saving-the-power-report-with-savepowerreport"><span class="toc-section-number">4.1.6</span> Saving the power report with <code>savePowerReport</code></a></li>
+<li><a href="#standardize-the-results"><span class="toc-section-number">4.1.7</span> <code>standardize</code> the results</a></li>
+<li><a href="#preventing-overwriting-output"><span class="toc-section-number">4.1.8</span> Preventing overwriting output</a></li>
+</ul></li>
+<li><a href="#infinite-population-parametric-bootstrap"><span class="toc-section-number">4.2</span> Infinite population parametric bootstrap</a><ul>
+<li><a href="#setting-up-the-design"><span class="toc-section-number">4.2.1</span> Setting up the design</a></li>
+<li><a href="#running-the-parametric-power-analysis"><span class="toc-section-number">4.2.2</span> Running the parametric power analysis</a></li>
+</ul></li>
+<li><a href="#finite-population-non-parametric-bootstrap"><span class="toc-section-number">4.3</span> Finite population non-parametric bootstrap</a></li>
+</ul></li>
+<li><a href="#how-to-conduct-multiple-power-analyses"><span class="toc-section-number">5</span> How to Conduct Multiple Power Analyses</a></li>
+<li><a href="#comparison-to-alternative-software"><span class="toc-section-number">6</span> Comparison to Alternative Software</a></li>
+<li><a href="#appendix"><span class="toc-section-number">7</span> Appendix</a><ul>
+<li><a href="#advanced-editing-options-for-polyict-objects"><span class="toc-section-number">7.1</span> Advanced editing options for <code>polyICT</code> objects</a></li>
+<li><a href="#advanced-options-for-ictpower"><span class="toc-section-number">7.2</span> Advanced options for <code>ICTpower</code></a><ul>
+<li><a href="#the-piecewise-model-vs.the-standard-ict-model"><span class="toc-section-number">7.2.1</span> The piecewise model vs. the standard ICT model</a></li>
+<li><a href="#finite-population-corrections"><span class="toc-section-number">7.2.2</span> Finite population corrections</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#revision-history"><span class="toc-section-number">8</span> Revision History</a></li>
+</ul>
+</div>
+
+<div id="introduction" class="section level1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p>Ty</p>
+<ol style="list-style-type: decimal">
+<li><p>motivating example</p></li>
+<li><p>general theoretical background</p></li>
+</ol>
+<p>``</p>
+<div id="terminology" class="section level2">
+<h2><span class="header-section-number">1.1</span> Terminology</h2>
+<ul>
+<li><p>‘argument’ refers an input given to an R function.</p></li>
+<li><p>‘class’ is the type an R object has, and a class constructor is an R function that creates objects of certain classes.</p></li>
+<li><p>‘console’ refers to the interact part of R where code can be typed in and results are printed.</p></li>
+<li><p>‘field’ is analogous to argument in a class constructor.</p></li>
+<li><p>‘function’ refers to an R object that accept several inputs called ’argument’s and produces some results. A example of basic functions in R is <code>mean</code> which takes a vector of data and computes the mean.</p></li>
+<li><p>‘method’ refers to a function that is part of a complex R object but is not available until an object is created. For example, <code>polyICT</code> is used to create a piece wise polynomial design from which data can be simulated, and it has methods including ‘designCheck’ which plots the design under a large sample for checking inputs and ‘makeData’ for simulating data from your design.</p></li>
+<li><p>‘object’ refers to any thing saved in R’s memory and can include file names, data, functions, and output.</p></li>
+<li><p>‘parameter’ refers to the value of a population parameter in a statistical model. Parameter estimates are obtained by fitting a model to data. Over a sufficient number of replications, the average of the parameter estimates from an unbiased model will equal the population parameter.</p></li>
+<li><p>`R script’ refers to saved R code that can be rerun to ensure reproducible of your power analysis. This should be a file with a *.R extension.</p></li>
+<li><p><code>working directory</code> refers to the folder in which R is currently working. If you do not set this intentionally, your output may be written to an unexpected location. See <code>?getwd</code> and <code>?setwd</code> for getting and setting the working directory in the R console or an R script.</p></li>
+</ul>
+</div>
+</div>
+<div id="installing-personalyticspower" class="section level1">
+<h1><span class="header-section-number">2</span> Installing <code>PersonAlyticsPower</code></h1>
+<p>First you must install <code>R</code>, available at <code>https://cran.r-project.org/</code>. It is also suggested that you use a modern code editor such as Rstudio (<code>https://www.rstudio.com/</code>).</p>
+<p><code>PersonAlytics</code> requires several packages which can be installed (or updated if you already have them) by pasting the following function<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> into your <code>R</code> console:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">install.deps &lt;-<span class="st"> </span><span class="cf">function</span>(pkg)
+{
+  new.pkg &lt;-<span class="st"> </span>pkg[<span class="op">!</span>(pkg <span class="op">%in%</span><span class="st"> </span><span class="kw">installed.packages</span>()[, <span class="st">&quot;Package&quot;</span>])]
+  old.pkg &lt;-<span class="st"> </span>pkg[ (pkg <span class="op">%in%</span><span class="st"> </span><span class="kw">installed.packages</span>()[, <span class="st">&quot;Package&quot;</span>])]
+  <span class="cf">if</span> (<span class="kw">length</span>(new.pkg)) <span class="kw">install.packages</span>(new.pkg, <span class="dt">dependencies =</span> <span class="ot">TRUE</span>,
+                                        <span class="dt">repos =</span> <span class="st">&quot;https://cran.rstudio.com/&quot;</span>)
+  <span class="cf">if</span> (<span class="kw">length</span>(old.pkg)) <span class="kw">update.packages</span>(old.pkg, <span class="dt">dependencies =</span> <span class="ot">TRUE</span>)
+}</code></pre></div>
+<p>You must also install <code>PersonAlytics</code> following the instructions at ??. The following packages should then be installed using the <code>install.deps</code> function as follows:</p>
+<pre><code>install.deps(c('MASS', 'R.utils')) </code></pre>
+<p>Now you’re ready to install <code>PersonAlyticsPower</code> <code>install.packages(&quot;.../path/on/your/computer/PersonAlytics_0.0.1.tar.gz&quot;, repos = NULL, type = &quot;source&quot;)</code>. To obtain this file, contact the authors at <a href="https://personalytics.rti.org/" class="uri">https://personalytics.rti.org/</a>.</p>
+</div>
+<div id="starting-personalyticspower" class="section level1">
+<h1><span class="header-section-number">3</span> Starting <code>PersonAlyticsPower</code></h1>
+<p>Now we can load <code>PersonAlyticsPower</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(PersonAlyticsPower)</code></pre></div>
+</div>
+<div id="how-to-conduct-a-power-analysis" class="section level1">
+<h1><span class="header-section-number">4</span> How to Conduct a Power Analysis</h1>
+<p>The primary power analysis function <code>ICTpower</code> implements two primary options:</p>
+<ol style="list-style-type: decimal">
+<li><p>Parametric bootstrap, where population parameters are specified by the user and observations are drawn assuming an infinite population.</p></li>
+<li><p>Non-parametric bootstrap, where individuals are drawn from an existing population represented in a finite data set. The existing data set can be created via the parametric bootstrap. Within each replication observations are drawn without replacement to mimic real-world finite sampling.</p></li>
+</ol>
+<p>In the next section we review the inputs common to the two types of bootstrap, followed by illustrations of the use of these two types of bootstrap power analyses. Full documentation for <code>ICTpower</code> can be viewed in <code>R</code> by typing</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">?ICTpower</code></pre></div>
+<div id="inputs-common-to-parametric-and-non-parametric-bootstrap-power-analyses" class="section level2">
+<h2><span class="header-section-number">4.1</span> Inputs common to parametric and non-parametric bootstrap power analyses</h2>
+<div id="naming-the-output-with-outfile" class="section level3">
+<h3><span class="header-section-number">4.1.1</span> Naming the output with <code>outFile</code></h3>
+<p>Both types of bootstrap require that the user name their output using the <code>outFile</code> parameter. The <code>outFile</code> parameter has two components to be specified by the user:</p>
+<ol style="list-style-type: decimal">
+<li><p>A file name used for saving the results, e.g. ‘MyFirstPowerAnalysis’</p></li>
+<li><p>The file extension which can be ‘csv’ or ‘RData’</p></li>
+</ol>
+<p>It can be convenient to use spreadsheet programs to open, view, and edit ‘csv’ files, whereas ‘RData’ files require less memory. Both can be read back into R for further use. An examples of specifying <code>outFile</code> include <code>outFile=c('n10_medSlopeEffect', 'csv')</code> or <code>outFile=c('condition2', 'Rdata')</code>.</p>
+</div>
+<div id="the-number-of-replications-b" class="section level3">
+<h3><span class="header-section-number">4.1.2</span> The number of replications <code>B</code></h3>
+<p>The default number of replications is <code>B=100</code>, but it is recommended that <code>B=1000</code> or larger be used for power estimates. For each parameter in your model, the bootstrap estimate of power is the proportion of replications for which <span class="math inline">\(p&lt;=\alpha\)</span>.</p>
+</div>
+<div id="the-type-i-error-rate-alpha" class="section level3">
+<h3><span class="header-section-number">4.1.3</span> The Type-I error rate <code>alpha</code></h3>
+<p>The default value for alpha is .05. For each parameter in your model, the bootstrap estimate of power is the proportion of replications for which <span class="math inline">\(p&lt;=\alpha\)</span>.</p>
+</div>
+<div id="the-random-seed" class="section level3">
+<h3><span class="header-section-number">4.1.4</span> The random <code>seed</code></h3>
+<p>This number ensures reproducible of the random sampling. The default is <code>seed=</code>123`.</p>
+</div>
+<div id="parallelization-using-cores" class="section level3">
+<h3><span class="header-section-number">4.1.5</span> Parallelization using <code>cores</code></h3>
+<p>Palatalization is the process of splitting the <code>B</code> replications across the processing cores on your computer to speed up the bootstrap power estimation. By default, <code>ICTpower</code> uses one fewer cores than are available on your machine. You can override this using the <code>cores</code> argument. It is not recommended that you specify more cores than are available on your machine as it may cause R or your computer to crash. Use an internet search (including your operating system in the search terms) to find instructions on determining the number of cores your computer has.</p>
+</div>
+<div id="saving-the-power-report-with-savepowerreport" class="section level3">
+<h3><span class="header-section-number">4.1.6</span> Saving the power report with <code>savePowerReport</code></h3>
+<p>By default, <code>savePowerReport</code> is <code>TRUE</code>. If <code>outFile</code> is also specified, a text file will be saved containing the results of the power analysis, which are also printed to the console.</p>
+</div>
+<div id="standardize-the-results" class="section level3">
+<h3><span class="header-section-number">4.1.7</span> <code>standardize</code> the results</h3>
+<p>The dependent variable can be standardized prior to each analysis providing average parameter estimates that are standardized and then printed in the power report both to the console and if specified, the saved power report. More information is available in the <code>PersonAlytic</code> function of the PersonAlytics package. The defaults are recommended as it will run faster than if standardization is requested.</p>
+</div>
+<div id="preventing-overwriting-output" class="section level3">
+<h3><span class="header-section-number">4.1.8</span> Preventing overwriting output</h3>
+<p>The default <code>prompt</code> option is <code>TRUE</code>, cause a prompt on the console asking if you want to overwrite output in the evening that the filename in <code>outFile</code> is detected to already exist in your working directory. Leaving this as <code>TRUE</code> prevents you from overwriting output unintentionally. When (re)running several power analyses, this should be set to <code>FALSE</code> to avoid the user needed to give input to the console.</p>
+</div>
+</div>
+<div id="infinite-population-parametric-bootstrap" class="section level2">
+<h2><span class="header-section-number">4.2</span> Infinite population parametric bootstrap</h2>
+<div id="setting-up-the-design" class="section level3">
+<h3><span class="header-section-number">4.2.1</span> Setting up the design</h3>
+<p>The infinite population parametric bootstrap power analysis requires the user to provide a <code>design</code> object that specifies the population parameters. Currently we implement a piece wise polynomial growth model<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>. The design is setup using the <code>polyICT</code> design generator, and we use this example to demonstrate its use:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myPolyICT &lt;-<span class="st"> </span>polyICT<span class="op">$</span><span class="kw">new</span>(
+  <span class="dt">groups            =</span> <span class="kw">c</span>(<span class="dt">group1=</span><span class="dv">10</span>, <span class="dt">group2=</span><span class="dv">10</span>)                 ,
+  <span class="dt">phases            =</span> <span class="kw">makePhase</span>(<span class="dt">nObsPerPhase =</span> <span class="kw">c</span>(<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">10</span>)) ,
+  <span class="dt">propErrVar        =</span> <span class="kw">c</span>(<span class="dt">randFx=</span>.<span class="dv">5</span>, <span class="dt">res=</span>.<span class="dv">25</span>, <span class="dt">mserr=</span>.<span class="dv">25</span>)        ,
+  <span class="dt">randFxOrder       =</span> <span class="dv">1</span>                                       ,
+  <span class="dt">randFxCor         =</span> <span class="fl">0.2</span>                                     ,
+  <span class="dt">randFxVar         =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>)                                 ,
+  <span class="dt">error             =</span> armaErr<span class="op">$</span><span class="kw">new</span>()                           ,
+  <span class="dt">merror            =</span> armaErr<span class="op">$</span><span class="kw">new</span>(<span class="kw">list</span>())                     ,
+  <span class="dt">ySD               =</span> <span class="dv">15</span>                                      ,
+  <span class="dt">yMean             =</span> <span class="dv">100</span>                                     ,
+  )</code></pre></div>
+<p>Here we have a two group, three phase design with 10 participants in each group and a total of 40 time points. The arguments to <code>polyICT$new()</code> are</p>
+<ol style="list-style-type: decimal">
+<li><p><code>groups</code> is used to specify the groups, by name, and the number of participants in each group. In this example there are two groups named ‘group1’ and ‘group2’ each with 10 participants. Group names must start with a letter and include no spaces or non-alphanumeric characters except ’_‘or’.’. If there is only one group with, for example, 5 participants, use <code>groups=c(group1=5)</code>.</p></li>
+<li><p><code>phases</code> is used to specify your research design. This is facilitated using the <code>makePhase</code> function. Here we specify three phases with 10, 20, and 10 observations per phase, respectively. Type <code>?makePhase</code> into the R console for additional documentation and examples. By default, the phases are named ‘phase1’, ‘phase2’, and ‘phase3’, but this can be change using the <code>phaseNames</code> field of the <code>makePhase</code> function, e.g., <code>makePhase(nObsPerPhase = c(10, 20, 10), phaseNames = c(&quot;baseline&quot;, &quot;intervention&quot;, &quot;followup&quot;))</code>. Phase names must start with a letter and include no spaces or non-alphanumeric characters except ’_‘or’.’.</p></li>
+<li><p><code>propErrVar</code> is a length three vector that must have the names ‘randFx’ (which is the proportion of variance at time 1 due to random effects), ‘res’ (which is the proportion of variance at time 1 due to residual variance), and ‘mserr’ (which is the proportion of variance at time 1 due to measurement error). More information on ‘res’ and ‘mserr’ is provided with the explanation of the <code>error</code> and <code>merror</code> fields.</p></li>
+<li><p><code>randFxOrder</code> specifies the polynomial order for the shape of growth within each phase. For example, <code>randFxOrder=0</code> yields a random intercepts model with no within-phase change; <code>randFxOrder=1</code> gives a linear growth model within each phase; <code>randFxOrder=2</code> gives a quadratic growth model within each phase; etc. The parameters for the within phase change are added to the <code>myPolyICT</code> object later.</p></li>
+<li><p><code>randFxCor</code> specifies the correlation among the random effects. Only one value is specified at this point even if there are more than two random effect variables. The user can edit the correlation matrices later to make them group and/or phase specific.</p></li>
+<li><p><code>randFxVar</code> specifies the variances of the random effects. The user can edit the variances later to make them group and/or phase specific.</p></li>
+<li><p><code>error</code> specifies a function for simulating the autocorrelated residuals within each participant. The proportion of the total variance at time 1 that is due to autocorrelated residuals is specified in the <code>propErrVar</code> field. Although other functions could be supplied, it is recommended that users utilized the <code>?armaErr</code> error constructor function provided in <code>PersonalyticsPower</code>.</p></li>
+<li><p><code>merror</code> specifies a function for simulating measurement errors, which should be uncorrelated across time within individual. The proportion of the total variance at time 1 that is due to measurement error is specified in the ‘property’ field.</p></li>
+<li><p><code>ySD</code> specifies the standard deviation of the resulting simulated outcome variable.</p></li>
+<li><p><code>yMean</code> specifies the mean of the resulting simulated outcome variable.</p></li>
+</ol>
+<p>A summary of the <code>myPolyICT</code> object can be viewed by typing the following;</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myPolyICT</code></pre></div>
+<pre><code>## -------------------------------------------------------------------------------- 
+## An ICT with 20 participants, 40 time points, and 2 groups.
+## -------------------------------------------------------------------------------- 
+## 
+## Phases:
+##  &quot;phase1&quot; for 10 time points
+##   &quot;phase2&quot; for 20 time points
+##   &quot;phase3&quot; for 10 time points
+## 
+## Groups:
+## group1 n= 20 
+## group2 n= 20 
+## -------------------------------------------------------------------------------- 
+## Input Matrix:
+## -------------------------------------------------------------------------------- 
+##    Phase  Group nObs  n Mean0 Mean1 Var0 Var1 randFx  res mserr
+## 1 phase1 group1   10 10     0     0    1    1    0.5 0.25  0.25
+## 2 phase2 group1   20 10     0     0    1    1    0.5 0.25  0.25
+## 3 phase3 group1   10 10     0     0    1    1    0.5 0.25  0.25
+## 4 phase1 group2   10 10     0     0    1    1    0.5 0.25  0.25
+## 5 phase2 group2   20 10     0     0    1    1    0.5 0.25  0.25
+## 6 phase3 group2   10 10     0     0    1    1    0.5 0.25  0.25
+## -------------------------------------------------------------------------------- 
+## The input matrix can be edited by typing `edit(x$inputmat)`
+##  where `x` is the name of your ICT design object.
+##  Phase : the labels of the study phases.
+##  Group : the names of the groups.
+##  nObs  : the number of observations per phase.
+##  n     : the number of participants per group.
+##  Mean# : the effect size (Cohen's d) per phase &amp; group, where
+##          `#` is the random effect order (0=intercepts, 1=slopes, etc.)
+##  Var#  : the variance per phase &amp; group, where `#` is as explained above.
+##  
+## The proportion of the total variance at time 1:
+##  randFx: due to random effects.
+##  res   : due to residual autocorrelation.
+##  mserr : due to measurement error.</code></pre>
+<p>Now that we have specified a basic polynomial ICT design, we can view and edit its input matrix to specify the growth parameters:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myPolyICT<span class="op">$</span>inputMat</code></pre></div>
+<pre><code>##    Phase  Group nObs  n Mean0 Mean1 Var0 Var1 randFx  res mserr
+## 1 phase1 group1   10 10     0     0    1    1    0.5 0.25  0.25
+## 2 phase2 group1   20 10     0     0    1    1    0.5 0.25  0.25
+## 3 phase3 group1   10 10     0     0    1    1    0.5 0.25  0.25
+## 4 phase1 group2   10 10     0     0    1    1    0.5 0.25  0.25
+## 5 phase2 group2   20 10     0     0    1    1    0.5 0.25  0.25
+## 6 phase3 group2   10 10     0     0    1    1    0.5 0.25  0.25</code></pre>
+<p>The columns prefixed with ‘Mean’ and ‘Var’ show the means and variances of the random effects for each group and phase. The numbers following ‘Mean’ and ‘Var’ specify the order of the random effect where 0 indicates random intercepts and 1 indicates random slopes. If higher order random effects are specified using the <code>randFxOrder</code> field in <code>polyICT$new()</code>, these would show up as ‘Mean2’, ‘Mean3’, etc.</p>
+<p>Currently, <code>myPolyICT$inputMat</code> shows an uninteresting design where there is no change within or between phases. There are two ways to edit <code>myPolyICT$inputMat</code>. For those with limited experience in R, you can use the <code>edit</code> function which will open a window that looks like a spreadsheet. In this spreadsheet you can edit the values manually.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">edit</span>(myPolyICT<span class="op">$</span>inputMat)</code></pre></div>
+<p>As an example, say we wanted no change in group2 (e.g., it is a static control group). In group 1, phase one has no change so we leave ‘mean0’ and ‘Mean1’ at 0. In phase two we specify a phase jump of Cohen’s d=.3 for ‘Mean0’ but no change within phase 2 leaving ‘Mean1’ at 0. In phase three we want no phase jump so we keep ‘Mean0’ at .3, and then specify a reduction of Cohen’s d=-.6 across the rest of the phase for ‘Mean1’. After making these changes in the spreadsheet editor, we confirm are changes are as desired by printing the input matrix back to the console:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myPolyICT<span class="op">$</span>inputMat</code></pre></div>
+<pre><code>##    Phase  Group nObs  n Mean0 Mean1 Var0 Var1 randFx  res mserr
+## 1 phase1 group1   10 10   0.0   0.0    1    1    0.5 0.25  0.25
+## 2 phase2 group1   20 10   0.3   0.0    1    1    0.5 0.25  0.25
+## 3 phase3 group1   10 10   0.3  -0.6    1    1    0.5 0.25  0.25
+## 4 phase1 group2   10 10   0.0   0.0    1    1    0.5 0.25  0.25
+## 5 phase2 group2   20 10   0.0   0.0    1    1    0.5 0.25  0.25
+## 6 phase3 group2   10 10   0.0   0.0    1    1    0.5 0.25  0.25</code></pre>
+<p>Now that we’ve specified the shape of change over time, we can do a visual check of our design. This is accomplished by simulating one large sample from <code>myPolyICT</code>, temporarily ignoring the actual sample sizes in the <code>groups</code> field. This is done using the <code>designCheck</code> method of a <code>polyICT</code> object:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myPolyICT<span class="op">$</span><span class="kw">designCheck</span>(<span class="dt">ylim=</span><span class="kw">c</span>(<span class="dv">75</span>,<span class="dv">125</span>))</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>For additional options, see ‘Advanced editing options for <code>polyICT</code> objects’ in the Appendix.</p>
+</div>
+<div id="running-the-parametric-power-analysis" class="section level3">
+<h3><span class="header-section-number">4.2.2</span> Running the parametric power analysis</h3>
+<p>Now that we have a design, we can run the power analysis. For now we restrict this to <code>B=10</code> replications to control the run time, but in practice we should use at least <code>B=1000</code>. The default model fit to the data is the ICT shown in the introduction, but a piece wise model can be fit (see the Appendix ‘The piece wise model vs. the standard ICT model’ for an example). Model fitting is done by the <code>PersonAlytics</code> function of the <code>Personalytics</code> packages.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ICTpower</span>(<span class="dt">outFile =</span> <span class="kw">c</span>(<span class="st">'twoGroupThreePhase'</span>, <span class="st">'csv'</span>) ,
+         <span class="dt">design  =</span> myPolyICT                      , 
+         <span class="dt">B       =</span> <span class="dv">10</span>                             ,
+         <span class="dt">prompt  =</span> <span class="ot">FALSE</span>                          ) </code></pre></div>
+<pre><code>## 
+## Starting simulation of B=10 data sets.
+## Data will be saved in the file:
+## 
+## R:/PaCCT/09 Repository/PersonAlyticsPower/vignettes/twoGroupThreePhase.Data.csv
+## 
+## where the outcome for each replicate will be labeled y1, ..., y10</code></pre>
+<pre><code>## 
+  |                                                                       
+  |======                                                           |  10%
+  |                                                                       
+  |=============                                                    |  20%
+  |                                                                       
+  |====================                                             |  30%
+  |                                                                       
+  |==========================                                       |  40%
+  |                                                                       
+  |================================                                 |  50%
+  |                                                                       
+  |=======================================                          |  60%
+  |                                                                       
+  |==============================================                   |  70%
+  |                                                                       
+  |====================================================             |  80%
+  |                                                                       
+  |==========================================================       |  90%
+  |                                                                       
+  |=================================================================| 100%</code></pre>
+<pre><code>## Data simulation took: Time difference of 2.70637 mins.</code></pre>
+<pre><code>## 
+## 
+## Model fitting starting...</code></pre>
+<pre><code>## 
+  |                                                                       
+  |======                                                           |  10%
+  |                                                                       
+  |=============                                                    |  20%
+  |                                                                       
+  |====================                                             |  30%
+  |                                                                       
+  |==========================                                       |  40%
+  |                                                                       
+  |================================                                 |  50%
+  |                                                                       
+  |=======================================                          |  60%
+  |                                                                       
+  |==============================================                   |  70%
+  |                                                                       
+  |====================================================             |  80%
+  |                                                                       
+  |==========================================================       |  90%
+  |                                                                       
+  |=================================================================| 100%</code></pre>
+<pre><code>## 
+## 
+## Model fitting took:
+##  Time difference of 32.53625 mins.</code></pre>
+<pre><code>## Power Report</code></pre>
+<pre><code>## -------------------------------------------------------------------------------- 
+## Predictor                Mean Estimates  SD Estimates    Power
+## -------------------------------------------------------------------------------- 
+## X.Intercept.               98.976      0.157       1.000      
+## Time                      -0.051       0.013       1.000      
+## phasephase2                5.748       0.294       1.000      
+## phasephase3                19.490      1.001       1.000      
+## groupgroup2               -0.279       0.456       0.400      
+## Time.phasephase2          -0.001       0.016       0.000      
+## Time.phasephase3          -0.523       0.035       1.000      
+## phasephase2.groupgroup2   -6.767       0.707       1.000      
+## phasephase3.groupgroup2   -3.101       0.556       1.000      
+## Time.groupgroup2           0.104       0.011       1.000      
+## --------------------------------------------------------------------------------</code></pre>
+<p>Progress bars will show the progress of both data simulation and model fitting (which are done in separate steps) ending with the amount of time each step took. This can be useful when you are conducting several power analyses and want to know about how much time each additional power analysis might take.</p>
+<p>At the end of the analysis, the power report shown above is printed to the screen. Model parameters are given in rows. The mean and standard deviation of the estimates are given in columns. We discuss how to interpreting these results in the Appendix in the section ‘The piece wise model vs. the standard ICT model’. Users should focus on the final column labeled ‘Power’. The power estimates show the expected power for the current design. If power for a desired parameter is inadequate you can</p>
+<ol style="list-style-type: decimal">
+<li><p>Increase the number of participants in <code>groups</code>.</p></li>
+<li><p>Increase the number of time points in <code>phases</code>.</p></li>
+<li><p>Increase the effect sizes.</p></li>
+<li><p>Reduce the residual variance and/or error variance.</p></li>
+<li><p>Some combination of the above.</p></li>
+</ol>
+<p>In practice, users will be constrained to reasonable <em>a priori</em> estimates of the effect sizes and variance estimates, and the inputs they have more likely control over are the number of participants (within budget constraints) or the number of time points (within the constraints of both budget and participant burden).</p>
+</div>
+</div>
+<div id="finite-population-non-parametric-bootstrap" class="section level2">
+<h2><span class="header-section-number">4.3</span> Finite population non-parametric bootstrap</h2>
+<p>The finite population non-parametric bootstrap uses a data set as the input rather than a design object. The location of the data is specified using the <code>dataFile</code> argument. If the data file is not in the working directory, the full path to the file must be specified with forward slashes <code>/</code>, e.g., <code>c:/path/to/your/file.Rdata</code>. Only csv and Rdata files are allowed, though you can use R to read in other file formats and save it in one of these two formats. The names of the variables must include ‘id’, ‘y’ (the outcome variable), ‘Time’, and ‘phase’. Optionally, a ‘group’ variable may be included. R is case sensitive, so all variable names except <code>Time</code> must be lower case.</p>
+<p>The second parameter that must be specified is <code>sampleSizes</code>, which is a vector of sample sizes with the same length as the number of groups. For example, if there are two groups and you want to resample 25 participants from each, specify <code>sampleSizes=c(25,25)</code>.</p>
+<p>To illustrate this, we’ll first clone ‘myPolyICT’ from the prior section and simulate 1000 participants:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># use a deep clone to prevent `myPolyICTnonPar` from updating `myPolyICT`</span>
+myPolyICTnonPar &lt;-<span class="st"> </span>myPolyICT<span class="op">$</span><span class="kw">clone</span>(<span class="dt">deep=</span><span class="ot">TRUE</span>)
+
+<span class="co"># update the groups to be 500 each</span>
+myPolyICTnonPar<span class="op">$</span><span class="kw">update</span>(<span class="dt">groups=</span><span class="kw">c</span>(<span class="dt">group1=</span><span class="dv">500</span>, <span class="dt">group2=</span><span class="dv">500</span>))
+
+<span class="co"># simulate and save the data</span>
+Data &lt;-<span class="st"> </span>myPolyICTnonPar<span class="op">$</span><span class="kw">makeData</span>()
+<span class="kw">save</span>(Data, <span class="dt">file =</span> <span class="st">&quot;Data.RData&quot;</span>)</code></pre></div>
+<p>Now we can resample of 25 participants per group <code>B=10</code> times (in practice <code>B</code> should be at least 1000):</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ICTpower</span>(<span class="dt">outFile     =</span> <span class="kw">c</span>(<span class="st">&quot;npbsTest&quot;</span>, <span class="st">&quot;csv&quot;</span>) ,
+         <span class="dt">B           =</span> <span class="dv">10</span>                   ,
+         <span class="dt">dataFile    =</span> <span class="st">&quot;Data.RData&quot;</span>         ,
+         <span class="dt">sampleSizes =</span> <span class="kw">c</span>(<span class="dv">25</span>,<span class="dv">25</span>)             ,
+         <span class="dt">prompt      =</span> <span class="ot">FALSE</span>                )</code></pre></div>
+<pre><code>## 
+## Starting bootstrap resampling of n=50 participants repeated B=10 times.
+## Data will be saved in the file:
+## 
+## R:/PaCCT/09 Repository/PersonAlyticsPower/vignettes/npbsTest.Data.csv
+## 
+## where the outcome for each bootstrap sample will be labeled y1, ..., y10.
+## 
+##  NOTE: Individual ids are not saved and are
+## arbitrarily relabeled to create a data structure
+## that conforms to PersonAlytic() requirements.</code></pre>
+<pre><code>## 
+## 
+## Model fitting starting...</code></pre>
+<pre><code>## 
+  |                                                                       
+  |======                                                           |  10%
+  |                                                                       
+  |=============                                                    |  20%
+  |                                                                       
+  |====================                                             |  30%
+  |                                                                       
+  |==========================                                       |  40%
+  |                                                                       
+  |================================                                 |  50%
+  |                                                                       
+  |=======================================                          |  60%
+  |                                                                       
+  |==============================================                   |  70%
+  |                                                                       
+  |====================================================             |  80%
+  |                                                                       
+  |==========================================================       |  90%
+  |                                                                       
+  |=================================================================| 100%</code></pre>
+<pre><code>## 
+## 
+## Model fitting took:
+##  Time difference of 10.55407 secs.</code></pre>
+<pre><code>## Power Report</code></pre>
+<pre><code>## -------------------------------------------------------------------------------- 
+## Predictor                Mean Estimates  SD Estimates    Power
+## -------------------------------------------------------------------------------- 
+## X.Intercept.               98.150      3.053       1.000      
+## Time                      -0.180       0.366       0.300      
+## phasephase2                6.448       3.184       0.700      
+## phasephase3                19.072      10.844      0.700      
+## groupgroup2               -1.619       3.588       0.100      
+## Time.phasephase2           0.171       0.326       0.400      
+## Time.phasephase3          -0.365       0.524       0.300      
+## phasephase2.groupgroup2   -5.280       3.662       0.400      
+## phasephase3.groupgroup2    0.222       5.662       0.200      
+## Time.groupgroup2           0.109       0.178       0.100      
+## --------------------------------------------------------------------------------</code></pre>
+<p>With the finite population non-parametric bootstrap, inadequate power can only be improved by increasing the number of participants that are sampled. Increasing the number of time points and other options can only be affected by simulating a new finite population to sample from.</p>
+<p>With finite samples comes the option of a finite population correction to the standard errors and consequently, the p-values. This is discussed in the Appendix in the section ‘Finite population corrections’.</p>
+</div>
+</div>
+<div id="how-to-conduct-multiple-power-analyses" class="section level1">
+<h1><span class="header-section-number">5</span> How to Conduct Multiple Power Analyses</h1>
+</div>
+<div id="comparison-to-alternative-software" class="section level1">
+<h1><span class="header-section-number">6</span> Comparison to Alternative Software</h1>
+</div>
+<div id="appendix" class="section level1">
+<h1><span class="header-section-number">7</span> Appendix</h1>
+<div id="advanced-editing-options-for-polyict-objects" class="section level2">
+<h2><span class="header-section-number">7.1</span> Advanced editing options for <code>polyICT</code> objects</h2>
+<p>Printing the names of <code>myPolyICT</code> reveals several objects that can be edited.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">names</span>(myPolyICT)</code></pre></div>
+<pre><code>##  [1] &quot;.__enclos_env__&quot; &quot;randFxFamParms&quot;  &quot;randFxFam&quot;      
+##  [4] &quot;varNames&quot;        &quot;meanNames&quot;       &quot;randFxOrder&quot;    
+##  [7] &quot;groupNames&quot;      &quot;phaseNames&quot;      &quot;designMat&quot;      
+## [10] &quot;phases&quot;          &quot;groups&quot;          &quot;nObs&quot;           
+## [13] &quot;n&quot;               &quot;ySD&quot;             &quot;yMean&quot;          
+## [16] &quot;merror&quot;          &quot;error&quot;           &quot;propErrVar&quot;     
+## [19] &quot;randFxCorMat&quot;    &quot;randFxCor&quot;       &quot;randFxVar&quot;      
+## [22] &quot;inputMat&quot;        &quot;clone&quot;           &quot;makeData&quot;       
+## [25] &quot;update&quot;          &quot;print&quot;           &quot;initialize&quot;     
+## [28] &quot;designCheck&quot;</code></pre>
+<p>Most of these should not be edited directly, the user should create a new ‘polyICT’ object from scratch instead. The two exceptions are changing the random effects means</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myPolyICT<span class="op">$</span>randFxFamParms</code></pre></div>
+<pre><code>## $mu
+## [1] 0.5
+## 
+## $sigma
+## [1] 1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myPolyICT<span class="op">$</span>randFxFamParms &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">mu=</span>.<span class="dv">3</span>, <span class="dt">sigma=</span>.<span class="dv">8</span>)
+myPolyICT<span class="op">$</span>randFxFamParms</code></pre></div>
+<pre><code>## $mu
+## [1] 0.3
+## 
+## $sigma
+## [1] 0.8</code></pre>
+<p>and setting group and/or phase specific correlation matrices</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myPolyICT<span class="op">$</span>randFxCorMat</code></pre></div>
+<pre><code>## $phase1
+## $phase1$group1
+##      [,1] [,2]
+## [1,]  1.0  0.2
+## [2,]  0.2  1.0
+## 
+## $phase1$group2
+##      [,1] [,2]
+## [1,]  1.0  0.2
+## [2,]  0.2  1.0
+## 
+## 
+## $phase2
+## $phase2$group1
+##      [,1] [,2]
+## [1,]  1.0  0.2
+## [2,]  0.2  1.0
+## 
+## $phase2$group2
+##      [,1] [,2]
+## [1,]  1.0  0.2
+## [2,]  0.2  1.0
+## 
+## 
+## $phase3
+## $phase3$group1
+##      [,1] [,2]
+## [1,]  1.0  0.2
+## [2,]  0.2  1.0
+## 
+## $phase3$group2
+##      [,1] [,2]
+## [1,]  1.0  0.2
+## [2,]  0.2  1.0</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myPolyICT<span class="op">$</span>randFxCorMat<span class="op">$</span>phase1<span class="op">$</span>group1[<span class="dv">2</span>,<span class="dv">1</span>] &lt;-<span class="st"> </span>
+<span class="st">  </span>myPolyICT<span class="op">$</span>randFxCorMat<span class="op">$</span>phase1<span class="op">$</span>group1[<span class="dv">1</span>,<span class="dv">2</span>] &lt;-<span class="st"> </span>.<span class="dv">45</span>
+myPolyICT<span class="op">$</span>randFxCorMat</code></pre></div>
+<pre><code>## $phase1
+## $phase1$group1
+##      [,1] [,2]
+## [1,] 1.00 0.45
+## [2,] 0.45 1.00
+## 
+## $phase1$group2
+##      [,1] [,2]
+## [1,]  1.0  0.2
+## [2,]  0.2  1.0
+## 
+## 
+## $phase2
+## $phase2$group1
+##      [,1] [,2]
+## [1,]  1.0  0.2
+## [2,]  0.2  1.0
+## 
+## $phase2$group2
+##      [,1] [,2]
+## [1,]  1.0  0.2
+## [2,]  0.2  1.0
+## 
+## 
+## $phase3
+## $phase3$group1
+##      [,1] [,2]
+## [1,]  1.0  0.2
+## [2,]  0.2  1.0
+## 
+## $phase3$group2
+##      [,1] [,2]
+## [1,]  1.0  0.2
+## [2,]  0.2  1.0</code></pre>
+<p>The <code>$update</code> method can be used to change the following parameters:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># groups</span>
+myPolyICT<span class="op">$</span><span class="kw">update</span>(<span class="dt">groups=</span><span class="kw">c</span>(<span class="dt">group1=</span><span class="dv">120</span>, <span class="dt">group2=</span><span class="dv">15</span>))
+myPolyICT<span class="op">$</span>groups</code></pre></div>
+<pre><code>## group1 group2 
+##    120     15</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># phases</span>
+myPolyICT<span class="op">$</span><span class="kw">update</span>(<span class="dt">phases=</span><span class="kw">makePhase</span>(<span class="kw">c</span>(<span class="dv">10</span>,<span class="dv">10</span>,<span class="dv">10</span>)))
+myPolyICT<span class="op">$</span>phases</code></pre></div>
+<pre><code>## $phase1
+##  [1] &quot;phase1&quot; &quot;phase1&quot; &quot;phase1&quot; &quot;phase1&quot; &quot;phase1&quot; &quot;phase1&quot; &quot;phase1&quot;
+##  [8] &quot;phase1&quot; &quot;phase1&quot; &quot;phase1&quot;
+## 
+## $phase2
+##  [1] &quot;phase2&quot; &quot;phase2&quot; &quot;phase2&quot; &quot;phase2&quot; &quot;phase2&quot; &quot;phase2&quot; &quot;phase2&quot;
+##  [8] &quot;phase2&quot; &quot;phase2&quot; &quot;phase2&quot;
+## 
+## $phase3
+##  [1] &quot;phase3&quot; &quot;phase3&quot; &quot;phase3&quot; &quot;phase3&quot; &quot;phase3&quot; &quot;phase3&quot; &quot;phase3&quot;
+##  [8] &quot;phase3&quot; &quot;phase3&quot; &quot;phase3&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># propErrVar - not reccomended for $update, use edit(myPolyICT$inputMat) instead</span>
+
+<span class="co"># randFxOrder - not reccomended for $update, create a new polyICT object instead</span>
+
+<span class="co"># randFxCor - not reccomended for $update, edit myPolyICT$randFxCorMat instead</span>
+
+<span class="co"># randFxVar - not reccomended for $update, use edit(myPolyICT$inputMat) instead</span>
+
+<span class="co"># error - not reccomended for $update, create a new polyICT object instead</span>
+
+<span class="co"># merror - not reccomended for $update, create a new polyICT object instead</span>
+
+<span class="co"># ySD</span>
+myPolyICT<span class="op">$</span><span class="kw">update</span>(<span class="dt">ySD =</span> <span class="dv">1</span>, <span class="dt">yMean =</span> <span class="dv">0</span>)
+myPolyICT<span class="op">$</span>ySD</code></pre></div>
+<pre><code>## [1] 1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myPolyICT<span class="op">$</span>yMean</code></pre></div>
+<pre><code>## [1] 0</code></pre>
+</div>
+<div id="advanced-options-for-ictpower" class="section level2">
+<h2><span class="header-section-number">7.2</span> Advanced options for <code>ICTpower</code></h2>
+<div id="the-piecewise-model-vs.the-standard-ict-model" class="section level3">
+<h3><span class="header-section-number">7.2.1</span> The piecewise model vs. the standard ICT model</h3>
+</div>
+<div id="finite-population-corrections" class="section level3">
+<h3><span class="header-section-number">7.2.2</span> Finite population corrections</h3>
+<p>A finite population correction (FPC) can be used when you sample more than 5% of the population without replacement. In this situation the central limit theorem doesn’t hold and the standard errors of your parameter estimates will be to large. Before illustrating how to implement a finite population correction, we first discuss the conditions under which a finite population correction may make a difference in a power analysis. This will only occur in situation where a large number of the <code>B</code> replications have p-values just larger than alpha and the FPC results in these p-values being less than alpha. In our experience, we rarely run into conditions where this is the case. The p-value distributions are usually smoothly positively skewed or near uniform. Neither of this distributions puts enough p-values near alpha for the FPC to have a large effect on power. This isn’t to say users shouldn’t apply the FPC for real data analyses using the <code>PersonAlytics</code> package, only that they should not expect the FPC to yield large improvement in power.</p>
+<p>To implement the FPC in a finite population non-parametric bootstrap power analysis (FPC doesn’t apply to the infinite population parametric bootstrap power analysis), add the argument <code>fpc</code>. This argument does not appear in the documentation for <code>ICTpower</code> but is one of many parameters of the <code>PersonAlytic</code> function that can be passed via <code>ICTpower</code>. In this example, we calculate the number of participants from the data set using the <code>table</code> and <code>length</code> functions:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ICTpower</span>(<span class="dt">outFile     =</span> <span class="kw">c</span>(<span class="st">&quot;npbsFPCtest&quot;</span>, <span class="st">&quot;csv&quot;</span>) ,
+         <span class="dt">B           =</span> <span class="dv">10</span>                      ,
+         <span class="dt">dataFile    =</span> <span class="st">&quot;Data.RData&quot;</span>            ,
+         <span class="dt">sampleSizes =</span> <span class="kw">c</span>(<span class="dv">25</span>,<span class="dv">25</span>)                ,
+         <span class="dt">fpc         =</span> <span class="kw">length</span>(<span class="kw">table</span>(Data<span class="op">$</span>id))  ,
+         <span class="dt">prompt      =</span> <span class="ot">FALSE</span>                   )</code></pre></div>
+<pre><code>## 
+## Starting bootstrap resampling of n=50 participants repeated B=10 times.
+## Data will be saved in the file:
+## 
+## R:/PaCCT/09 Repository/PersonAlyticsPower/vignettes/npbsFPCtest.Data.csv
+## 
+## where the outcome for each bootstrap sample will be labeled y1, ..., y10.
+## 
+##  NOTE: Individual ids are not saved and are
+## arbitrarily relabeled to create a data structure
+## that conforms to PersonAlytic() requirements.</code></pre>
+<pre><code>## 
+## 
+## Model fitting starting...</code></pre>
+<pre><code>## 
+  |                                                                       
+  |======                                                           |  10%
+  |                                                                       
+  |=============                                                    |  20%
+  |                                                                       
+  |====================                                             |  30%
+  |                                                                       
+  |==========================                                       |  40%
+  |                                                                       
+  |================================                                 |  50%
+  |                                                                       
+  |=======================================                          |  60%
+  |                                                                       
+  |==============================================                   |  70%
+  |                                                                       
+  |====================================================             |  80%
+  |                                                                       
+  |==========================================================       |  90%
+  |                                                                       
+  |=================================================================| 100%</code></pre>
+<pre><code>## 
+## 
+## Model fitting took:
+##  Time difference of 9.253964 secs.</code></pre>
+<pre><code>## Power Report</code></pre>
+<pre><code>## -------------------------------------------------------------------------------- 
+## Predictor                Mean Estimates  SD Estimates    Power
+## -------------------------------------------------------------------------------- 
+## X.Intercept.               98.150      3.053       1.000      
+## Time                      -0.180       0.366       0.300      
+## phasephase2                6.448       3.184       0.700      
+## phasephase3                19.072      10.844      0.700      
+## groupgroup2               -1.619       3.588       0.100      
+## Time.phasephase2           0.171       0.326       0.400      
+## Time.phasephase3          -0.365       0.524       0.300      
+## phasephase2.groupgroup2   -5.280       3.662       0.400      
+## phasephase3.groupgroup2    0.222       5.662       0.200      
+## Time.groupgroup2           0.109       0.178       0.100      
+## --------------------------------------------------------------------------------</code></pre>
+<pre><code>## Power Report with Finite Population Correction</code></pre>
+<pre><code>## -------------------------------------------------------------------------------- 
+## Predictor                    Mean Estimates  SD Estimates    Power
+## -------------------------------------------------------------------------------- 
+## X.Intercept..FPC               98.150      3.053       1.000      
+## Time.FPC                      -0.180       0.366       0.300      
+## phasephase2.FPC                6.448       3.184       0.700      
+## phasephase3.FPC                19.072      10.844      0.700      
+## groupgroup2.FPC               -1.619       3.588       0.100      
+## Time.phasephase2.FPC           0.171       0.326       0.400      
+## Time.phasephase3.FPC          -0.365       0.524       0.300      
+## phasephase2.groupgroup2.FPC   -5.280       3.662       0.400      
+## phasephase3.groupgroup2.FPC    0.222       5.662       0.200      
+## Time.groupgroup2.FPC           0.109       0.178       0.100      
+## --------------------------------------------------------------------------------</code></pre>
+</div>
+</div>
+</div>
+<div id="revision-history" class="section level1">
+<h1><span class="header-section-number">8</span> Revision History</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Description</th>
+<th>Revision</th>
+<th>Editor</th>
+<th>PersonAlyticsPower Version</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>20190626</td>
+<td>Document Creation</td>
+<td>0</td>
+<td>Stephen Tueller</td>
+<td>0.1.6.0</td>
+</tr>
+</tbody>
+</table>
+<pre><code>##  [1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE</code></pre>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>See <a href="https://gist.github.com/stevenworthington/3178163" class="uri">https://gist.github.com/stevenworthington/3178163</a> for original function.<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>Future releases will include hyperbolic, inverse polynomial, exponential, and logistic growth models.<a href="#fnref2">↩</a></p></li>
+</ol>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

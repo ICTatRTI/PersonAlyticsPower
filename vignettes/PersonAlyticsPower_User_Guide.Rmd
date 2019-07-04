@@ -1,0 +1,420 @@
+---
+title: "PersonAlyticsPower&copy; User's Guide"
+author: "Stephen Tueller, Ty Ridenour, Derek Ramirez"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+#  pdf_document:
+#  word_document:
+    number_sections: true
+    toc: true
+urlcolor: blue
+vignette: >
+  %\VignetteIndexEntry{PersonAlytics User's Guide}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(PersonAlyticsPower)
+papv <- packageVersion("PersonAlyticsPower")
+
+
+depends <- function()
+{
+  d <- scan('../DESCRIPTION', what = 'character', sep='\n')
+  wd <- which( grepl("*Depends*", d) )
+  wr <- which( grepl("RoxygenNote*", d) )
+  pkgs <- c(d[(wd+1):(wr-1)])
+  pkgs <- gsub( " ", "", pkgs)
+  pkgs <- gsub( "\t", "", pkgs)
+  pkgs <- gsub( ",", "", pkgs)
+  pkgs
+}
+pkgs <- depends()
+pkgss <-  matrix( unlist( strsplit(pkgs, "\\(") ), ncol=2, byrow=TRUE)[,1]
+pkgss <- pkgss[pkgss!='PersonAlytics']
+```
+
+# Introduction
+
+Ty
+
+1. motivating example
+
+2. general theoretical background
+
+``
+
+[^rbasics]: A good resource is available at https://cran.r-project.org/doc/contrib/Paradis-rdebuts_en.pdf
+
+## Terminology
+
+* 'argument' refers an input given to an R function.
+
+* 'class' is the type an R object has, and a class constructor is an R function that creates
+objects of certain classes.
+
+* 'console' refers to the interact part of R where code can be typed in and results are printed.
+
+* 'field' is analogous to argument in a class constructor.
+
+* 'function' refers to an R object that accept several inputs called 'argument's and produces some results. A example of basic functions in R is `mean` which takes a vector of data and computes the mean.
+
+* 'method' refers to a function that is part of a complex R object but is not available until an object is created. For example, `polyICT` is used to create a piece wise polynomial design from which data can be simulated, and it has methods including 'designCheck' which plots the design under a large sample for checking inputs and 'makeData' for simulating data from your design.
+
+* 'object' refers to any thing saved in R's memory and can include file names, data, functions, and output.
+
+* 'parameter' refers to the value of a population parameter in a statistical model. Parameter estimates are obtained by fitting a model to data. Over a sufficient number of replications, the average of the parameter estimates from an unbiased model will equal the population parameter.
+
+* `R script' refers to saved R code that can be rerun to ensure reproducible of your power analysis. This should be a file with a *.R extension.
+
+* `working directory` refers to the folder in which R is currently working. If you do not set this intentionally, your output may be written to an unexpected location. See `?getwd` and `?setwd` for getting and setting the working directory in the R console or an R script.
+
+
+
+# Installing `PersonAlyticsPower`
+
+First you must install `R`, available at `https://cran.r-project.org/`. It is also suggested that you use a modern code editor such as Rstudio (`https://www.rstudio.com/`). 
+
+`PersonAlytics` requires several packages which can be installed (or updated if you already have them) by pasting the following function[^1] into your `R` console:
+
+[^1]: See https://gist.github.com/stevenworthington/3178163 for original function.
+
+
+```{r eval=FALSE}
+install.deps <- function(pkg)
+{
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  old.pkg <- pkg[ (pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) install.packages(new.pkg, dependencies = TRUE,
+                                        repos = "https://cran.rstudio.com/")
+  if (length(old.pkg)) update.packages(old.pkg, dependencies = TRUE)
+}
+```
+
+You must also install `PersonAlytics` following the instructions at ??. The following packages should then be installed using the `install.deps` function as follows:
+
+```{r, echo=FALSE, comment=NA}
+cat(paste("install.deps(c(", paste("'", pkgss[-1], "'", collapse=', ', sep=""), "))", 
+          sep=""), "\n")
+```
+
+
+Now you're ready to install `PersonAlyticsPower` `install.packages(".../path/on/your/computer/PersonAlytics_0.0.1.tar.gz", repos = NULL, type = "source")`. To obtain this file, contact the authors at [https://personalytics.rti.org/](https://personalytics.rti.org/). 
+
+# Starting `PersonAlyticsPower`
+
+Now we can load `PersonAlyticsPower`:
+
+```{r, message=FALSE}
+library(PersonAlyticsPower)
+```
+
+# How to Conduct a Power Analysis
+
+The primary power analysis function `ICTpower` implements two primary options:
+
+1. Parametric bootstrap, where population parameters are specified by the user and observations are drawn assuming an infinite population. 
+
+2. Non-parametric bootstrap, where individuals are drawn from an existing population represented in a finite data set. The existing data set can be created via the parametric bootstrap. Within each replication observations are drawn without replacement to mimic real-world finite sampling.
+
+In the next section we review the inputs common to the two types of bootstrap, followed by illustrations of the use of these two types of bootstrap power analyses. Full documentation for `ICTpower` can be viewed in `R` by typing 
+
+```{r, eval=FALSE}
+?ICTpower
+```
+
+## Inputs common to parametric and non-parametric bootstrap power analyses
+
+### Naming the output with `outFile`
+
+Both types of bootstrap require that the user name their output using the `outFile` parameter. The `outFile` parameter has two components to be specified by the user:
+
+1. A file name used for saving the results, e.g. 'MyFirstPowerAnalysis' 
+
+2. The file extension which can be 'csv' or 'RData'
+
+It can be convenient to use spreadsheet programs to open, view, and edit 'csv' files, whereas 'RData' files require less memory. Both can be read back into R for further use. An examples of specifying `outFile` include `outFile=c('n10_medSlopeEffect', 'csv')` or `outFile=c('condition2', 'Rdata')`.
+
+### The number of replications `B`
+
+The default number of replications is `B=100`, but it is recommended that `B=1000` or larger be used for power estimates. For each parameter in your model, the bootstrap estimate of power is the proportion of replications for which $p<=\alpha$.  
+
+### The Type-I error rate `alpha`
+
+The default value for alpha is .05. For each parameter in your model, the bootstrap estimate of power is the proportion of replications for which $p<=\alpha$. 
+
+### The random `seed`
+
+This number ensures reproducible of the random sampling. The default is `seed=`123`.
+
+### Parallelization using `cores`
+
+Parallelization is the process of splitting the `B` replications across the processing cores on your computer to speed up the bootstrap power estimation. By default, `ICTpower` uses one fewer cores than are available on your machine. You can override this using the `cores` argument. It is not recommended that you specify more cores than are available on your machine as it may cause R or your computer to crash. Use an internet search (including your operating system in the search terms) to find instructions on determining the number of cores your computer has.
+
+### Saving the power report with `savePowerReport`
+
+By default, `savePowerReport` is `TRUE`. If `outFile` is also specified, a text file will be saved containing the results of the power analysis, which are also printed to the console. 
+
+### `standardize` the results
+
+The dependent variable can be standardized prior to each analysis providing average parameter estimates that are standardized and then printed in the power report both to the console and if specified, the saved power report. More information is available in the `PersonAlytic` function of the PersonAlytics package. The defaults are recommended as it will run faster than if standardization is requested. 
+
+### Preventing overwriting output
+
+The default `prompt` option is `TRUE`, cause a prompt on the console asking if you want to overwrite output in the evening that the filename in `outFile` is detected to already exist in your working directory. Leaving this as `TRUE` prevents you from overwriting output unintentionally. When (re)running several power analyses, this should be set to `FALSE` to avoid the user needed to give input to the console.
+
+
+## Infinite population parametric bootstrap
+
+
+### Setting up the design
+
+The infinite population parametric bootstrap power analysis requires the user to provide a `design` object that specifies the population parameters. Currently we implement a piece wise polynomial growth model[^designs]. The design is setup using the `polyICT` design generator, and we use this example to demonstrate its use:
+
+[^designs]: Future releases will include hyperbolic, inverse polynomial, exponential, and logistic growth models. 
+
+```{r}
+myPolyICT <- polyICT$new(
+  groups            = c(group1=10, group2=10)                 ,
+  phases            = makePhase(nObsPerPhase = c(10, 20, 10)) ,
+  propErrVar        = c(randFx=.5, res=.25, mserr=.25)        ,
+  randFxOrder       = 1                                       ,
+  randFxCor         = 0.2                                     ,
+  randFxVar         = c(1, 1)                                 ,
+  error             = armaErr$new()                           ,
+  merror            = armaErr$new(list())                     ,
+  ySD               = 15                                      ,
+  yMean             = 100                                     ,
+  )
+```
+
+Here we have a two group, three phase design with 10 participants in each group and a total of 40 time points. The arguments to `polyICT$new()` are
+
+1. `groups` is used to specify the groups, by name, and the number of participants in each group. In this example there are two groups named 'group1' and 'group2' each with 10 participants. Group names must start with a letter and include no spaces or non-alphanumeric characters except '_' or '.'. If there is only one group with, for example, 5 participants, use `groups=c(group1=5)`.
+
+2. `phases` is used to specify your research design. This is facilitated using the `makePhase` function. Here we specify three phases with 10, 20, and 10 observations per phase, respectively. Type `?makePhase` into the R console for additional documentation and examples. By default, the phases are named 'phase1', 'phase2', and 'phase3', but this can be change using the `phaseNames` field of the `makePhase` function, e.g., `makePhase(nObsPerPhase = c(10, 20, 10), phaseNames = c("baseline", "intervention", "followup"))`. Phase names must start with a letter and include no spaces or non-alphanumeric characters except '_' or '.'. 
+
+3. `propErrVar` is a length three vector that must have the names 'randFx' (which is the proportion of variance at time 1 due to random effects), 'res' (which is the proportion of variance at time 1 due to residual variance), and 'mserr' (which is the proportion of variance at time 1 due to measurement error). More information on 'res' and 'mserr' is provided with the explanation of the `error` and `merror` fields. 
+
+4. `randFxOrder` specifies the polynomial order for the shape of growth within each phase. For example, `randFxOrder=0` yields a random intercepts model with no within-phase change; `randFxOrder=1` gives a linear growth model within each phase; `randFxOrder=2` gives a quadratic growth model within each phase; etc. The parameters for the within phase change are added to the `myPolyICT` object later.
+
+5. `randFxCor` specifies the correlation among the random effects. Only one value is specified at this point even if there are more than two random effect variables. The user can edit the correlation matrices later to make them group and/or phase specific.
+
+6. `randFxVar` specifies the variances of the random effects. The user can edit the variances later to make them group and/or phase specific.
+
+7. `error` specifies a function for simulating the autocorrelated residuals within each participant. The proportion of the total variance at time 1 that is due to autocorrelated residuals is specified in the `propErrVar` field. Although other functions could be supplied, it is recommended that users utilized the `?armaErr` error constructor function provided in `PersonalyticsPower`. 
+
+8. `merror` specifies a function for simulating measurement errors, which should be uncorrelated across time within individual. The proportion of the total variance at time 1 that is due to measurement error is specified in the 'property' field. 
+
+9. `ySD` specifies the standard deviation of the resulting simulated outcome variable.
+
+10. `yMean` specifies the mean of the resulting simulated outcome variable. 
+
+A summary of the `myPolyICT` object can be viewed by typing the following;
+
+```{r}
+myPolyICT
+```
+
+Now that we have specified a basic polynomial ICT design, we can view and edit its input matrix to specify the growth parameters:
+
+```{r}
+myPolyICT$inputMat
+```
+
+The columns prefixed with 'Mean' and 'Var' show the means and variances of the random effects for each group and phase. The numbers following 'Mean' and 'Var' specify the order of the random effect where 0 indicates random intercepts and 1 indicates random slopes. If higher order random effects are specified using the `randFxOrder` field in `polyICT$new()`, these would show up as 'Mean2', 'Mean3', etc. 
+
+Currently, `myPolyICT$inputMat` shows an uninteresting design where there is no change within or between phases. There are two ways to edit `myPolyICT$inputMat`. For those with limited experience in R, you can use the `edit` function which will open a window that looks like a spreadsheet. In this spreadsheet you can edit the values manually.  
+
+```{r eval=FALSE}
+edit(myPolyICT$inputMat)
+```
+
+As an example, say we wanted no change in group2 (e.g., it is a static control group). In group 1, phase one has no change so we leave 'mean0' and 'Mean1' at 0. In phase two we specify a phase jump of Cohen's d=.3 for 'Mean0' but no change within phase 2 leaving 'Mean1' at 0. In phase three we want no phase jump so we keep 'Mean0' at .3, and then specify a reduction of Cohen's d=-.6 across the rest of the phase for 'Mean1'. After making these changes in the spreadsheet editor, we confirm are changes are as desired by printing the input matrix back to the console:
+
+```{r echo=FALSE}
+myPolyICT$inputMat[myPolyICT$inputMat$Phase=='phase2' &
+  myPolyICT$inputMat$Group=='group1', 'Mean0'] <- .3
+myPolyICT$inputMat[myPolyICT$inputMat$Phase=='phase3' &
+  myPolyICT$inputMat$Group=='group1', 'Mean0'] <- .3
+myPolyICT$inputMat[myPolyICT$inputMat$Phase=='phase3' &
+  myPolyICT$inputMat$Group=='group1', 'Mean1'] <- -.6
+```
+
+```{r}
+myPolyICT$inputMat
+```
+
+Now that we've specified the shape of change over time, we can do a visual check of our design. This is accomplished by simulating one large sample from `myPolyICT`, temporarily ignoring the actual sample sizes in the `groups` field. This is done using the `designCheck` method of a `polyICT` object: 
+
+```{r, fig.width = 6, fig.height=5}
+myPolyICT$designCheck(ylim=c(75,125))
+```
+
+For additional options, see 'Advanced editing options for `polyICT` objects' in the Appendix.
+
+### Running the parametric power analysis
+
+Now that we have a design, we can run the power analysis. For now we restrict this to `B=10` replications to control the run time, but in practice we should use at least `B=1000`. The default model fit to the data is the ICT shown in the introduction, but a piece wise model can be fit (see the Appendix 'The piece wise model vs. the standard ICT model' for an example). Model fitting is done by the `PersonAlytics` function of the `Personalytics` packages.
+
+```{r}
+ICTpower(outFile = c('twoGroupThreePhase', 'csv') ,
+         design  = myPolyICT                      , 
+         B       = 10                             ,
+         prompt  = FALSE                          ) 
+```
+
+Progress bars will show the progress of both data simulation and model fitting (which are done in separate steps) ending with the amount of time each step took. This can be useful when you are conducting several power analyses and want to know about how much time each additional power analysis might take. 
+
+At the end of the analysis, the power report shown above is printed to the screen. Model parameters are given in rows. The mean and standard deviation of the estimates are given in columns. We discuss how to interpreting these results in the Appendix in the section 'The piece wise model vs. the standard ICT model'. Users should focus on the final column labeled 'Power'. The power estimates show the expected power for the current design. If power for a desired parameter is inadequate you can
+
+1. Increase the number of participants in `groups`.
+
+2. Increase the number of time points in `phases`. 
+
+3. Increase the effect sizes.
+
+4. Reduce the residual variance and/or error variance.
+
+5. Some combination of the above.
+
+In practice, users will be constrained to reasonable *a priori* estimates of the effect sizes and variance estimates, and the inputs they have more likely control over are the number of participants (within budget constraints) or the number of time points (within the constraints of both budget and participant burden). 
+
+## Finite population non-parametric bootstrap
+
+The finite population non-parametric bootstrap uses a data set as the input rather than a design object. The location of the data is specified using the `dataFile` argument. If the data file is not in the working directory, the full path to the file must be specified with forward slashes `/`, e.g., `c:/path/to/your/file.Rdata`. Only csv and Rdata files are allowed, though you can use R to read in other file formats and save it in one of these two formats. The names of the variables must include 'id', 'y' (the outcome variable), 'Time', and 'phase'. Optionally, a 'group' variable may be included. R is case sensitive, so all variable names except `Time` must be lower case.
+
+The second parameter that must be specified is `sampleSizes`, which is a vector of sample sizes with the same length as the number of groups. For example, if there are two groups and you want to resample 25 participants from each, specify `sampleSizes=c(25,25)`. 
+
+To illustrate this, we'll first clone 'myPolyICT' from the prior section and simulate 1000 participants:
+
+```{r}
+
+# use a deep clone to prevent `myPolyICTnonPar` from updating `myPolyICT`
+myPolyICTnonPar <- myPolyICT$clone(deep=TRUE)
+
+# update the groups to be 500 each
+myPolyICTnonPar$update(groups=c(group1=500, group2=500))
+
+# simulate and save the data
+Data <- myPolyICTnonPar$makeData()
+save(Data, file = "Data.RData")
+```
+
+Now we can resample of 25 participants per group `B=10` times (in practice `B` should be at least 1000):
+
+```{r}
+ICTpower(outFile     = c("npbsTest", "csv") ,
+         B           = 10                   ,
+         dataFile    = "Data.RData"         ,
+         sampleSizes = c(25,25)             ,
+         prompt      = FALSE                )
+```
+
+With the finite population non-parametric bootstrap, inadequate power can only be improved by increasing the number of participants that are sampled. Increasing the number of time points and other options can only be affected by simulating a new finite population to sample from. 
+
+With finite samples comes the option of a finite population correction to the standard errors and consequently, the p-values. This is discussed in the Appendix in the section 'Finite population corrections'.
+
+# How to Conduct Multiple Power Analyses
+
+
+# Comparison to Alternative Software
+
+
+
+# Appendix
+
+## Advanced editing options for `polyICT` objects
+
+Printing the names of `myPolyICT` reveals several objects that can be edited.
+
+```{r}
+names(myPolyICT)
+```
+
+Most of these should not be edited directly, the user should create a new 'polyICT' object from scratch instead. The two exceptions are changing the random effects means
+
+```{r}
+myPolyICT$randFxFamParms
+myPolyICT$randFxFamParms <- list(mu=.3, sigma=.8)
+myPolyICT$randFxFamParms
+```
+
+and setting group and/or phase specific correlation matrices
+
+```{r}
+myPolyICT$randFxCorMat
+myPolyICT$randFxCorMat$phase1$group1[2,1] <- 
+  myPolyICT$randFxCorMat$phase1$group1[1,2] <- .45
+myPolyICT$randFxCorMat
+```
+
+The `$update` method can be used to change the following parameters:
+
+```{r}
+# groups
+myPolyICT$update(groups=c(group1=120, group2=15))
+myPolyICT$groups
+
+# phases
+myPolyICT$update(phases=makePhase(c(10,10,10)))
+myPolyICT$phases
+
+# propErrVar - not reccomended for $update, use edit(myPolyICT$inputMat) instead
+
+# randFxOrder - not reccomended for $update, create a new polyICT object instead
+
+# randFxCor - not reccomended for $update, edit myPolyICT$randFxCorMat instead
+
+# randFxVar - not reccomended for $update, use edit(myPolyICT$inputMat) instead
+
+# error - not reccomended for $update, create a new polyICT object instead
+
+# merror - not reccomended for $update, create a new polyICT object instead
+
+# ySD
+myPolyICT$update(ySD = 1, yMean = 0)
+myPolyICT$ySD
+myPolyICT$yMean
+
+```
+
+## Advanced options for `ICTpower`
+
+### The piecewise model vs. the standard ICT model
+
+
+### Finite population corrections
+
+A finite population correction (FPC) can be used when you sample more than 5% of the population without replacement. In this situation the central limit theorem doesn't hold and the standard errors of your parameter estimates will be to large. Before illustrating how to implement a finite population correction, we first discuss the conditions under which a finite population correction may make a difference in a power analysis. This will only occur in situation where a large number of the `B` replications have p-values just larger than alpha and the FPC results in these p-values being less than alpha. In our experience, we rarely run into conditions where this is the case. The p-value distributions are usually smoothly positively skewed or near uniform. Neither of this distributions puts enough p-values near alpha for the FPC to have a large effect on power. This isn't to say users shouldn't apply the FPC for real data analyses using the `PersonAlytics` package, only that they should not expect the FPC to yield large improvement in power.
+
+To implement the FPC in a finite population non-parametric bootstrap power analysis (FPC doesn't apply to the infinite population parametric bootstrap power analysis), add the argument `fpc`. This argument does not appear in the documentation for `ICTpower` but is one of many parameters of the `PersonAlytic` function that can be passed via `ICTpower`. In this example, we calculate the number of participants from the data set using the `table` and `length` functions:
+
+```{r}
+ICTpower(outFile     = c("npbsFPCtest", "csv") ,
+         B           = 10                      ,
+         dataFile    = "Data.RData"            ,
+         sampleSizes = c(25,25)                ,
+         fpc         = length(table(Data$id))  ,
+         prompt      = FALSE                   )
+```
+
+
+
+# Revision History 
+
+Date     | Description       | Revision | Editor         | PersonAlyticsPower Version
+---------|-------------------|----------|----------------|---------------------------
+20190626 | Document Creation | 0        | Stephen Tueller| `r papv`
+
+
+```{r, echo=FALSE, message=FALSE}
+# clean up
+txts <- dir(getwd(), glob2rx("*.txt"))
+csvs <- dir(getwd(), glob2rx("*.csv"))
+file.remove("Data.RData", txts, csvs)
+```

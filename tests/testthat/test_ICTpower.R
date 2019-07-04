@@ -31,8 +31,9 @@ test_that("piecewise",
            debugforeach = FALSE                )
 
 
-
-  file.remove("Data.RData")
+  txts <- dir(getwd(), glob2rx("*.txt"))
+  csvs <- dir(getwd(), glob2rx("*.csv"))
+  file.remove("Data.RData", txts, csvs)
 
 })
 
