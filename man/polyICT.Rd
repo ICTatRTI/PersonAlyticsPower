@@ -66,6 +66,10 @@ specific.}
 
 \item{\code{ySD}}{See \code{ySD} in the \code{new} Method.}
 
+\item{\code{yMin}}{See \code{yMin} in the \code{new} Method.}
+
+\item{\code{yMax}}{See \code{yMax} in the \code{new} Method.}
+
 \item{\code{n}}{The total sample size.}
 
 \item{\code{nObs}}{The total number of observations (i.e., time points).}
@@ -147,13 +151,19 @@ distribution specified in \code{randFxFam}. Not implemented.}
   \code{\link{armaErr}}. Also see \code{makeData} in the \strong{Methods}
   section for more details.
 
-  \code{ySD} Numeric. The default is \code{15}. The standard deviation of the
-  final data. See \code{makeData} in the \strong{Methods}
-  section for more details.
-
   \code{ymean} Numeric. The default is \code{100}. The mean of the
-  final data. See \code{makeData} in the \strong{Methods}
-  section for more details.
+  final data. If either \code{yMin} or \code{yMax} are not \code{NULL},
+  \code{ymean} is ignored.
+
+  \code{ySD} Numeric. The default is \code{15}. The standard deviation of the
+  final data. If both \code{yMin} and \code{yMax} are not \code{NULL},
+  \code{ySD} is ignored.
+
+  \code{yMin} Numeric. The default is \code{NULL} in which case \code{yMin} is
+  ignored. The minimum value for the final data.
+
+  \code{yMax} Numeric. The default is \code{NULL} in which case \code{yMax} is
+  ignored. The maximum value for the final data.
 
   }
 

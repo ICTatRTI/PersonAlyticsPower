@@ -64,6 +64,10 @@
 #'
 #' @field ySD See \code{ySD} in the \code{new} Method.
 #'
+#' @field yMin See \code{yMin} in the \code{new} Method.
+#'
+#' @field yMax See \code{yMax} in the \code{new} Method.
+#'
 #' @field n The total sample size.
 #'
 #' @field nObs The total number of observations (i.e., time points).
@@ -143,13 +147,19 @@
 #'   \code{\link{armaErr}}. Also see \code{makeData} in the \strong{Methods}
 #'   section for more details.
 #'
-#'   \code{ySD} Numeric. The default is \code{15}. The standard deviation of the
-#'   final data. See \code{makeData} in the \strong{Methods}
-#'   section for more details.
-#'
 #'   \code{ymean} Numeric. The default is \code{100}. The mean of the
-#'   final data. See \code{makeData} in the \strong{Methods}
-#'   section for more details.
+#'   final data. If either \code{yMin} or \code{yMax} are not \code{NULL},
+#'   \code{ymean} is ignored.
+#'
+#'   \code{ySD} Numeric. The default is \code{15}. The standard deviation of the
+#'   final data. If both \code{yMin} and \code{yMax} are not \code{NULL},
+#'   \code{ySD} is ignored.
+#'
+#'   \code{yMin} Numeric. The default is \code{NULL} in which case \code{yMin} is
+#'   ignored. The minimum value for the final data.
+#'
+#'   \code{yMax} Numeric. The default is \code{NULL} in which case \code{yMax} is
+#'   ignored. The maximum value for the final data.
 #'
 #'   }
 #'
@@ -267,6 +277,8 @@ polyICT <- R6::R6Class("polyICT",
                            merror            = armaErr$new(list())                       ,
                            ySD               = 15                                        ,
                            yMean             = 100                                       ,
+                           yMin              = NULL                                      ,
+                           yMax              = NULL                                      ,
 
                            # these should be hidden from users until we can model
                            # non-normal random effects
@@ -296,6 +308,8 @@ polyICT <- R6::R6Class("polyICT",
                            private$.merror            <- merror
                            private$.yMean             <- yMean
                            private$.ySD               <- ySD
+                           private$.yMin              <- yMin
+                           private$.yMax              <- yMax
 
                            # not editable
                            private$.n                 <- design$n
@@ -542,7 +556,23 @@ polyICT <- R6::R6Class("polyICT",
                            data <- do.call(rbind, data)
 
                            # rescale y
-                           data$y <- scale(data$y)*self$ySD + self$yMean
+                           if(is.null(self$yMin) & is.null(self$yMax))
+                           {
+                             data$y <- scale(data$y)*self$ySD + self$yMean
+                           }
+                           if(!is.null(self$yMin) & is.null(self$yMax))
+                           {
+                             data$y <- data$y - min(data$y) + self$yMin
+                           }
+                           if(is.null(self$yMin) & !is.null(self$yMax))
+                           {
+                             data$y <- data$y - min(data$y) + self$yMax
+                           }
+                           if(!is.null(self$yMin) & !is.null(self$yMax))
+                           {
+                             data$y <- ((self$yMax - self$yMin)/(max(data$y)-min(data$y))) *
+                               (data$y - max(data$y)) + self$yMax
+                           }
 
                            # the makeData method is terminal, self is not returned
                            # which means chaining is not possible past this point

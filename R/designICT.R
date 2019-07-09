@@ -100,6 +100,26 @@
       }
     },
 
+    yMin  = function(value)
+    {
+      if( missing(value) ){ private$.yMin }
+      else
+      {
+        private$.yMin <- value
+        self
+      }
+    },
+
+    yMax  = function(value)
+    {
+      if( missing(value) ){ private$.yMax }
+      else
+      {
+        private$.yMax <- value
+        self
+      }
+    },
+
 
     # fields than cannot be updated by the user
     n = function(value)
@@ -304,6 +324,8 @@ designICT <- R6::R6Class("designICT",
        .merror            = NULL,
        .yMean             = NULL,
        .ySD               = NULL,
+       .yMin              = NULL,
+       .yMax              = NULL,
 
        # not editable
        .n                 = NULL,
