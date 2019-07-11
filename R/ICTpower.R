@@ -99,13 +99,13 @@
 #' myPolyICT3$update(groups=c(group1=20, group2=20),
 #'   phases=makePhase(c(20,60,20)))
 #' testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
-#'   myPolyICT3, B=3, seed = 26)
+#'   myPolyICT3, B=3, seed = 26, prompt = FALSE)
 #'
 #' myPolyICT4 <- myPolyICT$clone(deep=TRUE)
 #' myPolyICT4$update(groups=c(group1=20, group2=20),
 #'   phases=makePhase(c(20,60,20)))
 #' testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
-#'   myPolyICT4, B=3, seed = 27)
+#'   myPolyICT4, B=3, seed = 27, prompt = FALSE)
 #'
 #'
 #' # non-parametric bootstrap examples
@@ -117,29 +117,44 @@
 #' save(Data, file = "Data.RData")
 #'
 #' # non parametric bootstrap samlpes of 25 participants each group
-#' ICTpower(outFile    = c("npbsTest", "csv"),
-#'          B          = 3                   ,
-#'          dataFile   = "Data.RData"        ,
-#'          sampleSizes = c(25,25)           )
+#' ICTpower(outFile     = c("npbsTest", "csv") ,
+#'          B           = 3                    ,
+#'          dataFile    = "Data.RData"         ,
+#'          sampleSizes = c(25,25)             ,
+#'          prompt      = FALSE                )
 #'
 #' # with a finite power correction passing `fpc` by ...
-#' ICTpower(outFile    = c("npbsFPCtest", "csv") ,
-#'          B          = 3                       ,
-#'          dataFile   = "Data.RData"            ,
-#'          sampleSizes = c(25,25)               ,
-#'          fpc        = length(table(Data$id))  )
+#' ICTpower(outFile     = c("npbsFPCtest", "csv") ,
+#'          B           = 3                       ,
+#'          dataFile    = "Data.RData"            ,
+#'          sampleSizes = c(25,25)                ,
+#'          fpc         = length(table(Data$id))  ,
+#'          prompt      = FALSE                   )
 #'
 #' # piecewise growth model example
 #' ICTpower(outFile     = c("piecewise", "csv"),
 #'          B           = 3                    ,
 #'          dataFile    = "Data.RData"         ,
 #'          sampleSizes = c(25,25)             ,
-#'          alignPhase  = 'piecewise'          )
+#'          alignPhase  = 'piecewise'          ,
+#'          prompt      = FALSE                )
 #'
 #' # clean up
-#' txts <- dir(getwd(), glob2rx("*.txt"))
-#' csvs <- dir(getwd(), glob2rx("*.csv"))
-#' file.remove("Data.RData", txts, csvs)
+#' file.remove( 'piecewise_PowerReport.txt' )
+#' file.remove( 'piecewise_PersonAlytic.csv' )
+#' file.remove( 'REMLlme.txt' )
+#' file.remove( 'piecewise.Data.csv' )
+#' file.remove( 'npbsFPCtest_PowerReportFPC.txt' )
+#' file.remove( 'npbsFPCtest_PowerReport.txt' )
+#' file.remove( 'npbsFPCtest_PersonAlytic.csv' )
+#' file.remove( 'npbsFPCtest.Data.csv' )
+#' file.remove( 'npbsTest_PowerReport.txt' )
+#' file.remove( 'npbsTest_PersonAlytic.csv' )
+#' file.remove( 'npbsTest.Data.csv' )
+#' file.remove( 'Data.RData' )
+#' file.remove( 'testICTpower20_PowerReport.txt' )
+#' file.remove( 'testICTpower20_PersonAlytic.csv' )
+#' file.remove( 'testICTpower20.Data.csv' )
 #'  }
 #'
 
