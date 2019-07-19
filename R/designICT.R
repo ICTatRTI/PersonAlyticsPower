@@ -404,8 +404,9 @@ designICT <- R6::R6Class("designICT",
          names(tempn) <- names(self$groups)
          self$groups <- tempn; rm(tempn)
 
-         # simulate data
+         # simulate one big data set using `npg` and print descriptive stats
          dat <- self$makeData(seed=seed)
+         descriptives <- dstats(dat$y)
 
          # needs to be reimplemented
          if(1==2)
@@ -446,7 +447,7 @@ designICT <- R6::R6Class("designICT",
            cat("\n\n\n")
          }
 
-         # get the data and, if requested, fit the model
+         # set up the Palytic object and, if requested, fit the model
          correlation <- paste("corARMA(p=", length(self$error$parms$ar), ", ",
                               "q=", length(self$error$parms$ma), ")", sep="")
          pa   <- Palytic$new(data=dat, ids='id', dv='y', time='Time',
@@ -456,17 +457,16 @@ designICT <- R6::R6Class("designICT",
                                                'group',list(NULL))),
                              time_power = self$randFxOrder,
                              correlation = correlation)
+
          if(fitMod) # runs slow with some examples, qc why
          {
-           mod0 <<- pa$lme()
+           mod0 <<- pa$lme() # need to add option for gamlss
            print( summary( mod0 ) )
+           # save data if requested
+           if(!is.null(file)) save(mod0, file=paste(file[1],
+                                                    'designCheck.RData',
+                                                    sep='_'))
          }
-
-         # save data if requested
-         if(!is.null(file)) save(mod0, file=paste(file[1],
-                                                  'designCheck.RData',
-                                                  sep='_'))
-
 
          # plot
          if( length( self$groupNames ) == 1 ) return( pa$plot(ylim=ylim) )
@@ -475,6 +475,10 @@ designICT <- R6::R6Class("designICT",
 
          # restore the original sample sizes
          self$groups <- originaln
+
+         # return
+         if( fitMod) invisible( list(mod0 = mod0, descriptives = descriptives) )
+         if(!fitMod) invisible( list(descriptives = descriptives) )
        }
 
    )

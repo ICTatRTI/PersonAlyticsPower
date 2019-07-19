@@ -5,7 +5,7 @@
 \title{.arima.sim - function to run arima.sim with potentially extraneous arguments
 intended for a gamlss.family distribution passed to rand.gen}
 \usage{
-.arima.sim(seed, doPlot = TRUE, ...)
+.arima.sim(seed, doPlot = TRUE, doStats = TRUE, ...)
 }
 \description{
 .arima.sim - function to run arima.sim with potentially extraneous arguments

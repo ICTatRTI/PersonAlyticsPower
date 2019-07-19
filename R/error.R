@@ -5,7 +5,7 @@
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @keywords internal
-.arima.sim <- function(seed, doPlot=TRUE, ...)
+.arima.sim <- function(seed, doPlot=TRUE, doStats=TRUE, ...)
 {
   set.seed(seed)
 
@@ -18,6 +18,8 @@
     acf(  testData )
     par(mfrow=c(1,1))
   }
+
+  if(doStats) dstats(testData)
 
   invisible( testData )
 }
@@ -260,7 +262,7 @@ armaErr <- R6::R6Class("errARMA",
 
     },
 
-    checkModel = function(seed=1234, doPlot=TRUE)
+    checkModel = function(seed=1234, doPlot=TRUE, doStats=TRUE)
     {
       # the following will yield an error if the ar and/or ma parameters yield a
       # model that is not stationary
@@ -284,7 +286,7 @@ armaErr <- R6::R6Class("errARMA",
       seeds <- as.list( .makeSeeds(seed, n) )
 
       # sim errors
-      errors <- lapply(seeds, .arima.sim, doPlot=FALSE,
+      errors <- lapply(seeds, .arima.sim, doPlot=FALSE, doStats=FALSE,
                        model=self$model, n = nObservations,
                        rand.gen =  eval(parse(text=self$fam)),
                        mu = self$famParms$mu, sigma = self$famParms$sigma,
