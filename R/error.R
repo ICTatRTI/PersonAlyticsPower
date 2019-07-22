@@ -5,17 +5,60 @@
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @keywords internal
-.arima.sim <- function(seed, doPlot=TRUE, doStats=TRUE, ...)
+.arima.sim <- function(seed, model, n, rand.gen = rnorm,
+                       mu=NULL, sigma=NULL, nu=NULL, tau=NULL,
+                       doPlot=TRUE, doStats=TRUE, debug=FALSE)
 {
   set.seed(seed)
 
-  testData <- R.utils::doCall(arima.sim, ...)
+  if(debug) cat('mu=',mu,'; sigma=', sigma, '; nu=', nu, '; tau=', tau, '\n\n')
+
+  # R.utils::doCall() isn't working, so we'll be explicit
+  if( !is.null(mu) & is.null(sigma) & is.null(nu) & is.null(tau) )
+  {
+    if(debug) cat('mu\n\n')
+    testData <-arima.sim( model=model, n = n,
+                          rand.gen = rand.gen,
+                          mu = mu )
+  }
+  if( !is.null(mu) & !is.null(sigma) & is.null(nu) & is.null(tau) )
+  {
+    if(debug) cat('mu, sigma\n\n')
+    testData <-arima.sim( model=model, n = n,
+                          rand.gen = rand.gen,
+                          mu = mu, sigma = sigma )
+  }
+  if( !is.null(mu) & !is.null(sigma) & !is.null(nu) & is.null(tau) )
+  {
+    if(debug) cat('mu, sigma, nu\n\n')
+    testData <-arima.sim( model=model, n = n,
+                          rand.gen = rand.gen,
+                          mu = mu, sigma = sigma,
+                          nu = nu )
+  }
+  if( !is.null(mu) & !is.null(sigma) & is.null(nu) & !is.null(tau) )
+  {
+    if(debug) cat('mu, sigm, nu, tau\n\n')
+    testData <-arima.sim( model=model, n = n,
+                          rand.gen = rand.gen,
+                          mu = mu, sigma = sigma,
+                          nu = nu, tau = tau )
+  }
+  if( is.null(mu) & is.null(sigma) & is.null(nu) & is.null(tau) )
+  {
+    if(debug) cat('rnorm')
+    testData <-arima.sim( model=model, n = n,
+                          rand.gen = rand.gen, ... )
+  }
 
   if(doPlot)
   {
-    par(mfrow=c(2,1))
+    par(mfrow=c(2,2))
+    hist( testData )
+    qqnorm( testData ); qqline(testData, col='red')
     plot( testData )
-    acf(  testData )
+    #acf( testData )
+    pacf( testData )
     par(mfrow=c(1,1))
   }
 
@@ -262,7 +305,7 @@ armaErr <- R6::R6Class("errARMA",
 
     },
 
-    checkModel = function(seed=1234, doPlot=TRUE, doStats=TRUE)
+    checkModel = function(seed=1234, n = 1000, doPlot=TRUE, doStats=TRUE)
     {
       # the following will yield an error if the ar and/or ma parameters yield a
       # model that is not stationary
@@ -270,7 +313,8 @@ armaErr <- R6::R6Class("errARMA",
       # note that we use eval parse without security concerns as .checkFam has
       # already validated the input
       check <- try(
-      .arima.sim(seed=seed, doPlot=doPlot, model=self$model, n = 1000,
+      .arima.sim(seed=seed, doPlot=doPlot, doStats = doStats,
+                 model=self$model, n = n,
                  rand.gen = eval(parse(text=self$fam)),
                  mu = self$famParms$mu, sigma = self$famParms$sigma,
                  nu = self$famParms$nu, tau = self$famParms$tau))
@@ -278,6 +322,7 @@ armaErr <- R6::R6Class("errARMA",
       {
         cat(0, file='stationary.arma') # for chris's gui
       }
+      else invisible(check)
     },
 
     makeErrors = function(n, nObservations, seed=123)
