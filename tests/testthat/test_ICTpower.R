@@ -33,7 +33,8 @@ test_that("piecewise",
 
   txts <- dir(getwd(), glob2rx("*.txt"))
   csvs <- dir(getwd(), glob2rx("*.csv"))
-  file.remove("Data.RData", txts, csvs)
+  pdfs <- dir(getwd(), glob2rx("*.pdf"))
+  file.remove("Data.RData", txts, csvs, pdfs)
 
 })
 

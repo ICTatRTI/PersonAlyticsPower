@@ -15,4 +15,7 @@ test_that("dists",
   d2 <- wei2_2_.5$checkModel()
 
   expect_false(identical(d1, d2))
+
+  file.remove('Rplots.pdf')
+  file.remove('stationary.arma')
 })

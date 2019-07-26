@@ -36,7 +36,7 @@
                           mu = mu, sigma = sigma,
                           nu = nu )
   }
-  if( !is.null(mu) & !is.null(sigma) & is.null(nu) & !is.null(tau) )
+  if( !is.null(mu) & !is.null(sigma) & !is.null(nu) & !is.null(tau) )
   {
     if(debug) cat('mu, sigm, nu, tau\n\n')
     testData <-arima.sim( model=model, n = n,
@@ -305,7 +305,7 @@ armaErr <- R6::R6Class("errARMA",
 
     },
 
-    checkModel = function(seed=1234, n = 1000, doPlot=TRUE, doStats=TRUE)
+    checkModel = function(seed=1234, n = 1000, doPlot=TRUE, doStats=TRUE, debug=FALSE)
     {
       # the following will yield an error if the ar and/or ma parameters yield a
       # model that is not stationary
@@ -313,7 +313,7 @@ armaErr <- R6::R6Class("errARMA",
       # note that we use eval parse without security concerns as .checkFam has
       # already validated the input
       check <- try(
-      .arima.sim(seed=seed, doPlot=doPlot, doStats = doStats,
+      .arima.sim(seed=seed, doPlot=doPlot, doStats = doStats, debug=debug,
                  model=self$model, n = n,
                  rand.gen = eval(parse(text=self$fam)),
                  mu = self$famParms$mu, sigma = self$famParms$sigma,
@@ -325,13 +325,13 @@ armaErr <- R6::R6Class("errARMA",
       else invisible(check)
     },
 
-    makeErrors = function(n, nObservations, seed=123)
+    makeErrors = function(n, nObservations, seed=123, debug=FALSE)
     {
       # get seeds
       seeds <- as.list( .makeSeeds(seed, n) )
 
       # sim errors
-      errors <- lapply(seeds, .arima.sim, doPlot=FALSE, doStats=FALSE,
+      errors <- lapply(seeds, .arima.sim, doPlot=FALSE, doStats=FALSE, debug=debug,
                        model=self$model, n = nObservations,
                        rand.gen =  eval(parse(text=self$fam)),
                        mu = self$famParms$mu, sigma = self$famParms$sigma,
