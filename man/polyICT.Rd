@@ -58,7 +58,7 @@ edited later as shown in the examples.}
 specific.}
 
 \item{\code{error}}{See \code{error} in the \code{new} Method. See also
-\code{\link{errARMA}}.}
+\code{\link{armaErr}}.}
 
 \item{\code{merror}}{See \code{merror} in the \code{new} Method.}
 

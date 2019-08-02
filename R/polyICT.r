@@ -56,7 +56,7 @@
 #' specific.
 #'
 #' @field error See \code{error} in the \code{new} Method. See also
-#' \code{\link{errARMA}}.
+#' \code{\link{armaErr}}.
 #'
 #' @field merror See \code{merror} in the \code{new} Method.
 #'
@@ -353,7 +353,7 @@ polyICT <- R6::R6Class("polyICT",
                          {
                            # Turn off warnings so that active binding messages,
                            # which should be implemented as warnings, are
-                           # turned off (checkPolyICT will handle via errors)
+                           # turned off (designCheck will handle via errors)
                            options(warn=-1)
                            #self$edit <- TRUE
 

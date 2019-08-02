@@ -2,12 +2,12 @@
 % Please edit documentation in R/internals.R
 \name{.randFxVarPop}
 \alias{.randFxVarPop}
-\title{.randFxVarPop - random effects variance populator, see \code{\link{checkPolyICT}}}
+\title{.randFxVarPop - random effects variance populator, see the `designCheck` method in \code{\link{polyICT}}}
 \usage{
 .randFxVarPop(phaseNames, groupNames, randFxVar, wn = c("p", "g", "n"))
 }
 \description{
-.randFxVarPop - random effects variance populator, see \code{\link{checkPolyICT}}
+.randFxVarPop - random effects variance populator, see the `designCheck` method in \code{\link{polyICT}}
 }
 \author{
 Stephen Tueller \email{stueller@rti.org}

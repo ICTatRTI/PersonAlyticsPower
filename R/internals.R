@@ -56,9 +56,9 @@
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @param X a vector of probabilities to be passed to a quantile function
-#' like \code{\link{qN0}} in \code{\link{gamlss}} or \code{\link{qnorm}}.
+#' like \code{\link{qNO}} in \code{\link{gamlss}} or \code{\link{qnorm}}.
 #'
-#' @param .fcn see \code{\link{R.utils::doCall}} in the `R.utils` package.
+#' @param .fcn see \code{\link{doCall}} in the `R.utils` package.
 #'
 #' @keywords internal
 
@@ -67,14 +67,14 @@
   R.utils::doCall(.fcn, p=X, ...)
 }
 
-#' .doLapply - lapply with \code{\link{R.utils::doCall}} to ignore extra arguments to
+#' .doLapply - lapply with \code{\link{doCall}} to ignore extra arguments to
 #' \code{\link{gamlss.family}} distributions
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @param Yp X a vector of probabilities to be passed to a quantile function
 #'
-#' @param .fcn A quantile function like \code{\link{qN0}} in \code{\link{gamlss}}
-#' or \code{\link{qnorm}}. See also \code{\link{R.utils::doCall}} in the
+#' @param .fcn A quantile function like \code{\link{qNO}} in \code{\link{gamlss}}
+#' or \code{\link{qnorm}}. See also \code{\link{doCall}} in the
 #' `R.utils` package
 #'
 #' @param ... other options passed to \code{\link{gamlss.family}} distribution
@@ -166,7 +166,7 @@
   }
 }
 
-#' .randFxCorMatPop - correlation matrix populator, see \code{\link{checkPolyICT}}
+#' .randFxCorMatPop - correlation matrix populator, see the `designCheck` method in \code{\link{polyICT}}
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @keywords internal
@@ -186,7 +186,7 @@
   return(randFxCorMatL)
 }
 
-#' .randFxVarPop - random effects variance populator, see \code{\link{checkPolyICT}}
+#' .randFxVarPop - random effects variance populator, see the `designCheck` method in \code{\link{polyICT}}
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
 #' @keywords internal

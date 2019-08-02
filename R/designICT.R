@@ -25,6 +25,22 @@
       if( missing(value) ){ private$.randFxVar }
       else
       {
+        if(any(value) <= 0)
+        {
+          stop("\nRandom effect variances must be greater than 0.")
+        }
+
+        if(length(value)==3)
+        {
+          message("\nAll values in `$inputMat` will be updated.",
+                  "\nIf you want group and/or phase specific variances edit",
+                  "\nthe `Var` columns in `$inputMat` directly.")
+        }
+
+        nms <- names(private$.inputMat)[which(grepl("Var", names(private$.inputMat)))]
+        private$.inputMat[,nms] <- matrix(value, nrow(private$.inputMat), length(value),
+                                          byrow = TRUE)
+
         private$.randFxVar <- value
         self
       }
@@ -35,6 +51,8 @@
       if( missing(value) ){ private$.randFxCor }
       else
       {
+        stop("\n`$randFxCorMat` and `#randFxCor` will not be updated. Update",
+             "\n`$randFxCorMat` directly instead.")
         private$.randFxCor <- value
         self
       }
@@ -55,6 +73,25 @@
       if( missing(value) ){ private$.propErrVar }
       else
       {
+        if(length(value)!=3 | sum(value) != 1)
+        {
+          stop("\n`propErrVar` must be a length 3 vector that sums to 1.")
+        }
+
+        nms <- c('randFx', 'res', 'mserr')
+
+        if(length(value)==3)
+        {
+          message("\nAll values in `$inputMat` will be updated with\n",
+                  paste(paste(nms, value, sep = "="), collapse=", "),
+                  "\nIf you want group and/or phase specific values edit",
+                  "\n`$inputMat` directly.")
+        }
+
+        private$.inputMat[,nms] <- matrix(value, nrow(private$.inputMat), length(value),
+                                          byrow = TRUE)
+
+        names(value) <- nms
         private$.propErrVar <- value
         self
       }
@@ -65,6 +102,10 @@
       if( missing(value) ){ private$.error }
       else
       {
+        if(! "err" %in% class(value))
+        {
+          stop("\nThe object supplied is not an `err` object. See `?armaErr`.")
+        }
         private$.error <- value
         self
       }
@@ -75,6 +116,10 @@
       if( missing(value) ){ private$.merror }
       else
       {
+        if(! "err" %in% class(value))
+        {
+          stop("\nThe object supplied is not an `err` object. See `?armaErr`.")
+        }
         private$.merror <- value
         self
       }
@@ -120,28 +165,6 @@
       }
     },
 
-
-    # fields than cannot be updated by the user
-    n = function(value)
-    {
-      if( missing(value) ){ private$.n }
-      else
-      {
-        private$.n <- value
-        self
-      }
-    },
-
-    nObs = function(value)
-    {
-      if( missing(value) ){ private$.nObs }
-      else
-      {
-        private$.nObs <- value
-        self
-      }
-    },
-
     groups = function(value)
     {
       if( missing(value) ){ private$.groups }
@@ -152,13 +175,33 @@
       }
     },
 
+
+    # fields than cannot be updated by the user
+
+    n = function(value)
+    {
+      if( missing(value) ){ private$.n }
+      else
+      {
+        stop("\n`n` cannot be changed. Create a new `designICT` object.")
+      }
+    },
+
+    nObs = function(value)
+    {
+      if( missing(value) ){ private$.nObs }
+      else
+      {
+        stop("\n`nObs` cannot be changed. Create a new `designICT` object.")
+      }
+    },
+
     phases= function(value)
     {
       if( missing(value) ){ private$.phases }
       else
       {
-        private$.phases <- value
-        self
+        stop("\n`phases` cannot be changed. Create a new `designICT` object.")
       }
     },
 
@@ -167,8 +210,7 @@
       if( missing(value) ){ private$.designMat }
       else
       {
-        private$.designMat <- value
-        self
+        stop("\n`designMat` cannot be changed. Create a new `designICT` object.")
       }
     },
 
@@ -177,8 +219,7 @@
       if( missing(value) ){ private$.phaseNames }
       else
       {
-        private$.phaseNames <- value
-        self
+        stop("\n`phaseNames` cannot be changed. Create a new `designICT` object.")
       }
     },
 
@@ -187,8 +228,7 @@
       if( missing(value) ){ private$.groupNames }
       else
       {
-        private$.groupNames <- value
-        self
+        stop("\n`groupNames` cannot be changed. Create a new `designICT` object.")
       }
     },
 
@@ -197,8 +237,7 @@
       if( missing(value) ){ private$.randFxOrder }
       else
       {
-        private$.randFxOrder <- value
-        self
+        stop("\n`randFxOrder` cannot be changed. Create a new `designICT` object.")
       }
     },
 
@@ -207,8 +246,7 @@
       if( missing(value) ){ private$.meanNames }
       else
       {
-        private$.meanNames <- value
-        self
+        stop("\n`meanNames` cannot be changed. Create a new `designICT` object.")
       }
     },
 
@@ -217,8 +255,7 @@
       if( missing(value) ){ private$.varNames }
       else
       {
-        private$.varNames <- value
-        self
+        stop("\n`varNames` cannot be changed. Create a new `designICT` object.")
       }
     },
 
@@ -229,8 +266,7 @@
       if( missing(value) ){ private$.randFxFam }
       else
       {
-        private$.randFxFam <- value
-        self
+        c
       }
     },
 
@@ -294,13 +330,24 @@
 #'     \code{fitMod} Logical. Should the model implied by the design be fit to
 #'     the simulated data? The default is FALSE.
 #'
-#'     - \code{seed} Numeric. A random seed for enabling replication. The default
+#'     \code{seed} Numeric. A random seed for enabling replication. The default
 #'     is 123.
 #'
 #'     \code{npg} Numeric (integer). The number per group. The default is
 #'     n=5,000 per group. If a small value is used, the user should repeat the
 #'     check with several different seeds. See the examples in
 #'     \code{\link{polyICT}}.
+#'
+#'     \code{return} Character. What should  be returned. The default is the
+#'     designCheck plot via \code{return='plot'}. Other options are \code{'model'}
+#'     which returns model fit and descriptive statistics; \code{'stats'} which
+#'     returns descriptive statistics only; \code{'data'} which returns the
+#'     simulated data; \code{'datastat'} which returns the data and the
+#'     descriptive statistics; and \code{'all'} which returns everything in a list.
+#'
+#'     \code{jutData} Logical. Should only the data be generated (and not
+#'     a model or plot). This speeds up other calls to \code{designCheck}, e.g.,
+#'     by \code{\link{setupDist}}.
 #'   }
 #'
 #' }
@@ -394,8 +441,11 @@ designICT <- R6::R6Class("designICT",
        },
 
        designCheck = function(file=NULL, ylim=NULL, fitMod=FALSE,
-                              seed=123, npg=5000)
+                              seed=123, npg=5000, return = 'plot',
+                              justData=FALSE)
        {
+         # set mod0 default
+         mod0 <- paste("`fitMod` was set to", as.character(fitMod))
 
          # save and reset n, due to inheritance design will get overwritten, fix
          # n below
@@ -447,38 +497,47 @@ designICT <- R6::R6Class("designICT",
            cat("\n\n\n")
          }
 
-         # set up the Palytic object and, if requested, fit the model
-         correlation <- paste("corARMA(p=", length(self$error$parms$ar), ", ",
-                              "q=", length(self$error$parms$ma), ")", sep="")
-         pa   <- Palytic$new(data=dat, ids='id', dv='y', time='Time',
-                             phase=unlist(ifelse(length(self$phaseNames)>1,
-                                                 'phase',list(NULL))),
-                             ivs=unlist(ifelse(length(self$groupNames)>1,
-                                               'group',list(NULL))),
-                             time_power = self$randFxOrder,
-                             correlation = correlation)
-
-         if(fitMod) # runs slow with some examples, qc why
+         if(!justData)
          {
-           mod0 <<- pa$lme() # need to add option for gamlss
-           print( summary( mod0 ) )
-           # save data if requested
-           if(!is.null(file)) save(mod0, file=paste(file[1],
-                                                    'designCheck.RData',
-                                                    sep='_'))
-         }
+           # set up the Palytic object and, if requested, fit the model
+           correlation <- paste("corARMA(p=", length(self$error$parms$ar), ", ",
+                                "q=", length(self$error$parms$ma), ")", sep="")
+           pa   <- Palytic$new(data=dat, ids='id', dv='y', time='Time',
+                               phase=unlist(ifelse(length(self$phaseNames)>1,
+                                                   'phase',list(NULL))),
+                               ivs=unlist(ifelse(length(self$groupNames)>1,
+                                                 'group',list(NULL))),
+                               time_power = self$randFxOrder,
+                               correlation = correlation)
 
-         # plot
-         if( length( self$groupNames ) == 1 ) return( pa$plot(ylim=ylim) )
-         if( length( self$groupNames ) >= 2 ) return( pa$plot(groupvar = 'group',
-                                                             ylim=ylim) )
+           if(fitMod) # runs slow with some examples, qc why
+           {
+             mod0 <<- pa$lme() # need to add option for gamlss
+             print( summary( mod0 ) )
+             # save data if requested
+             if(!is.null(file)) save(mod0, file=paste(file[1],
+                                                      'designCheck.RData',
+                                                      sep='_'))
+           }
+
+           # plot
+           if( length( self$groupNames ) == 1 ) gg <- pa$plot(ylim=ylim)
+           if( length( self$groupNames ) >= 2 ) gg <- pa$plot(groupvar = 'group',
+                                                              ylim=ylim)
+         }
 
          # restore the original sample sizes
          self$groups <- originaln
 
          # return
-         if( fitMod) invisible( list(mod0 = mod0, descriptives = descriptives) )
-         if(!fitMod) invisible( list(descriptives = descriptives) )
+         if(return=='plot'    ) return( gg )
+         if(return=='model'   ) return( list(model = mod0,
+                                             descriptives = descriptives) )
+         if(return=='stats'   ) return( descriptives )
+         if(return=='data'    ) return( dat )
+         if(return=='datstat' ) return( list(data=dat, descriptives = descriptives) )
+         if(return=='all'     ) return( list(plot=gg, model=mod0, data=dat,
+                                    descriptives = descriptives) )
        }
 
    )

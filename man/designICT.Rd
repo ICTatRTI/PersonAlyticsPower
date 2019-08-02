@@ -49,13 +49,24 @@ to be used directly.
     \code{fitMod} Logical. Should the model implied by the design be fit to
     the simulated data? The default is FALSE.
 
-    - \code{seed} Numeric. A random seed for enabling replication. The default
+    \code{seed} Numeric. A random seed for enabling replication. The default
     is 123.
 
     \code{npg} Numeric (integer). The number per group. The default is
     n=5,000 per group. If a small value is used, the user should repeat the
     check with several different seeds. See the examples in
     \code{\link{polyICT}}.
+
+    \code{return} Character. What should  be returned. The default is the
+    designCheck plot via \code{return='plot'}. Other options are \code{'model'}
+    which returns model fit and descriptive statistics; \code{'stats'} which
+    returns descriptive statistics only; \code{'data'} which returns the
+    simulated data; \code{'datastat'} which returns the data and the
+    descriptive statistics; and \code{'all'} which returns everything in a list.
+
+    \code{jutData} Logical. Should only the data be generated (and not
+    a model or plot). This speeds up other calls to \code{designCheck}, e.g.,
+    by \code{\link{setupDist}}.
   }
 
 }
