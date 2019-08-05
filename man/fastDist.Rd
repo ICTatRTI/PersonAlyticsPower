@@ -46,7 +46,7 @@ correlation struction (e.g., \code{\link{armaErr}}), but is very slow.
 \code{fastDist} specifies a generic normal distribution (standing in for
 the random effects) and an error distribution (with no residual autocorrelation)
 which is less accurate but is much faster and can be used to ballpark inputs
-for \code{setupDist}. See the examples.#'
+for \code{setupDist}. See the examples.
 }
 \examples{
 
