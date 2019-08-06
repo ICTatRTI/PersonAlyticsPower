@@ -1,3 +1,6 @@
+#' makeDesign -
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#' @export
 makeDesign <- function(randFxOrder, phases, groups, propErrVar,
                        randFxVar, randFxCor, design = 'polyICT',
                        makeInputMat = TRUE, self = NULL, isNew = NULL)
@@ -19,7 +22,7 @@ makeDesign <- function(randFxOrder, phases, groups, propErrVar,
   {
     inputMat <- cbind(
       expand.grid(names(phases), names(groups)),
-      expand.grid(lapply(phases, length), groups))
+      expand.grid(unlist(lapply(phases, length)), groups))
     names(inputMat) <- c('Phase', 'Group', 'nObs', 'n')
     for(i in seq_along(randFxOrder))
     {
