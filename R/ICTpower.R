@@ -462,6 +462,16 @@ ICTpower <- function(outFile         = NULL                      ,
     print(standardize)
   }
 
+  # distribution check
+  family = "NO"
+  if(!is.null(design$yCut))
+  {
+    .l <- length(design$yCut)
+    if( .l==2 ) family = "BI"
+    if( .l>=3 ) family = paste("MULTIN(type = '", .l, "')")
+    rm(.l)
+  }
+
   paout <- PersonAlytic(output       = outFile$file                     ,
                         data         = Data                             ,
                         ids          = 'id'                             ,
@@ -476,6 +486,7 @@ ICTpower <- function(outFile         = NULL                      ,
                         detectTO     = detectTO                         ,
                         cores        = cores                            ,
                         standardize  = standardize                      ,
+                        family       = family                           ,
                         ...
   )
 

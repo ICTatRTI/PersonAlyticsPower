@@ -18,6 +18,17 @@ cor2cov <- function(randFxCorMat    = matrix(c(1,.2,.2,1), 2, 2) ,
   return(Sigma)
 }
 
+#' cutY - categorize x by a vector of proportions that sum to 1
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @export
+cutY <- function(y, yCut)
+{
+  breaks <- c(-Inf, quantile(y, probs = cumsum(yCut)) )
+  u <- cut(y, breaks = breaks)
+  u <- as.numeric(factor(u, labels = 1:length(yCut))) - 1
+  return(u)
+}
 
 # TODO this isn't a fully functional function, fixing it is a low priority as
 # of 20190510

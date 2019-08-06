@@ -165,6 +165,20 @@
       }
     },
 
+    yCut  = function(value)
+    {
+      if( missing(value) ){ private$.yCut }
+      else
+      {
+        if( sum(yCut) != 1 )
+        {
+          stop("\n`yCut` mut be a vector of proportions summing to 1.")
+        }
+        private$.yCut <- value
+        self
+      }
+    },
+
     groups = function(value)
     {
       if( missing(value) ){ private$.groups }
@@ -373,6 +387,7 @@ designICT <- R6::R6Class("designICT",
        .ySD               = NULL,
        .yMin              = NULL,
        .yMax              = NULL,
+       .yCut              = NULL,
 
        # not editable
        .n                 = NULL,
@@ -442,7 +457,7 @@ designICT <- R6::R6Class("designICT",
 
        designCheck = function(file=NULL, ylim=NULL, fitMod=FALSE,
                               seed=123, npg=5000, return = 'plot',
-                              justData=FALSE)
+                              justData=FALSE, type='histogram')
        {
          # set mod0 default
          mod0 <- paste("`fitMod` was set to", as.character(fitMod))
@@ -521,9 +536,11 @@ designICT <- R6::R6Class("designICT",
            }
 
            # plot
-           if( length( self$groupNames ) == 1 ) gg <- pa$plot(ylim=ylim)
+           if( length( self$groupNames ) == 1 ) gg <- pa$plot(ylim=ylim,
+                                                              type=type)
            if( length( self$groupNames ) >= 2 ) gg <- pa$plot(groupvar = 'group',
-                                                              ylim=ylim)
+                                                              ylim=ylim,
+                                                              type=type)
          }
 
          # restore the original sample sizes

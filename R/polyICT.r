@@ -279,6 +279,7 @@ polyICT <- R6::R6Class("polyICT",
                            yMean             = 100                                       ,
                            yMin              = NULL                                      ,
                            yMax              = NULL                                      ,
+                           yCut              = NULL                                      ,
 
                            # these should be hidden from users until we can model
                            # non-normal random effects
@@ -292,6 +293,16 @@ polyICT <- R6::R6Class("polyICT",
                                                 propErrVar, randFxVar,
                                                 randFxCor, design = 'polyICT')
 
+                           # check yCut
+                           if(length(yCut) > 5)
+                           {
+                             stop("\n`yCut` has more than 5 categories, only 5 are",
+                                  "\nsupported by multinomial regression.\n\n")
+                           }
+                           if(sum(yCut) != 1 & sum(yCut) != 0)
+                           {
+                             stop("\nThe values in `yCut` must sum to 1.")
+                           }
 
                            #
                            # populate private
@@ -310,6 +321,7 @@ polyICT <- R6::R6Class("polyICT",
                            private$.ySD               <- ySD
                            private$.yMin              <- yMin
                            private$.yMax              <- yMax
+                           private$.yCut              <- yCut
 
                            # not editable
                            private$.n                 <- design$n
@@ -556,23 +568,31 @@ polyICT <- R6::R6Class("polyICT",
                            data <- do.call(rbind, data)
 
                            # rescale y
-                           if(is.null(self$yMin) & is.null(self$yMax))
+                           if(is.null(self$yCut))
                            {
-                             data$y <- scale(data$y)*self$ySD + self$yMean
+                             if(is.null(self$yMin) & is.null(self$yMax))
+                             {
+                               data$y <- scale(data$y)*self$ySD + self$yMean
+                             }
+                             if(!is.null(self$yMin) & is.null(self$yMax))
+                             {
+                               data$y <- data$y - min(data$y) + self$yMin
+                             }
+                             if(is.null(self$yMin) & !is.null(self$yMax))
+                             {
+                               data$y <- data$y - min(data$y) + self$yMax
+                             }
+                             if(!is.null(self$yMin) & !is.null(self$yMax))
+                             {
+                               data$y <- ((self$yMax - self$yMin)/(max(data$y)-min(data$y))) *
+                                 (data$y - max(data$y)) + self$yMax
+                             }
                            }
-                           if(!is.null(self$yMin) & is.null(self$yMax))
+                           if(!is.null(self$yCut))
                            {
-                             data$y <- data$y - min(data$y) + self$yMin
+                             data$y <- cutY(data$y, self$yCut)
                            }
-                           if(is.null(self$yMin) & !is.null(self$yMax))
-                           {
-                             data$y <- data$y - min(data$y) + self$yMax
-                           }
-                           if(!is.null(self$yMin) & !is.null(self$yMax))
-                           {
-                             data$y <- ((self$yMax - self$yMin)/(max(data$y)-min(data$y))) *
-                               (data$y - max(data$y)) + self$yMax
-                           }
+
 
                            # the makeData method is terminal, self is not returned
                            # which means chaining is not possible past this point
