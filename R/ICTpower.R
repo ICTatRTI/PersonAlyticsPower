@@ -463,7 +463,7 @@ ICTpower <- function(outFile         = NULL                      ,
   }
 
   # distribution check
-  family = "NO"
+  family = gamlss.dist::NO()
   if(!is.null(design$yCut))
   {
     .l <- length(design$yCut)

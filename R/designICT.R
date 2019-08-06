@@ -189,24 +189,13 @@
       }
     },
 
-
-    # fields than cannot be updated by the user
-
     n = function(value)
     {
       if( missing(value) ){ private$.n }
       else
       {
-        stop("\n`n` cannot be changed. Create a new `designICT` object.")
-      }
-    },
-
-    nObs = function(value)
-    {
-      if( missing(value) ){ private$.nObs }
-      else
-      {
-        stop("\n`nObs` cannot be changed. Create a new `designICT` object.")
+        private$.n <- value
+        self
       }
     },
 
@@ -215,7 +204,18 @@
       if( missing(value) ){ private$.phases }
       else
       {
-        stop("\n`phases` cannot be changed. Create a new `designICT` object.")
+        private$.phases <- value
+        self
+      }
+    },
+
+    nObs = function(value)
+    {
+      if( missing(value) ){ private$.nObs }
+      else
+      {
+        private$.nObs <- value
+        self
       }
     },
 
@@ -224,7 +224,8 @@
       if( missing(value) ){ private$.designMat }
       else
       {
-        stop("\n`designMat` cannot be changed. Create a new `designICT` object.")
+        private$.designMat <- value
+        self
       }
     },
 
@@ -233,7 +234,8 @@
       if( missing(value) ){ private$.phaseNames }
       else
       {
-        stop("\n`phaseNames` cannot be changed. Create a new `designICT` object.")
+        private$.phaseNames <- value
+        self
       }
     },
 
@@ -242,7 +244,8 @@
       if( missing(value) ){ private$.groupNames }
       else
       {
-        stop("\n`groupNames` cannot be changed. Create a new `designICT` object.")
+        private$.groupNames <- value
+        self
       }
     },
 
@@ -251,7 +254,8 @@
       if( missing(value) ){ private$.randFxOrder }
       else
       {
-        stop("\n`randFxOrder` cannot be changed. Create a new `designICT` object.")
+        private$.randFxOrder <- value
+        self
       }
     },
 
@@ -260,7 +264,8 @@
       if( missing(value) ){ private$.meanNames }
       else
       {
-        stop("\n`meanNames` cannot be changed. Create a new `designICT` object.")
+        private$.meanNames <- value
+        self
       }
     },
 
@@ -269,9 +274,13 @@
       if( missing(value) ){ private$.varNames }
       else
       {
-        stop("\n`varNames` cannot be changed. Create a new `designICT` object.")
+        private$.varNames <- value
+        self
       }
     },
+    # fields than cannot be updated by the user
+
+    # nothing here for now, everything needs to be updatable by $update()
 
 
     # fields not currently implementd
@@ -533,6 +542,12 @@ designICT <- R6::R6Class("designICT",
              if(!is.null(file)) save(mod0, file=paste(file[1],
                                                       'designCheck.RData',
                                                       sep='_'))
+           }
+
+           # autoscale ylim, needs assymetric update for skewed data
+           if(is.null(self$ylim) & !is.null(self$ySD) & is.null(self$yCut))
+           {
+             ylim <- c(-2.75*self$ySD, 2.75*self$ySD) + self$yMean
            }
 
            # plot

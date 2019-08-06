@@ -29,9 +29,9 @@ test_that("polyICT updates",
             expect_equal(test1$randFxOrder, .randFxOrder)
             expect_equal(test1$randFxVar, .randFxVar)
 
-            .randFxCor <- .5
-            test1$update(randFxCor=.randFxCor)
-            expect_equal(test1$randFxCor, .randFxCor)
+            #.randFxCor <- .5
+            #test1$update(randFxCor=.randFxCor)
+            #expect_equal(test1$randFxCor, .randFxCor)
 
             .error <- armaErr$new(list(ar=c(.5, -.2)))
             test1$update(error=.error)

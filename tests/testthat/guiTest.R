@@ -1,3 +1,4 @@
+# code sent to Chris for the GUI
 if(1==2)
 {
 
@@ -20,7 +21,7 @@ if(1==2)
   design <- polyICT$new(
     groups            = c(group1=10, group2=10)                   ,
     phases            = makePhase(c(5,10,5))                      ,
-    propErrVar        = c(randFx=.5,res=.5,mserr=.0)              ,
+    propErrVar        = c(randFx=.5,res=.5,mserr=0)               ,
     randFxOrder       = 1                                         ,
     randFxCor         = 0.2                                       ,
     randFxVar         = c(1, 1)                                   ,
@@ -41,7 +42,8 @@ if(1==2)
   # then overwrite with the user's edits
   design$inputMat <- read.csv('inputMat.csv')
 
-  # provide the user with a visual check of their design
+  # provide the user with a visual check of their design - this can take
+  # around 1/2 minute
   png("designCheck.png")
   design$designCheck(return = "plot")
   dev.off()
@@ -50,7 +52,7 @@ if(1==2)
   # if they do like the design, run ICTpower
 
   # run the power analysis which returns
-  ICTpower <- function(outFile         = "GUItest"                 ,
+  GUItest <-  ICTpower(outFile         = "GUItest"                 ,
                        design          = design                    ,
                        B               = 10                        ,
                        alpha           = .05                       ,
