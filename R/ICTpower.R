@@ -393,11 +393,11 @@ ICTpower <- function(outFile         = NULL                      ,
     }
     mergeby <- names(datL[[1]])
     mergeby <- mergeby[mergeby != 'y1']
-    Data    <- Reduce(function(df1, df2) merge(df1, df2, by=mergeby, all = TRUE),
+    DataB   <- Reduce(function(df1, df2) merge(df1, df2, by=mergeby, all = TRUE),
                       datL)
 
     # qc
-    #any(duplicated(Data$id[Data$group=='group1'], Data$id[Data$group=='group1']))
+    #any(duplicated(DataB$id[DataB$group=='group1'], DataB$id[DataB$group=='group1']))
 
 
     #
@@ -420,13 +420,46 @@ ICTpower <- function(outFile         = NULL                      ,
     ivs   <- NULL
     int   <- NULL
 
-    wp <- which(tolower(names(Data)) %in% c('phase', 'phases'))
-    wg <- which(tolower(names(Data)) %in% c('group', 'groups'))
+    wp <- which(tolower(names(DataB)) %in% c('phase', 'phases'))
+    wg <- which(tolower(names(DataB)) %in% c('group', 'groups'))
 
-    if( length(unique((Data[[wp]]))) > 1 ) phase <- names(Data)[wp]
-    if( length(unique((Data[[wg]]))) > 1 ) ivs   <- names(Data)[wg]
+    if( length(unique((DataB[[wp]]))) > 1 ) phase <- names(DataB)[wp]
+    if( length(unique((DataB[[wg]]))) > 1 ) ivs   <- names(DataB)[wg]
 
     if( !is.null(ivs) ) int   <- list(c(ivs, phase), c(ivs, 'Time'))
+
+
+    # fit and save the population model ####
+    pa <- Palytic$new(data = Data,
+                      ids  = "id",
+                      dv   = "y",
+                      time = "Time",
+                      phase = phase,
+                      ivs = ivs,
+                      interactions = int,
+                      autoDetect = list(),
+                      ...
+    )
+    mod <- pa$lme(autoDetect = list()); rm(pa)
+    #pa <- Palytic$new(data = Data,
+    #                  ids  = "id",
+    #                  dv   = "y",
+    #                  time = "Time",
+    #                  phase = phase,
+    #                  ivs = ivs,
+    #                  interactions = int,
+    #                  alignPhase = "piecewise",
+    #                  autoDetect = list()
+    #)
+    #modp <- pa$lme(); rm(pa)
+
+    modNms <- c("PopulationModel.csv", "PopulationPiecewise.csv")
+    if(!is.null(outFile)) modNms <- paste(outFile$file, modNms, sep='_')
+    write.csv(mod$tTable, modNms[1])
+    #write.csv(modp$tTable, modNms[2])
+
+    # overwrite Data with DataB
+    Data <- DataB; rm(DataB)
   }
 
   # if requested, save the data

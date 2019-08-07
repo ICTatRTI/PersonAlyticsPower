@@ -43,6 +43,7 @@
 #' created tabulating all the setting and the resulting skewness and kurtosis
 #' in the 'observed' distribution (i.e., the distribution you wish to simulate).
 #'
+#' @export
 #' @examples
 #'
 #' \dontrun{
@@ -131,7 +132,7 @@ fastDist <- function(fam, famParms, propErrVar, file = 'fastDist.pdf')
     ds   <- paste( paste(ds, ": skew=",
                      format(round(descriptives[1:3,4],2), nsmall=2),
                      ", kurt=",
-                     format(round(descriptives[1:3,5]), nsmall=2),
+                     format(round(descriptives[1:3,5],2), nsmall=2),
                      sep=''),
                   collapse = '\n')
 
