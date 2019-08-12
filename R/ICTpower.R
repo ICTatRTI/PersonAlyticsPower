@@ -532,12 +532,76 @@ ICTpower <- function(outFile         = NULL                      ,
       samplingDist(paout)
     }
 
+    # population - sample comparisons for non-parametric bootstrap
+    if( !is.null(dataFile) )
+    {
+      popSampComp(paout, file=outFile$file)
+    }
+
     # return
     if(!exists("fpc")) invisible( powerL )
     if( exists("fpc")) invisible( list(powerL=powerL, powerLFPC=powerLFPC) )
   }
 
 
+}
+
+
+#' popSampComp - compare non-parametric bootstrap estimates to population
+#'
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @export
+#'
+#' @param paout data.frame produced by \code{\link{PersonAlytic}}.
+#' @param file character. A file name with no extentsion.
+popSampComp <- function(paout, file)
+{
+  # columns for comparison
+  nms    <- names(paout)
+  wstats <- nms[which(grepl("statValue", nms))]
+  wests  <- nms[which(grepl("..Value", nms))[1]:length(nms)]
+  wclmns <- c(wstats, wests)
+  # exclude DF
+  wclmns <- wclmns[!grepl(".DF", wclmns)]
+  wclmns <- wclmns[!duplicated(wclmns)]
+
+  # which row has y0 and which rows have ! y0
+  yr <- which(paout$dv=="y0")
+  yhatr <- which(paout$dv!="y0")
+
+  mses <- list()
+  for(i in seq_along(wclmns))
+  {
+    w <- wclmns[i]
+    y <- paout[[w]][yr]
+    yhat <- paout[[w]][yhatr]
+    mses[[w]] <- mse(y, yhat)
+  }
+  mses <- data.frame(stat=wclmns, do.call("rbind", mses))
+  row.names(mses) <- NULL
+
+  # statNames
+  mses$stat <- as.character(mses$stat)
+  # this line may not generalize to multiple columns, but shouldn't have to (20190812)
+  statNames <- as.character( paout[yr, nms[grepl("statName", nms)]] )
+  mses$stat[1:length(statNames)] <- statNames
+
+  # save
+  file <- paste(file, "_mse.csv", sep='')
+  write.csv(mses, file, row.names=FALSE)
+}
+
+#' mse - mean squared error & mean absolute error
+#' @export
+#' @param y Scalar. Population value of \code{y}.
+#' @param yhat Numeric vector. Sample estimates of \code{y}.
+mse <- function(y, yhat)
+{
+  n <- length(yhat)
+  mse <- (1/n) * sum((y-yhat)^2)
+  mae <- (1/n) * sum(abs(y-yhat))
+  c(mse=mse, mae=mae)
 }
 
 
