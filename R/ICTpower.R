@@ -261,9 +261,7 @@ ICTpower <- function(outFile         = NULL                      ,
       ar          <- length(design$error$parms$ar[design$error$parms$ar!=0])
       ma          <- length(design$error$parms$ma[design$error$parms$ma!=0])
       correlation <- paste('corARMA(p=', ar, ',q=', ma, ')', sep='')
-      detectAR    <- FALSE
     }
-    if(!exists('detectTO'))   detectTO   <- FALSE
     if(!exists('time_power')) time_power <- design$randFxOrder
 
     #
@@ -372,21 +370,18 @@ ICTpower <- function(outFile         = NULL                      ,
 
         # When sampling from a finite population, we'd never sample the same
         # person twice. To mimic this, we sample without replacement.
-
         set.seed(seeds[b] + g)
         sid <- unique(Data$id[Data$group==groups[g]])
         wid <- sample(sid, size = sampleSizes[g], replace = FALSE)
-        dat <- Data[Data$id %in% wid,]
+
+        # instead of sampling by extraction, we'll sample by deletion, i.e.,
+        # if a case is not in the sample, their data are deleted. When we
+        # later merge the sampled data with the raw data, the first data set
+        # y0 will be the population
+        dat <- Data[Data$group==paste("group", g, sep=''),]
+        dat$y[!dat$id %in% wid] <- NA
         names(dat)[which(names(dat)=='y')] <- paste('y', b, sep='')
 
-        # before sorting, nullify row names as they can affect sorting
-        row.names(dat) <- NULL
-        # create new ids that will be the same across samples for merging, noting
-        # that the original ids will be last
-        dat$id    <- as.numeric(factor(dat$id, labels=1:sampleSizes[g])) +
-                       (10*g)^nchars
-        # now sort on the new names
-        dat       <- dat[order(dat$id, dat$Time),]
         datG[[g]] <- dat
       }
       datL[[b]] <- do.call(rbind, datG)
@@ -395,6 +390,12 @@ ICTpower <- function(outFile         = NULL                      ,
     mergeby <- mergeby[mergeby != 'y1']
     DataB   <- Reduce(function(df1, df2) merge(df1, df2, by=mergeby, all = TRUE),
                       datL)
+    names(Data)[which(names(Data)=='y')] <- 'y0'
+    Data    <- merge(Data, DataB); rm(DataB)
+
+    # merging messes up data order, resort
+    Data <- Data[order(Data$id, Data$group, Data$phase, Data$Time),]
+
 
     # qc
     #any(duplicated(DataB$id[DataB$group=='group1'], DataB$id[DataB$group=='group1']))
@@ -408,9 +409,8 @@ ICTpower <- function(outFile         = NULL                      ,
     {
       correlation <- NULL
     }
-    if(!exists('detectAR'))   detectAR   <- FALSE
-    if(!exists('detectTO'))   detectTO   <- FALSE
     if(!exists('time_power')) time_power <- 1
+    if(!exists('autoDetect')) autoDetect <- list()
 
     #
     # analyze the data using PersonAlytics, treating y1,...,yB
@@ -420,11 +420,11 @@ ICTpower <- function(outFile         = NULL                      ,
     ivs   <- NULL
     int   <- NULL
 
-    wp <- which(tolower(names(DataB)) %in% c('phase', 'phases'))
-    wg <- which(tolower(names(DataB)) %in% c('group', 'groups'))
+    wp <- which(tolower(names(Data)) %in% c('phase', 'phases'))
+    wg <- which(tolower(names(Data)) %in% c('group', 'groups'))
 
-    if( length(unique((DataB[[wp]]))) > 1 ) phase <- names(DataB)[wp]
-    if( length(unique((DataB[[wg]]))) > 1 ) ivs   <- names(DataB)[wg]
+    if( length(unique((Data[[wp]]))) > 1 ) phase <- names(Data)[wp]
+    if( length(unique((Data[[wg]]))) > 1 ) ivs   <- names(Data)[wg]
 
     if( !is.null(ivs) ) int   <- list(c(ivs, phase), c(ivs, 'Time'))
 
@@ -438,31 +438,6 @@ ICTpower <- function(outFile         = NULL                      ,
       rm(.l)
     }
 
-
-    # fit and save the population model ####
-    modNms <- c("PopulationModel.csv")
-    if(!is.null(outFile)) modNms <- paste(outFile$file, modNms, sep='_')
-    pa <- PersonAlytic(output      = modNms        ,
-                      data         = Data          ,
-                      ids          = "id"          ,
-                      dv           = "y"           ,
-                      time         = "Time"        ,
-                      phase        = phase         ,
-                      ivs          = ivs           ,
-                      interactions = int           ,
-                      autoDetect   = list()        ,
-                      time_power   = time_power    ,
-                      correlation  = correlation   ,
-                      detectAR     = detectAR      ,
-                      detectTO     = detectTO      ,
-                      cores        = cores         ,
-                      standardize  = standardize   ,
-                      family       = family        ,
-                      ...
-    )
-
-    # overwrite Data with DataB
-    Data <- DataB; rm(DataB)
   }
 
   # if requested, save the data
@@ -492,27 +467,26 @@ ICTpower <- function(outFile         = NULL                      ,
     print(int)
     print(time_power)
     print(correlation)
-    print(detectAR)
-    print(detectTO)
+    print(autoDetect)
     print(cores)
     print(standardize)
   }
 
-  paout <- PersonAlytic(output       = outFile$file                     ,
-                        data         = Data                             ,
-                        ids          = 'id'                             ,
-                        dvs          = as.list(paste('y', 1:B, sep='')) ,
-                        time         = 'Time'                           ,
-                        phase        = phase                            ,
-                        ivs          = ivs                              ,
-                        interactions = int                              ,
-                        time_power   = time_power                       ,
-                        correlation  = correlation                      ,
-                        detectAR     = detectAR                         ,
-                        detectTO     = detectTO                         ,
-                        cores        = cores                            ,
-                        standardize  = standardize                      ,
-                        family       = family                           ,
+  dvs   <- as.list(paste('y', 0:B, sep=''))
+  paout <- PersonAlytic(output       = outFile$file ,
+                        data         = Data         ,
+                        ids          = 'id'         ,
+                        dvs          = dvs          ,
+                        time         = 'Time'       ,
+                        phase        = phase        ,
+                        ivs          = ivs          ,
+                        interactions = int          ,
+                        time_power   = time_power   ,
+                        correlation  = correlation  ,
+                        autoDetect   = autoDetect   ,
+                        cores        = cores        ,
+                        standardize  = standardize  ,
+                        family       = family       ,
                         ...
   )
 
@@ -521,12 +495,12 @@ ICTpower <- function(outFile         = NULL                      ,
   if(nrow(paout)==0)
   {
     message('\nThe call to `PersonAlytic` returned output with 0 rows.',
-         '\nPower analysis cannot be completed.')
+         '\nTry a power analysis with different settings.')
     success <- FALSE
   }
   if(all(paout$converge=="Model did not converge"))
   {
-    message('\nNone of the models converged. Power analysis cannot be completed.')
+    message('\nNone of the models converged. Try a power analysis with different settings.')
     success <- FALSE
   }
   if(!success)
@@ -591,6 +565,9 @@ ICTpower <- function(outFile         = NULL                      ,
 powerReport <- function(paout, alpha, file, saveReport=TRUE, fpc=FALSE,
                         printToScreen=TRUE)
 {
+  # exclude y0
+  paout <- paout[paout$dv!='y0',]
+
   # power estimates are the proportion of p < alpha
   whichP <- names(paout)[ grepl('p.value', names(paout)) ]
 
