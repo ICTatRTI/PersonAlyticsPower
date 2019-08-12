@@ -185,10 +185,10 @@ ICTpower <- function(outFile         = NULL                      ,
   }
 
   # check file name
-  if(!is.null(outFile)) outFile <- .checkFile(outFile, prompt)
+  if(!is.null(outFile)) outFile <- PersonAlyticsPower:::.checkFile(outFile, prompt)
 
   # generate seeds
-  seeds <- .makeSeeds(seed, B)
+  seeds <- PersonAlyticsPower:::.makeSeeds(seed, B)
 
   # process dots
   dots <-  list(...)
@@ -428,35 +428,38 @@ ICTpower <- function(outFile         = NULL                      ,
 
     if( !is.null(ivs) ) int   <- list(c(ivs, phase), c(ivs, 'Time'))
 
+    # distribution check
+    family = gamlss.dist::NO()
+    if(!is.null(design$yCut))
+    {
+      .l <- length(design$yCut)
+      if( .l==2 ) family = "BI"
+      if( .l>=3 ) family = paste("MULTIN(type = '", .l, "')")
+      rm(.l)
+    }
+
 
     # fit and save the population model ####
-    pa <- Palytic$new(data = Data,
-                      ids  = "id",
-                      dv   = "y",
-                      time = "Time",
-                      phase = phase,
-                      ivs = ivs,
-                      interactions = int,
-                      autoDetect = list(),
+    modNms <- c("PopulationModel.csv")
+    if(!is.null(outFile)) modNms <- paste(outFile$file, modNms, sep='_')
+    pa <- PersonAlytic(output      = modNms        ,
+                      data         = Data          ,
+                      ids          = "id"          ,
+                      dv           = "y"           ,
+                      time         = "Time"        ,
+                      phase        = phase         ,
+                      ivs          = ivs           ,
+                      interactions = int           ,
+                      autoDetect   = list()        ,
+                      time_power   = time_power    ,
+                      correlation  = correlation   ,
+                      detectAR     = detectAR      ,
+                      detectTO     = detectTO      ,
+                      cores        = cores         ,
+                      standardize  = standardize   ,
+                      family       = family        ,
                       ...
     )
-    mod <- pa$lme(autoDetect = list()); rm(pa)
-    #pa <- Palytic$new(data = Data,
-    #                  ids  = "id",
-    #                  dv   = "y",
-    #                  time = "Time",
-    #                  phase = phase,
-    #                  ivs = ivs,
-    #                  interactions = int,
-    #                  alignPhase = "piecewise",
-    #                  autoDetect = list()
-    #)
-    #modp <- pa$lme(); rm(pa)
-
-    modNms <- c("PopulationModel.csv", "PopulationPiecewise.csv")
-    if(!is.null(outFile)) modNms <- paste(outFile$file, modNms, sep='_')
-    write.csv(mod$tTable, modNms[1])
-    #write.csv(modp$tTable, modNms[2])
 
     # overwrite Data with DataB
     Data <- DataB; rm(DataB)
@@ -493,16 +496,6 @@ ICTpower <- function(outFile         = NULL                      ,
     print(detectTO)
     print(cores)
     print(standardize)
-  }
-
-  # distribution check
-  family = gamlss.dist::NO()
-  if(!is.null(design$yCut))
-  {
-    .l <- length(design$yCut)
-    if( .l==2 ) family = "BI"
-    if( .l>=3 ) family = paste("MULTIN(type = '", .l, "')")
-    rm(.l)
   }
 
   paout <- PersonAlytic(output       = outFile$file                     ,
