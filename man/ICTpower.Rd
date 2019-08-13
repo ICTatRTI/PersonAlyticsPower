@@ -100,7 +100,7 @@ myPolyICT$inputMat
 myPolyICT2 <- myPolyICT$clone(deep=TRUE)
 myPolyICT2$update(groups=c(group1=20, group2=20))
 testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
-  myPolyICT2, B=3, seed = 25)
+  myPolyICT2, B=3, seed = 25, prompt=FALSE)
 
 myPolyICT3 <- myPolyICT$clone(deep=TRUE)
 myPolyICT3$update(groups=c(group1=20, group2=20),
@@ -162,6 +162,9 @@ file.remove( 'Data.RData' )
 file.remove( 'testICTpower20_PowerReport.txt' )
 file.remove( 'testICTpower20_PersonAlytic.csv' )
 file.remove( 'testICTpower20.Data.csv' )
+file.remove( 'piecewise_mse.csv' )
+file.remove( 'npbsFPCtest_mse.csv' )
+file.remove( 'npbsTest_mse.csv' )
  }
 
 }

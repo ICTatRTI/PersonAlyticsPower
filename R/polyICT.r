@@ -283,7 +283,7 @@ polyICT <- R6::R6Class("polyICT",
 
                            # these should be hidden from users until we can model
                            # non-normal random effects
-                           randFxFam         = "qNO"                                     ,
+                           randFxFam         = qNO                                       ,
                            randFxFamParms    = list(mu=.5 , sigma=1)
 
                          )

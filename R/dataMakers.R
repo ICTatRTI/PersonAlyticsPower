@@ -81,7 +81,6 @@
     .L[[i]] <- etaM
   }
 
-  # TODO implement transforming error distn via makeFam()
   # errors w/ scaling
    err <- scale(self$error$makeErrors(n, nObs, seeds[2]))
   merr <- scale(self$merror$makeErrors(n, nObs, seeds[3]))

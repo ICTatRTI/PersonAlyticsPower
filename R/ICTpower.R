@@ -93,7 +93,7 @@
 #' myPolyICT2 <- myPolyICT$clone(deep=TRUE)
 #' myPolyICT2$update(groups=c(group1=20, group2=20))
 #' testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
-#'   myPolyICT2, B=3, seed = 25)
+#'   myPolyICT2, B=3, seed = 25, prompt=FALSE)
 #'
 #' myPolyICT3 <- myPolyICT$clone(deep=TRUE)
 #' myPolyICT3$update(groups=c(group1=20, group2=20),
@@ -155,6 +155,9 @@
 #' file.remove( 'testICTpower20_PowerReport.txt' )
 #' file.remove( 'testICTpower20_PersonAlytic.csv' )
 #' file.remove( 'testICTpower20.Data.csv' )
+#' file.remove( 'piecewise_mse.csv' )
+#' file.remove( 'npbsFPCtest_mse.csv' )
+#' file.remove( 'npbsTest_mse.csv' )
 #'  }
 #'
 
@@ -263,6 +266,7 @@ ICTpower <- function(outFile         = NULL                      ,
       correlation <- paste('corARMA(p=', ar, ',q=', ma, ')', sep='')
     }
     if(!exists('time_power')) time_power <- design$randFxOrder
+    if(!exists('autoDetect')) autoDetect <- list()
 
     #
     # analyze the data using PersonAlytics, treating y1,...,yB
@@ -425,16 +429,16 @@ ICTpower <- function(outFile         = NULL                      ,
 
     if( !is.null(ivs) ) int   <- list(c(ivs, phase), c(ivs, 'Time'))
 
-    # distribution check
-    family = gamlss.dist::NO()
-    if(!is.null(design$yCut))
-    {
-      .l <- length(design$yCut)
-      if( .l==2 ) family = "BI"
-      if( .l>=3 ) family = paste("MULTIN(type = '", .l, "')")
-      rm(.l)
-    }
+  }
 
+  # distribution check
+  family = gamlss.dist::NO()
+  if(!is.null(design$yCut))
+  {
+    .l <- length(design$yCut)
+    if( .l==2 ) family = gamlss.dist::BI()
+    if( .l>=3 ) family = eval(parse(text=paste("MULTIN(type = '", .l, "')", sep='')))
+    rm(.l)
   }
 
   # if requested, save the data
@@ -469,7 +473,8 @@ ICTpower <- function(outFile         = NULL                      ,
     print(standardize)
   }
 
-  dvs   <- as.list(paste('y', 0:B, sep=''))
+  if( is.null(dataFile)) dvs   <- as.list(paste('y', 1:B, sep=''))
+  if(!is.null(dataFile)) dvs   <- as.list(paste('y', 0:B, sep=''))
   paout <- PersonAlytic(output       = outFile$file ,
                         data         = Data         ,
                         ids          = 'id'         ,
@@ -567,8 +572,15 @@ popSampComp <- function(paout, file)
   yr <- which(paout$dv=="y0")
   yhatr <- which(paout$dv!="y0")
 
+  # simple stats (mirroring power report)
+  stats <- data.frame(
+    pop_value = unlist(paout[yr, wclmns])                        ,
+    samp_mean = apply(paout[yhatr, wclmns], 2, mean, na.rm=TRUE) ,
+    samp_sd   = apply(paout[yhatr, wclmns], 2, sd  , na.rm=TRUE)
+  )
+
   # column names
-  nms <- c("mse" , "mse.norm.lo" , "mse.norm.hi" , "mse.bca.lo" , "mse.bca.hi" ,
+  mnms <- c("mse" , "mse.norm.lo" , "mse.norm.hi" , "mse.bca.lo" , "mse.bca.hi" ,
            "rmse", "rmse.norm.lo", "rmse.norm.hi", "rmse.bca.lo", "rmse.bca.hi",
            "mae" , "mae.norm.lo" , "mae.norm.hi" , "mae.bca.lo" , "mae.bca.hi"
            )
@@ -581,17 +593,20 @@ popSampComp <- function(paout, file)
     y <- paout[[w]][yr]
     yhat <- paout[[w]][yhatr]
     x  <- data.frame(yhat=yhat, y=y)
-    b  <- boot(x, mseb, 2000)
-    ci.mse  <- boot.ci(b, type=c("norm", "bca"), index=1)
-    ci.rmse <- boot.ci(b, type=c("norm", "bca"), index=2)
-    ci.mae  <- boot.ci(b, type=c("norm", "bca"), index=3)
-    all     <- c(b$t0[1], ci.mse$normal[2:3] , ci.mse$bca[4:5] ,
-                   b$t0[2], ci.rmse$normal[2:3], ci.rmse$bca[4:5] ,
-                   b$t0[3], ci.mae$normal[2:3] , ci.mae$bca[4:5]  )
-    names(all) <- cnms
-    mses[[w]]  <- all
+    b  <- list()
+    ci.mse <- ci.rmse <- ci.mae <- list()
+    try(b  <- boot::boot(x, mseb, 2000), silent = TRUE)
+    try({
+    ci.mse  <- boot::boot.ci(b, type=c("norm", "bca"), index=1)
+    ci.rmse <- boot::boot.ci(b, type=c("norm", "bca"), index=2)
+    ci.mae  <- boot::boot.ci(b, type=c("norm", "bca"), index=3)}, silent = TRUE)
+    all     <- c(b$t0[1], ci.mse$normal[2:3] , ci.mse$bca[4:5]  ,
+                 b$t0[2], ci.rmse$normal[2:3], ci.rmse$bca[4:5] ,
+                 b$t0[3], ci.mae$normal[2:3] , ci.mae$bca[4:5]  )
+    if(length(mnms) == length(all)) names(all) <- mnms
+    mses[[w]] <- data.frame(t(all))
   }
-  mses <- data.frame(stat=wclmns, do.call("rbind", mses))
+  mses <- data.frame(stat=wclmns, stats, plyr::rbind.fill(mses))
   row.names(mses) <- NULL
 
   # statNames
@@ -620,7 +635,7 @@ mse <- function(x)
 #' mseb - version for bootstraping
 #' @keywords internal
 #' @import boot
-#' @param x See \code{\link(mse)}
+#' @param x See \code{\link{mse}}
 #' @param i The index for resampling
 mseb <- function(x,i)
 {
