@@ -341,10 +341,7 @@ ICTpower <- function(outFile         = NULL                      ,
             ifelse(!is.null(outFile$sfile),
                     paste("Data will be saved in the file:\n\n", outFile$sfile,
                           "\n\nwhere the outcome for each bootstrap sample will",
-                          " be labeled y1, ..., y", B,
-                          ".\n\n NOTE: Individual ids are not saved and are",
-                          "\narbitrarily relabeled to create a data structure",
-                          "\nthat conforms to PersonAlytic() requirements.\n\n",
+                          " be labeled y1, ..., y", B, ".\n\n",
                           sep=""),
                     '\n\n')
     )
