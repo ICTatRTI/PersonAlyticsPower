@@ -4,12 +4,11 @@
 \alias{mse}
 \title{mse - mean squared error & mean absolute error}
 \usage{
-mse(y, yhat)
+mse(x)
 }
 \arguments{
-\item{y}{Scalar. Population value of \code{y}.}
-
-\item{yhat}{Numeric vector. Sample estimates of \code{y}.}
+\item{x}{data.frame with columns \code{yhat} (the estimates) and \code{y}
+(the population value which should generally have zero variance).}
 }
 \description{
 mse - mean squared error & mean absolute error

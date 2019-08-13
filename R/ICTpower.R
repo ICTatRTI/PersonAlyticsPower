@@ -570,13 +570,29 @@ popSampComp <- function(paout, file)
   yr <- which(paout$dv=="y0")
   yhatr <- which(paout$dv!="y0")
 
+  # column names
+  nms <- c("mse" , "mse.norm.lo" , "mse.norm.hi" , "mse.bca.lo" , "mse.bca.hi" ,
+           "rmse", "rmse.norm.lo", "rmse.norm.hi", "rmse.bca.lo", "rmse.bca.hi",
+           "mae" , "mae.norm.lo" , "mae.norm.hi" , "mae.bca.lo" , "mae.bca.hi"
+           )
+
+  # loop
   mses <- list()
   for(i in seq_along(wclmns))
   {
     w <- wclmns[i]
     y <- paout[[w]][yr]
     yhat <- paout[[w]][yhatr]
-    mses[[w]] <- mse(y, yhat)
+    x  <- data.frame(yhat=yhat, y=y)
+    b  <- boot(x, mseb, 2000)
+    ci.mse  <- boot.ci(b, type=c("norm", "bca"), index=1)
+    ci.rmse <- boot.ci(b, type=c("norm", "bca"), index=2)
+    ci.mae  <- boot.ci(b, type=c("norm", "bca"), index=3)
+    all     <- c(b$t0[1], ci.mse$normal[2:3] , ci.mse$bca[4:5] ,
+                   b$t0[2], ci.rmse$normal[2:3], ci.rmse$bca[4:5] ,
+                   b$t0[3], ci.mae$normal[2:3] , ci.mae$bca[4:5]  )
+    names(all) <- cnms
+    mses[[w]]  <- all
   }
   mses <- data.frame(stat=wclmns, do.call("rbind", mses))
   row.names(mses) <- NULL
@@ -594,14 +610,24 @@ popSampComp <- function(paout, file)
 
 #' mse - mean squared error & mean absolute error
 #' @export
-#' @param y Scalar. Population value of \code{y}.
-#' @param yhat Numeric vector. Sample estimates of \code{y}.
-mse <- function(y, yhat)
+#' @param x data.frame with columns \code{yhat} (the estimates) and \code{y}
+#' (the population value which should generally have zero variance).
+mse <- function(x)
 {
-  n <- length(yhat)
-  mse <- (1/n) * sum((y-yhat)^2)
-  mae <- (1/n) * sum(abs(y-yhat))
-  c(mse=mse, mae=mae)
+  n <- nrow(x)
+  mse <- (1/n) * sum((x$y-x$yhat)^2)
+  mae <- (1/n) * sum(abs(x$y-x$yhat))
+  c(mse=mse, rmse=sqrt(mse), mae=mae)
+}
+
+#' mseb - version for bootstraping
+#' @keywords internal
+#' @import boot
+#' @param x See \code{\link(mse)}
+#' @param i The index for resampling
+mseb <- function(x,i)
+{
+  mse(x[i,])
 }
 
 
