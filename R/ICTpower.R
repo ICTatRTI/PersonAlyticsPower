@@ -198,7 +198,7 @@ ICTpower <- function(outFile         = NULL                      ,
   dotsNames <- names(dots)
   if(any(dotsNames %in% 'fpc')) fpc <- dots$fpc
 
-  # parametric bootstrap
+  # parametric bootstrap ####
   if(is.null(dataFile))
   {
     #
@@ -282,7 +282,7 @@ ICTpower <- function(outFile         = NULL                      ,
 
   }
 
-  # non-parametric bootstrap
+  # non-parametric bootstrap ####
   if(!is.null(dataFile))
   {
     if(!file.exists(dataFile))
@@ -563,6 +563,7 @@ popSampComp <- function(paout, file)
   nms    <- names(paout)
   wstats <- nms[which(grepl("statValue", nms))]
   wests  <- nms[which(grepl("..Value", nms))[1]:length(nms)]
+  wests  <- wests[!grepl("statName", wests)]
   wclmns <- c(wstats, wests)
   # exclude DF
   wclmns <- wclmns[!grepl(".DF", wclmns)]
@@ -612,8 +613,9 @@ popSampComp <- function(paout, file)
   # statNames
   mses$stat <- as.character(mses$stat)
   # this line may not generalize to multiple columns, but shouldn't have to (20190812)
-  statNames <- as.character( paout[yr, nms[grepl("statName", nms)]] )
+  statNames <- as.character( unlist( paout[yr, nms[grepl("statName", nms)]] ) )
   mses$stat[1:length(statNames)] <- statNames
+  mses$stat <- unlist(mses$stat)
 
   # save
   file <- paste(file, "_mse.csv", sep='')
