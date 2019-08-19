@@ -64,7 +64,8 @@
 #' @param ... Further arguments to be passed to \code{\link{PersonAlytic}} for
 #' analysis. All options in \code{PersonAlytic} can be passed except for
 #' \code{output}, \code{data}, \code{ids}, \code{dvs}, \code{time}, and
-#' \code{phase} as these are taken from the \code{design}.
+#' \code{phase} as these are taken from the \code{design} (for parametric bootstrapping)
+#' or from the \code{dataFile} (for non-parametric bootstrapping).
 #'
 #' @examples
 #'
@@ -193,10 +194,30 @@ ICTpower <- function(outFile         = NULL                      ,
   # generate seeds
   seeds <- PersonAlyticsPower:::.makeSeeds(seed, B)
 
-  # process dots
+  # process dots specific to PersonAlytic
   dots <-  list(...)
   dotsNames <- names(dots)
-  if(any(dotsNames %in% 'fpc')) fpc <- dots$fpc
+  PersonAlyticParms <- c("target_ivs"     ,
+                         "time_power"     ,
+                         "correlation"    ,
+                         "subgroup"       ,
+                         "method"         ,
+                         "package"        ,
+                         "individual_mods",
+                         "PalyticObj"     ,
+                         "whichIC"        ,
+                         "charSub"        ,
+                         "sigma.formula"  ,
+                         "p.method"       ,
+                         "alpha"          ,
+                         "nbest"          ,
+                         "alignPhase"     ,
+                         "fpc"            ,
+                         "debugforeach"   )
+  for(i in seq_along(dotsNames))
+  {
+    if(dotsNames[i] %in% PersonAlyticParms) assign(dotsNames[i], dots[[dotsNames[i]]])
+  }
 
   # parametric bootstrap ####
   if(is.null(dataFile))
@@ -261,8 +282,8 @@ ICTpower <- function(outFile         = NULL                      ,
     # get the ARMA order from `correlation` if it is passed by ...
     if(!exists('correlation'))
     {
-      ar          <- length(design$error$parms$ar[design$error$parms$ar!=0])
-      ma          <- length(design$error$parms$ma[design$error$parms$ma!=0])
+      ar          <- length(design$error$model$ar[design$error$model$ar!=0])
+      ma          <- length(design$error$model$ma[design$error$model$ma!=0])
       correlation <- paste('corARMA(p=', ar, ',q=', ma, ')', sep='')
     }
     if(!exists('time_power')) time_power <- design$randFxOrder
@@ -408,6 +429,8 @@ ICTpower <- function(outFile         = NULL                      ,
     # get the ARMA order from `correlation` if it is passed by ...
     if(!exists('correlation'))
     {
+      # in non-parametric bootstrap, there is no design, so this must be passed
+      # explicitly to be non-NULL
       correlation <- NULL
     }
     if(!exists('time_power')) time_power <- 1
@@ -456,21 +479,25 @@ ICTpower <- function(outFile         = NULL                      ,
 
   if(exists("debugforeach"))
   {
-    for(i in seq_along(dotsNames))
+    if(debugforeach)
     {
-      print( paste(dotsNames[i], dots[i], sep=': '))
+      for(i in seq_along(dotsNames))
+      {
+        print( paste(dotsNames[i], dots[i], sep=': '))
+      }
+      print(outFile$file)
+      print(head(Data))
+      print(B)
+      print(phase)
+      print(ivs)
+      print(int)
+      print(time_power)
+      print(correlation)
+      print(autoDetect)
+      print(cores)
+      print(standardize)
     }
-    print(outFile$file)
-    print(head(Data))
-    print(B)
-    print(phase)
-    print(ivs)
-    print(int)
-    print(time_power)
-    print(correlation)
-    print(autoDetect)
-    print(cores)
-    print(standardize)
+
   }
 
   if( is.null(dataFile)) dvs   <- as.list(paste('y', 1:B, sep=''))
@@ -484,7 +511,6 @@ ICTpower <- function(outFile         = NULL                      ,
                         ivs          = ivs          ,
                         interactions = int          ,
                         time_power   = time_power   ,
-                        correlation  = correlation  ,
                         autoDetect   = autoDetect   ,
                         cores        = cores        ,
                         standardize  = standardize  ,

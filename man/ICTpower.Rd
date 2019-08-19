@@ -67,7 +67,8 @@ have to monitor a series of simulations.}
 \item{...}{Further arguments to be passed to \code{\link{PersonAlytic}} for
 analysis. All options in \code{PersonAlytic} can be passed except for
 \code{output}, \code{data}, \code{ids}, \code{dvs}, \code{time}, and
-\code{phase} as these are taken from the \code{design}.}
+\code{phase} as these are taken from the \code{design} (for parametric bootstrapping)
+or from the \code{dataFile} (for non-parametric bootstrapping).}
 }
 \description{
 ICTpower - get simulated power for an ICT design using parametric or
