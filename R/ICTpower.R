@@ -408,6 +408,28 @@ ICTpower <- function(outFile         = NULL                      ,
       }
       datL[[b]] <- do.call(rbind, datG)
     }
+
+    # get descriptive statistics
+    descriptivesL <- lapply(datL, function(x){
+      y <- names(x)[grepl("y", names(x))]
+      PersonAlytics::dstats(x[[y]])
+    } )
+    descriptives  <- data.frame(do.call(rbind, descriptivesL))
+    Population    <- list(Population= PersonAlytics::dstats(Data$y))
+    ddescriptives <- c(Population, lapply(descriptives, PersonAlytics::dstats))
+    ddReport(ddescriptives, paste(outFile$file, "resampleDescriptives.txt", sep="_"))
+
+
+    #descriptives <- data.frame(ddescriptives)
+    #row.names(ddescriptives) <- names(ddescriptives)
+    #descriptives <- rbind(popuplation=popStats, ddescriptives)
+    #rite.csv(ddescriptives, paste(outFile$file, "resampleDescriptives.csv", sep="_"))
+    # save for later if we need raw descriptives
+    #descriptives  <- rbind( popStats, descriptives)
+    #row.names(descriptives) <- c('y0', paste('y', 1:B,sep=''))
+
+
+    # restructure into dataset
     mergeby <- names(datL[[1]])
     mergeby <- mergeby[mergeby != 'y1']
     DataB   <- Reduce(function(df1, df2) merge(df1, df2, by=mergeby, all = TRUE),
@@ -444,12 +466,13 @@ ICTpower <- function(outFile         = NULL                      ,
     ivs   <- NULL
     int   <- NULL
 
+    # if there is more than one phase or more than one group, include phase/group
     wp <- which(tolower(names(Data)) %in% c('phase', 'phases'))
     wg <- which(tolower(names(Data)) %in% c('group', 'groups'))
+    if( length(unique(Data[[wp]])) > 1 ) phase <- names(Data)[wp]
+    if( length(unique(Data[[wg]])) > 1 ) ivs   <- names(Data)[wg]
 
-    if( length(unique((Data[[wp]]))) > 1 ) phase <- names(Data)[wp]
-    if( length(unique((Data[[wg]]))) > 1 ) ivs   <- names(Data)[wg]
-
+    # if applicable, add interaction terms
     if( !is.null(ivs) ) int   <- list(c(ivs, phase), c(ivs, 'Time'))
 
   }
@@ -783,6 +806,31 @@ powerReport <- function(paout, alpha, file, saveReport=TRUE, fpc=FALSE,
 }
 
 
+### NOT WORKING YET
+#' ddReport - function to save descriptives of descriptives to file
+#'
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#'
+#' @param ddescriptives data frame of descriptives of descriptives
+ddReport <- function(ddescriptives, file)
+{
+  dt  <- format(Sys.time(), format='%Y%m%d_%H.%M%p')
+  pap <- paste("PersonAlyticsPower Version", packageVersion("PersonAlyticsPower"))
+  pa  <- paste("PersonAlytics Version", packageVersion('PersonAlytics'))
 
+  ddHead <- c("\nDescriptive statistics for the population and for the data",
+              "\nsets resampled from the population (e.g., the mean of the",
+              "\nsample means, the median of the sample means, the sd of the",
+              "\nsample means, etc.).\n\n")
 
+  d <- lapply(ddescriptives, function(x) paste(paste(colnames(x), x, sep='='),
+                                               collapse = ', '))
+  ddOutput <- paste(
+         paste(
+           paste("Descriptives for the", names(ddescriptives)),
+           '\n\n', sep=':'),
+             d, collapse = '\n\n')
+
+  cat( dt, "\n", pap, "\n", pa, "\n\n", ddHead, ddOutput, file = file)
+}
 

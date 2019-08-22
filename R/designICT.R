@@ -466,7 +466,8 @@ designICT <- R6::R6Class("designICT",
 
        designCheck = function(file=NULL, ylim=NULL, fitMod=FALSE,
                               seed=123, npg=5000, return = 'plot',
-                              justData=FALSE, type='histogram')
+                              justData=FALSE, type='histogram',
+                              title=NULL)
        {
          # set mod0 default
          mod0 <- paste("`fitMod` was set to", as.character(fitMod))
@@ -552,10 +553,12 @@ designICT <- R6::R6Class("designICT",
 
            # plot
            if( length( self$groupNames ) == 1 ) gg <- pa$plot(ylim=ylim,
-                                                              type=type)
+                                                              type=type,
+                                                              title=title)
            if( length( self$groupNames ) >= 2 ) gg <- pa$plot(groupvar = 'group',
                                                               ylim=ylim,
-                                                              type=type)
+                                                              type=type,
+                                                              title=title)
          }
 
          # restore the original sample sizes
