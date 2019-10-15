@@ -1,3 +1,4 @@
+# utility functions ####
 
 #' cor2cov - a version of this function was in the deprecated package `stremo`
 #' @author Stephen Tueller \email{stueller@@rti.org}
