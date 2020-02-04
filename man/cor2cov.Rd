@@ -4,8 +4,7 @@
 \alias{cor2cov}
 \title{cor2cov - a version of this function was in the deprecated package `stremo`}
 \usage{
-cor2cov(randFxCorMat = matrix(c(1, 0.2, 0.2, 1), 2, 2),
-  variances = c(1, 0.1))
+cor2cov(randFxCorMat = matrix(c(1, 0.2, 0.2, 1), 2, 2), variances = c(1, 0.1))
 }
 \arguments{
 \item{randFxCorMat}{Numeric matrix. An invertible correlation matrix.}

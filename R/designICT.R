@@ -368,7 +368,7 @@
 #'     simulated data; \code{'datastat'} which returns the data and the
 #'     descriptive statistics; and \code{'all'} which returns everything in a list.
 #'
-#'     \code{jutData} Logical. Should only the data be generated (and not
+#'     \code{justData} Logical. Should only the data be generated (and not
 #'     a model or plot). This speeds up other calls to \code{designCheck}, e.g.,
 #'     by \code{\link{setupDist}}.
 #'   }

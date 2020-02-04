@@ -4,8 +4,12 @@
 \alias{makeDesignMat}
 \title{makeDesignMat - create the fixed effects design matrix for n=1}
 \usage{
-makeDesignMat(phases = makePhase(), phaseNames = NULL, maxRandFx = 2,
-  design = "polyICT")
+makeDesignMat(
+  phases = makePhase(),
+  phaseNames = NULL,
+  maxRandFx = 2,
+  design = "polyICT"
+)
 }
 \description{
 makeDesignMat - create the fixed effects design matrix for n=1

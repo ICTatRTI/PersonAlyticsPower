@@ -4,8 +4,7 @@
 \alias{.totalVar}
 \title{.totalVar - get the total variance for simulated data}
 \usage{
-.totalVar(randFxCovMat, propErrVar, designMat, randFxMean, nObservations,
-  n)
+.totalVar(randFxCovMat, propErrVar, designMat, randFxMean, nObservations, n)
 }
 \description{
 .totalVar - get the total variance for simulated data

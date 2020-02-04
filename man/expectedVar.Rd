@@ -4,11 +4,9 @@
 \alias{expectedVar}
 \title{expectedVar}
 \usage{
-expectedVar(randFxCovMat, designMat, variances, randFxMean, nObservations,
-  n)
+expectedVar(randFxCovMat, designMat, variances, randFxMean, nObservations, n)
 
-expectedVar(randFxCovMat, designMat, variances, randFxMean, nObservations,
-  n)
+expectedVar(randFxCovMat, designMat, variances, randFxMean, nObservations, n)
 }
 \description{
 expectedVar

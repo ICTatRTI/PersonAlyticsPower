@@ -4,9 +4,18 @@
 \alias{makeDesign}
 \title{makeDesign -}
 \usage{
-makeDesign(randFxOrder, phases, groups, propErrVar, randFxVar, randFxCor,
-  design = "polyICT", makeInputMat = TRUE, self = NULL,
-  isNew = NULL)
+makeDesign(
+  randFxOrder,
+  phases,
+  groups,
+  propErrVar,
+  randFxVar,
+  randFxCor,
+  design = "polyICT",
+  makeInputMat = TRUE,
+  self = NULL,
+  isNew = NULL
+)
 }
 \description{
 makeDesign -

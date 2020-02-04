@@ -4,8 +4,10 @@
 \alias{makePhase}
 \title{makePhase - function to make phases}
 \usage{
-makePhase(nObsPerPhase = c(10, 20, 10), phaseNames = c("phase1",
-  "phase2", "phase3"))
+makePhase(
+  nObsPerPhase = c(10, 20, 10),
+  phaseNames = c("phase1", "phase2", "phase3")
+)
 }
 \arguments{
 \item{nObsPerPhase}{Numeric vector. The length is the number of phases

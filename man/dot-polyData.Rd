@@ -5,8 +5,18 @@
 \title{.polyData - function to simulate polynomial growth data, used by the polyICT
 class}
 \usage{
-.polyData(seed = 123, n, nObs, mu, Sigma, self, dM, rFxVr, propErrVar,
-  group = NULL)
+.polyData(
+  seed = 123,
+  n,
+  nObs,
+  mu,
+  Sigma,
+  self,
+  dM,
+  rFxVr,
+  propErrVar,
+  group = NULL
+)
 }
 \description{
 .polyData - function to simulate polynomial growth data, used by the polyICT

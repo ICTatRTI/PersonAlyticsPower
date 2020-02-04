@@ -4,11 +4,12 @@
 \name{polyICT}
 \alias{polyICT}
 \title{\code{polyICT} class generator}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
 polyICT$new()
 }
 \description{
+\code{polyICT} class generator
+
 \code{polyICT} class generator
 }
 \details{
@@ -30,73 +31,6 @@ by the user directly. These are detailed in the section titled \strong{Fields}.
 Fields can be accessed using the \code{$} operator. For example, if your
 \code{polyICT} object is called \code{myPolyICT}, use \code{myPolyICT$inputMat}.
 }
-\section{Fields}{
-
-\describe{
-\item{\code{inputMat}}{A \code{\link{data.frame}} containing the inputs needed for
-data simulation by phase and by group. Columns include \code{Phase},
-\code{Group}, \code{nObs} (the number of observations in a given phase),
-\code{n} (the number of participants in a given group), the means and
-variances for each random effect (see \code{randFxOrder} under \code{new} in
-the Methods section), and the variance partioning (see
-\code{propErrVar} under \code{new} in the Methods section). Instructions
-for editing this field are given in the Examples.
-
-The \code{Mean} columns are standardized effect sizes on the scale of Cohen's
-\emph{d}. For more detailed information and illustrations, see the Example
-section.}
-
-\item{\code{randFxVar}}{See \code{randFxVar} in the \code{new} method. Phase and/or
-group specific variances can be specified by editing \code{inputMat} after
-initializing a \code{polyICT} object.}
-
-\item{\code{randFxCor}}{A default correlation between the random effects. This can be
-edited later as shown in the examples.}
-
-\item{\code{propErrVar}}{See \code{propErrVar} in the \code{new} Method. See also
-\code{inputMat} and the Examples for making these inputs phase and/or group
-specific.}
-
-\item{\code{error}}{See \code{error} in the \code{new} Method. See also
-\code{\link{armaErr}}.}
-
-\item{\code{merror}}{See \code{merror} in the \code{new} Method.}
-
-\item{\code{yMean}}{See \code{yMean} in the \code{new} Method.}
-
-\item{\code{ySD}}{See \code{ySD} in the \code{new} Method.}
-
-\item{\code{yMin}}{See \code{yMin} in the \code{new} Method.}
-
-\item{\code{yMax}}{See \code{yMax} in the \code{new} Method.}
-
-\item{\code{n}}{The total sample size.}
-
-\item{\code{nObs}}{The total number of observations (i.e., time points).}
-
-\item{\code{groups}}{See \code{groups} in the \code{new} Method.}
-
-\item{\code{phases}}{See \code{phases} in the \code{new} Method.}
-
-\item{\code{designMat}}{The design matrix with phases and timepoints.}
-
-\item{\code{meanNames}}{The columns of \code{InputMat}
-corresponding to the effect sizes/random effect means.}
-
-\item{\code{varNames}}{The columns of \code{InputMat}
-corresponding to the random effect variances.}
-
-\item{\code{phaseNames}}{The names of the phases, taken from \code{phases}.}
-
-\item{\code{groupNames}}{The names of the groups, taken from \code{groups}.}
-
-\item{\code{randFxFam}}{A \code{\link{gamlss.family}} distribution for non-normal
-random effects. Not implemented.}
-
-\item{\code{randFxFamParms}}{The parameters for the \code{\link{gamlss.family}}
-distribution specified in \code{randFxFam}. Not implemented.}
-}}
-
 \section{Methods}{
 
 \describe{
@@ -264,3 +198,224 @@ myPolyICT$designCheck(seed=3, npg=10, ylim=c(75,125))
 Stephen Tueller \email{stueller@rti.org}
 }
 \keyword{data}
+\section{Super class}{
+\code{\link[PersonAlyticsPower:designICT]{PersonAlyticsPower::designICT}} -> \code{polyICT}
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{inputMat}}{A \code{\link{data.frame}} containing the inputs needed for
+data simulation by phase and by group. Columns include \code{Phase},
+\code{Group}, \code{nObs} (the number of observations in a given phase),
+\code{n} (the number of participants in a given group), the means and
+variances for each random effect (see \code{randFxOrder} under \code{new} in
+the Methods section), and the variance partioning (see
+\code{propErrVar} under \code{new} in the Methods section). Instructions
+for editing this field are given in the Examples.
+
+The \code{Mean} columns are standardized effect sizes on the scale of Cohen's
+\emph{d}. For more detailed information and illustrations, see the Example
+section.}
+
+\item{\code{randFxVar}}{See \code{randFxVar} in the \code{new} method. Phase and/or
+group specific variances can be specified by editing \code{inputMat} after
+initializing a \code{polyICT} object.}
+
+\item{\code{randFxCor}}{A default correlation between the random effects. This can be
+edited later as shown in the examples.}
+
+\item{\code{propErrVar}}{See \code{propErrVar} in the \code{new} Method. See also
+\code{inputMat} and the Examples for making these inputs phase and/or group
+specific.}
+
+\item{\code{error}}{See \code{error} in the \code{new} Method. See also
+\code{\link{armaErr}}.}
+
+\item{\code{merror}}{See \code{merror} in the \code{new} Method.}
+
+\item{\code{yMean}}{See \code{yMean} in the \code{new} Method.}
+
+\item{\code{ySD}}{See \code{ySD} in the \code{new} Method.}
+
+\item{\code{yMin}}{See \code{yMin} in the \code{new} Method.}
+
+\item{\code{yMax}}{See \code{yMax} in the \code{new} Method.}
+
+\item{\code{n}}{The total sample size.}
+
+\item{\code{nObs}}{The total number of observations (i.e., time points).}
+
+\item{\code{groups}}{See \code{groups} in the \code{new} Method.}
+
+\item{\code{phases}}{See \code{phases} in the \code{new} Method.}
+
+\item{\code{designMat}}{The design matrix with phases and timepoints.}
+
+\item{\code{meanNames}}{The columns of \code{InputMat}
+corresponding to the effect sizes/random effect means.}
+
+\item{\code{varNames}}{The columns of \code{InputMat}
+corresponding to the random effect variances.}
+
+\item{\code{phaseNames}}{The names of the phases, taken from \code{phases}.}
+
+\item{\code{groupNames}}{The names of the groups, taken from \code{groups}.}
+
+\item{\code{randFxFam}}{A \code{\link{gamlss.family}} distribution for non-normal
+random effects. Not implemented.}
+
+\item{\code{randFxFamParms}}{The parameters for the \code{\link{gamlss.family}}
+distribution specified in \code{randFxFam}. Not implemented.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{inputMat}}{A \code{\link{data.frame}} containing the inputs needed for
+data simulation by phase and by group. Columns include \code{Phase},
+\code{Group}, \code{nObs} (the number of observations in a given phase),
+\code{n} (the number of participants in a given group), the means and
+variances for each random effect (see \code{randFxOrder} under \code{new} in
+the Methods section), and the variance partioning (see
+\code{propErrVar} under \code{new} in the Methods section). Instructions
+for editing this field are given in the Examples.
+
+The \code{Mean} columns are standardized effect sizes on the scale of Cohen's
+\emph{d}. For more detailed information and illustrations, see the Example
+section.}
+
+\item{\code{randFxVar}}{See \code{randFxVar} in the \code{new} method. Phase and/or
+group specific variances can be specified by editing \code{inputMat} after
+initializing a \code{polyICT} object.}
+
+\item{\code{randFxCor}}{A default correlation between the random effects. This can be
+edited later as shown in the examples.}
+
+\item{\code{propErrVar}}{See \code{propErrVar} in the \code{new} Method. See also
+\code{inputMat} and the Examples for making these inputs phase and/or group
+specific.}
+
+\item{\code{error}}{See \code{error} in the \code{new} Method. See also
+\code{\link{armaErr}}.}
+
+\item{\code{merror}}{See \code{merror} in the \code{new} Method.}
+
+\item{\code{yMean}}{See \code{yMean} in the \code{new} Method.}
+
+\item{\code{ySD}}{See \code{ySD} in the \code{new} Method.}
+
+\item{\code{yMin}}{See \code{yMin} in the \code{new} Method.}
+
+\item{\code{yMax}}{See \code{yMax} in the \code{new} Method.}
+
+\item{\code{n}}{The total sample size.}
+
+\item{\code{nObs}}{The total number of observations (i.e., time points).}
+
+\item{\code{groups}}{See \code{groups} in the \code{new} Method.}
+
+\item{\code{phases}}{See \code{phases} in the \code{new} Method.}
+
+\item{\code{designMat}}{The design matrix with phases and timepoints.}
+
+\item{\code{meanNames}}{The columns of \code{InputMat}
+corresponding to the effect sizes/random effect means.}
+
+\item{\code{varNames}}{The columns of \code{InputMat}
+corresponding to the random effect variances.}
+
+\item{\code{phaseNames}}{The names of the phases, taken from \code{phases}.}
+
+\item{\code{groupNames}}{The names of the groups, taken from \code{groups}.}
+
+\item{\code{randFxFam}}{A \code{\link{gamlss.family}} distribution for non-normal
+random effects. Not implemented.}
+
+\item{\code{randFxFamParms}}{The parameters for the \code{\link{gamlss.family}}
+distribution specified in \code{randFxFam}. Not implemented.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{polyICT$new()}}
+\item \href{#method-print}{\code{polyICT$print()}}
+\item \href{#method-update}{\code{polyICT$update()}}
+\item \href{#method-makeData}{\code{polyICT$makeData()}}
+\item \href{#method-clone}{\code{polyICT$clone()}}
+}
+}
+\if{html}{
+\out{<details open ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="PersonAlyticsPower" data-topic="designICT" data-id="designCheck">}\href{../../PersonAlyticsPower/html/designICT.html#method-designCheck}{\code{PersonAlyticsPower::designICT$designCheck()}}\out{</span>}
+}
+\out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{polyICT$new(
+  groups = c(group1 = 10, group2 = 10),
+  phases = makePhase(),
+  propErrVar = c(randFx = 0.5, res = 0.25, mserr = 0.25),
+  randFxOrder = 1,
+  randFxCor = 0.2,
+  randFxVar = c(1, 1),
+  error = armaErr$new(),
+  merror = armaErr$new(list()),
+  ySD = 15,
+  yMean = 100,
+  yMin = NULL,
+  yMax = NULL,
+  yCut = NULL,
+  randFxFam = qNO,
+  randFxFamParms = list(mu = 0.5, sigma = 1)
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\subsection{Method \code{print()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{polyICT$print(...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-update"></a>}}
+\subsection{Method \code{update()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{polyICT$update(...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-makeData"></a>}}
+\subsection{Method \code{makeData()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{polyICT$makeData(seed = 123)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{polyICT$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

@@ -4,10 +4,18 @@
 \alias{ICTpowerSim}
 \title{ICTpowerSim - automate a series of parametric bootstrap power simulations.}
 \usage{
-ICTpowerSim(designs, pReportName = "ICTpowerSimResults", B = 1000,
-  seed = 1, save = NULL, alpha = 0.05,
-  cores = parallel::detectCores() - 1, standardize = list(dv = TRUE,
-  ivs = FALSE, byids = TRUE), dotar = FALSE, ...)
+ICTpowerSim(
+  designs,
+  pReportName = "ICTpowerSimResults",
+  B = 1000,
+  seed = 1,
+  save = NULL,
+  alpha = 0.05,
+  cores = parallel::detectCores() - 1,
+  standardize = list(dv = TRUE, ivs = FALSE, byids = TRUE),
+  dotar = FALSE,
+  ...
+)
 }
 \arguments{
 \item{designs}{A named list of designs.

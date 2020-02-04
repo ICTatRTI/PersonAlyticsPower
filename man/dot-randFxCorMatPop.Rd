@@ -4,8 +4,7 @@
 \alias{.randFxCorMatPop}
 \title{.randFxCorMatPop - correlation matrix populator, see the `designCheck` method in \code{\link{polyICT}}}
 \usage{
-.randFxCorMatPop(phaseNames, groupNames, randFxCorMat, wn = c("p", "g",
-  "n"))
+.randFxCorMatPop(phaseNames, groupNames, randFxCorMat, wn = c("p", "g", "n"))
 }
 \description{
 .randFxCorMatPop - correlation matrix populator, see the `designCheck` method in \code{\link{polyICT}}

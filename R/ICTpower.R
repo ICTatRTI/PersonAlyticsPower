@@ -140,6 +140,15 @@
 #'          alignPhase  = 'piecewise'          ,
 #'          prompt      = FALSE                )
 #'
+#' # Timing run for B=1000
+#' start_time <- Sys.time()
+#' myPolyICT2 <- myPolyICT$clone(deep=TRUE)
+#' myPolyICT2$update(groups=c(group1=20, group2=20))
+#' testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
+#'   myPolyICT2, B=1000, seed = 25, prompt=FALSE)
+#' end_time <- Sys.time()
+#' end_time - start_time
+#'
 #' # clean up
 #' file.remove( 'piecewise_PowerReport.txt' )
 #' file.remove( 'piecewise_PersonAlytic.csv' )
@@ -287,7 +296,7 @@ ICTpower <- function(outFile         = NULL                      ,
       correlation <- paste('corARMA(p=', ar, ',q=', ma, ')', sep='')
     }
     if(!exists('time_power')) time_power <- design$randFxOrder
-    if(!exists('autoDetect')) autoDetect <- list()
+    if(!exists('autoSelect')) autoSelect <- list()
 
     #
     # analyze the data using PersonAlytics, treating y1,...,yB
@@ -456,7 +465,7 @@ ICTpower <- function(outFile         = NULL                      ,
       correlation <- NULL
     }
     if(!exists('time_power')) time_power <- 1
-    if(!exists('autoDetect')) autoDetect <- list()
+    if(!exists('autoSelect')) autoSelect <- list()
 
     #
     # analyze the data using PersonAlytics, treating y1,...,yB
@@ -516,7 +525,7 @@ ICTpower <- function(outFile         = NULL                      ,
       print(int)
       print(time_power)
       print(correlation)
-      print(autoDetect)
+      print(autoSelect)
       print(cores)
       print(standardize)
     }
@@ -534,7 +543,7 @@ ICTpower <- function(outFile         = NULL                      ,
                         ivs          = ivs          ,
                         interactions = int          ,
                         time_power   = time_power   ,
-                        autoDetect   = autoDetect   ,
+                        autoSelect   = autoSelect   ,
                         cores        = cores        ,
                         standardize  = standardize  ,
                         family       = family       ,

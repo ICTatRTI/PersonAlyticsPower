@@ -5,11 +5,20 @@
 \title{ICTpower - get simulated power for an ICT design using parametric or
 non-parametric bootstrap.}
 \usage{
-ICTpower(outFile = NULL, design = NULL, B = 100, dataFile = NULL,
-  sampleSizes = NULL, alpha = 0.05, seed = 123,
-  cores = parallel::detectCores() - 1, savePowerReport = TRUE,
+ICTpower(
+  outFile = NULL,
+  design = NULL,
+  B = 100,
+  dataFile = NULL,
+  sampleSizes = NULL,
+  alpha = 0.05,
+  seed = 123,
+  cores = parallel::detectCores() - 1,
+  savePowerReport = TRUE,
   standardize = list(dv = FALSE, ivs = FALSE, byids = FALSE),
-  prompt = TRUE, ...)
+  prompt = TRUE,
+  ...
+)
 }
 \arguments{
 \item{outFile}{The file name for saving power analysis results.
@@ -146,6 +155,15 @@ ICTpower(outFile     = c("piecewise", "csv"),
          sampleSizes = c(25,25)             ,
          alignPhase  = 'piecewise'          ,
          prompt      = FALSE                )
+
+# Timing run for B=1000
+start_time <- Sys.time()
+myPolyICT2 <- myPolyICT$clone(deep=TRUE)
+myPolyICT2$update(groups=c(group1=20, group2=20))
+testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
+  myPolyICT2, B=1000, seed = 25, prompt=FALSE)
+end_time <- Sys.time()
+end_time - start_time
 
 # clean up
 file.remove( 'piecewise_PowerReport.txt' )

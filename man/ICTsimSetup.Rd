@@ -6,8 +6,18 @@
 \code{\link{ICTpowerSim}}, including splitting up the designs over sevar folders
 so the simulation can be run in chunks or on multiple computers.}
 \usage{
-ICTsimSetup(seed, nL, phasesL, propErrVarL, randFxMeanL, randFxCorMatL,
-  randFxVarL, B = 1000, nFolders = NULL, ICTpowerSimOptions = "")
+ICTsimSetup(
+  seed,
+  nL,
+  phasesL,
+  propErrVarL,
+  randFxMeanL,
+  randFxCorMatL,
+  randFxVarL,
+  B = 1000,
+  nFolders = NULL,
+  ICTpowerSimOptions = ""
+)
 }
 \arguments{
 \item{seed}{Numeric. A random seed for this simulation.}

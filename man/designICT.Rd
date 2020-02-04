@@ -4,10 +4,6 @@
 \name{designICT}
 \alias{designICT}
 \title{\code{designICT} class generator}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
-\usage{
-designICT
-}
 \description{
 The \code{designICT} class is a parent class to \code{\link{polyICT}} and
 other future planned classes such as \code{expICT} for exponential growth
@@ -64,7 +60,7 @@ to be used directly.
     simulated data; \code{'datastat'} which returns the data and the
     descriptive statistics; and \code{'all'} which returns everything in a list.
 
-    \code{jutData} Logical. Should only the data be generated (and not
+    \code{justData} Logical. Should only the data be generated (and not
     a model or plot). This speeds up other calls to \code{designCheck}, e.g.,
     by \code{\link{setupDist}}.
   }
@@ -75,4 +71,54 @@ to be used directly.
 \author{
 Stephen Tueller \email{stueller@rti.org}
 }
-\keyword{datasets}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-print}{\code{designICT$print()}}
+\item \href{#method-designCheck}{\code{designICT$designCheck()}}
+\item \href{#method-clone}{\code{designICT$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\subsection{Method \code{print()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{designICT$print(...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-designCheck"></a>}}
+\subsection{Method \code{designCheck()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{designICT$designCheck(
+  file = NULL,
+  ylim = NULL,
+  fitMod = FALSE,
+  seed = 123,
+  npg = 5000,
+  return = "plot",
+  justData = FALSE,
+  type = "histogram",
+  title = NULL
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{designICT$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

@@ -4,29 +4,11 @@
 \name{armaErr}
 \alias{armaErr}
 \title{\code{armaErr} class generator using \code{\link{arima.sim}}}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
-\usage{
-armaErr
-}
 \description{
 \code{armaErr} class generator using \code{\link{arima.sim}}
+
+\code{armaErr} class generator using \code{\link{arima.sim}}
 }
-\section{Fields}{
-
-\describe{
-\item{\code{model}}{The parameters for \code{FUN}.}
-
-\item{\code{errVar}}{The error variance.}
-
-\item{\code{FUN}}{The function for simulating error terms.}
-
-\item{\code{fam}}{A \code{\link{gamlss.family}} family for the error term distribution.
-After data are simulated using \code{FUN} and its \code{model}, it can be
-transformed to have a distribution different from those available to \code{FUN}.}
-
-\item{\code{famParms}}{Parameters to be passed to \code{fam}, see \code{\link{gamlss.family}}.}
-}}
-
 \examples{
 
 # set up a stationary arma model
@@ -56,4 +38,107 @@ auto.arima(ts(errBeta))
 \author{
 Stephen Tueller \email{stueller@rti.org}
 }
-\keyword{datasets}
+\section{Super class}{
+\code{\link[PersonAlyticsPower:err]{PersonAlyticsPower::err}} -> \code{errARMA}
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{model}}{The parameters for \code{FUN}.}
+
+\item{\code{errVar}}{The error variance.}
+
+\item{\code{FUN}}{The function for simulating error terms.}
+
+\item{\code{fam}}{A \code{\link{gamlss.family}} family for the error term distribution.
+After data are simulated using \code{FUN} and its \code{model}, it can be
+transformed to have a distribution different from those available to \code{FUN}.}
+
+\item{\code{famParms}}{Parameters to be passed to \code{fam}, see \code{\link{gamlss.family}}.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{model}}{The parameters for \code{FUN}.}
+
+\item{\code{errVar}}{The error variance.}
+
+\item{\code{FUN}}{The function for simulating error terms.}
+
+\item{\code{fam}}{A \code{\link{gamlss.family}} family for the error term distribution.
+After data are simulated using \code{FUN} and its \code{model}, it can be
+transformed to have a distribution different from those available to \code{FUN}.}
+
+\item{\code{famParms}}{Parameters to be passed to \code{fam}, see \code{\link{gamlss.family}}.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{armaErr$new()}}
+\item \href{#method-checkModel}{\code{armaErr$checkModel()}}
+\item \href{#method-makeErrors}{\code{armaErr$makeErrors()}}
+\item \href{#method-clone}{\code{armaErr$clone()}}
+}
+}
+\if{html}{
+\out{<details open ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="PersonAlyticsPower" data-topic="err" data-id="print">}\href{../../PersonAlyticsPower/html/err.html#method-print}{\code{PersonAlyticsPower::err$print()}}\out{</span>}
+}
+\out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{armaErr$new(
+  model = list(ar = c(0.5), ma = c(0)),
+  fam = "NO",
+  famParms = list(mu = 0, sigma = 1)
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-checkModel"></a>}}
+\subsection{Method \code{checkModel()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{armaErr$checkModel(
+  seed = 1234,
+  n = 1000,
+  doPlot = TRUE,
+  doStats = TRUE,
+  debug = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-makeErrors"></a>}}
+\subsection{Method \code{makeErrors()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{armaErr$makeErrors(n, nObservations, seed = 123, debug = FALSE)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{armaErr$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}
