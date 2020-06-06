@@ -1,7 +1,7 @@
 Package: PersonAlyticsPower
 Type: Package
 Title: Power Analysis and Simulation for PersonAlytics
-Version: 0.1.6.8
+Version: 0.1.6.9
 Date: 2020-02-04
 Author: person("Stephen", "Tueller", email = "stueller@rti.org", role = c("aut", "cre"))
 Maintainer: Stephen Tueller <stueller@rti.org>
