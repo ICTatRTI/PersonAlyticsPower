@@ -392,7 +392,7 @@ ICTpower <- function(outFile         = NULL                      ,
           uidg <- length(unique(Data$id[Data$group==groups[g]]))
           if( uidg <= sampleSizes[g] )
           {
-            stop('There are ', uidg, ' unique ids in ', colnames(uid)[g],
+            stop('There are ', uidg, ' unique ids in ', colnames(uidg)[g],
                  'which is less than `sampleSizes` which is ', sampleSizes[g],
                  '.\nSelect `sampleSizes` that is smaller than the number of',
                  'unique ids.')
@@ -425,7 +425,8 @@ ICTpower <- function(outFile         = NULL                      ,
     } )
     descriptives  <- data.frame(do.call(rbind, descriptivesL))
     Population    <- list(Population= PersonAlytics::dstats(Data$y))
-    ddescriptives <- c(Population, lapply(descriptives, PersonAlytics::dstats))
+    ddescriptives <- c(Population, lapply(descriptives[,2:ncol(descriptives)],
+                                          PersonAlytics::dstats))
     ddReport(ddescriptives, paste(outFile$file, "resampleDescriptives.txt", sep="_"))
 
 
