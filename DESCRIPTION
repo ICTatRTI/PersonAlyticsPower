@@ -3,7 +3,10 @@ Type: Package
 Title: Power Analysis and Simulation for PersonAlytics
 Version: 0.1.7.1
 Date: 2020-02-04
-Author: person("Stephen", "Tueller", email = "stueller@rti.org", role = c("aut", "cre"))
+Authors@R: c(person("Stephen J.", "Tueller", email = "stueller@rti.org", role = c("aut", "cre")),
+             person("Ty A.", "Ridenour", email = "tridenour@rti.org", role = c("aut")),
+             person("Derek", "Ramirez", email = "dramirez@rti.org", role = c("aut"))
+             )
 Maintainer: Stephen Tueller <stueller@rti.org>
 Description: Power analysis and simulation tools for idiographic clinical trials. Funded by NCATS R21TR00240201A1.
 License: GPL-2 | GPL-3
@@ -26,3 +29,5 @@ Suggests:
     rmarkdown,
     testthat
 VignetteBuilder: knitr
+BugReports: https://github.com/ICTatRTI/PersonAlyticsPower/issues
+URL: https://personalytics.rti.org/ 
