@@ -93,6 +93,7 @@ transformed to have a distribution different from those available to \code{FUN}.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{armaErr$new(
@@ -105,6 +106,7 @@ transformed to have a distribution different from those available to \code{FUN}.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-checkModel"></a>}}
+\if{latex}{\out{\hypertarget{method-checkModel}{}}}
 \subsection{Method \code{checkModel()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{armaErr$checkModel(
@@ -119,6 +121,7 @@ transformed to have a distribution different from those available to \code{FUN}.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-makeErrors"></a>}}
+\if{latex}{\out{\hypertarget{method-makeErrors}{}}}
 \subsection{Method \code{makeErrors()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{armaErr$makeErrors(n, nObservations, seed = 123, debug = FALSE)}\if{html}{\out{</div>}}
@@ -127,6 +130,7 @@ transformed to have a distribution different from those available to \code{FUN}.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

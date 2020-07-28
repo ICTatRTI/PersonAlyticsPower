@@ -88,6 +88,8 @@
                   "\n`$inputMat` directly.")
         }
 
+        if(names(value)!=nms) names(value) <- nms
+
         private$.inputMat[,nms] <- matrix(value, nrow(private$.inputMat), length(value),
                                           byrow = TRUE)
 
@@ -184,6 +186,12 @@
       if( missing(value) ){ private$.groups }
       else
       {
+        if(is.null(names(value)))
+        {
+          names(value) <- paste("group", 1:length(value),
+                                 sep="")
+        }
+
         private$.groups <- value
         self
       }
@@ -204,6 +212,12 @@
       if( missing(value) ){ private$.phases }
       else
       {
+        if(is.null(names(value)))
+        {
+          names(value) <- paste("phase", 1:length(value),
+                                 sep="")
+        }
+
         private$.phases <- value
         self
       }

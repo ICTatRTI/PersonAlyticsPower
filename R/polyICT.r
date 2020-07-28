@@ -266,28 +266,56 @@ polyICT <- R6::R6Class("polyICT",
                        public  = list(
                          initialize = function
                          (
-                           groups            = c(group1=10, group2=10)                   ,
-                           phases            = makePhase()                               ,
-                           propErrVar        = c(randFx=.5,res=.25,mserr=.25)            ,
-                           randFxOrder       = 1                                         ,
-                           randFxCor         = 0.2                                       ,
-                           randFxVar         = c(1, 1)                                   ,
+                           groups            = c(group1=10, group2=10)        ,
+                           phases            = makePhase()                    ,
+                           propErrVar        = c(randFx=.5,res=.25,mserr=.25) ,
+                           randFxOrder       = 1                              ,
+                           randFxCor         = 0.2                            ,
+                           randFxVar         = c(1, 1)                        ,
 
-                           error             = armaErr$new()                             ,
-                           merror            = armaErr$new(list())                       ,
-                           ySD               = 15                                        ,
-                           yMean             = 100                                       ,
-                           yMin              = NULL                                      ,
-                           yMax              = NULL                                      ,
-                           yCut              = NULL                                      ,
+                           error             = armaErr$new()                  ,
+                           merror            = armaErr$new(list())            ,
+                           ySD               = 15                             ,
+                           yMean             = 100                            ,
+                           yMin              = NULL                           ,
+                           yMax              = NULL                           ,
+                           yCut              = NULL                           ,
 
-                           # these should be hidden from users until we can model
-                           # non-normal random effects
-                           randFxFam         = qNO                                       ,
+                           # these should be hidden from users until we
+                           # can modelnon-normal random effects
+                           randFxFam         = qNO                            ,
                            randFxFamParms    = list(mu=.5 , sigma=1)
 
                          )
                          {
+                           # TODO: these checks are also in .active() but
+                           # .active() doesn't get used for initiation, just
+                           # updates, find a way to have this code only in
+                           # .active() but the checks are run at init
+                           # if no names are given, provide names
+                           if(is.null(names(groups)))
+                           {
+                             names(groups) <- paste("group", 1:length(groups),
+                                                    sep="")
+                           }
+                           if(is.null(names(phases)))
+                           {
+                             names(phases) <- paste("phase", 1:length(phases),
+                                                    sep="")
+                           }
+                           if(length(propErrVar)!=3 | sum(propErrVar) != 1)
+                           {
+                             stop("\n`propErrVar` must be a length 3 vector that sums to 1.")
+                           }
+
+                           nms <- c('randFx', 'res', 'mserr')
+
+                           if(is.null(names(propErrVar)) |
+                              !all(names(propErrVar)==nms))
+                           {
+                             names(propErrVar) <- nms
+                           }
+
                            # makeDesign
                            design <- makeDesign(0:randFxOrder, phases, groups,
                                                 propErrVar, randFxVar,

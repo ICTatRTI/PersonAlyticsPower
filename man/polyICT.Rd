@@ -356,6 +356,7 @@ distribution specified in \code{randFxFam}. Not implemented.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{polyICT$new(
@@ -380,6 +381,7 @@ distribution specified in \code{randFxFam}. Not implemented.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{polyICT$print(...)}\if{html}{\out{</div>}}
@@ -388,6 +390,7 @@ distribution specified in \code{randFxFam}. Not implemented.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-update"></a>}}
+\if{latex}{\out{\hypertarget{method-update}{}}}
 \subsection{Method \code{update()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{polyICT$update(...)}\if{html}{\out{</div>}}
@@ -396,6 +399,7 @@ distribution specified in \code{randFxFam}. Not implemented.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-makeData"></a>}}
+\if{latex}{\out{\hypertarget{method-makeData}{}}}
 \subsection{Method \code{makeData()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{polyICT$makeData(seed = 123)}\if{html}{\out{</div>}}
@@ -404,6 +408,7 @@ distribution specified in \code{randFxFam}. Not implemented.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

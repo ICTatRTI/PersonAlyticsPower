@@ -230,6 +230,7 @@ and the third element would be the variance of the quadratic term.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{polyICT2$new(
@@ -254,6 +255,7 @@ and the third element would be the variance of the quadratic term.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{polyICT2$print(...)}\if{html}{\out{</div>}}
@@ -262,6 +264,7 @@ and the third element would be the variance of the quadratic term.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-makeData"></a>}}
+\if{latex}{\out{\hypertarget{method-makeData}{}}}
 \subsection{Method \code{makeData()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{polyICT2$makeData(randFx, errors = NULL, y = NULL, ymean = NULL, yvar = NULL)}\if{html}{\out{</div>}}
@@ -270,6 +273,7 @@ and the third element would be the variance of the quadratic term.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

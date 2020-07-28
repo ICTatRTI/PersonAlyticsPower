@@ -81,6 +81,7 @@ Stephen Tueller \email{stueller@rti.org}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{designICT$print(...)}\if{html}{\out{</div>}}
@@ -89,6 +90,7 @@ Stephen Tueller \email{stueller@rti.org}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-designCheck"></a>}}
+\if{latex}{\out{\hypertarget{method-designCheck}{}}}
 \subsection{Method \code{designCheck()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{designICT$designCheck(
@@ -107,6 +109,7 @@ Stephen Tueller \email{stueller@rti.org}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
