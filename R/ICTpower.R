@@ -575,12 +575,12 @@ ICTpower <- function(outFile         = NULL                      ,
     #
     # power analysis specific summary of results
     #
-    powerL <- powerReport(paout, alpha, file=outFile$file,
+    powerL <- powerReport(paout, design, alpha, file=outFile$file,
                           saveReport=savePowerReport)
 
     if(exists("fpc"))
     {
-      powerLFPC <- powerReport(paout, alpha, file=outFile$file,
+      powerLFPC <- powerReport(paout, design, alpha, file=outFile$file,
                                saveReport=savePowerReport, fpc=TRUE)
     }
 
@@ -725,7 +725,7 @@ mseb <- function(x,i)
 #' @return A data frame with the mean of the parameter estimates, the standard
 #' deviation of the parameter estimates, and the power.
 #'
-powerReport <- function(paout, alpha, file, saveReport=TRUE, fpc=FALSE,
+powerReport <- function(paout, design, alpha, file, saveReport=TRUE, fpc=FALSE,
                         printToScreen=TRUE)
 {
   # exclude y0
@@ -806,7 +806,8 @@ powerReport <- function(paout, alpha, file, saveReport=TRUE, fpc=FALSE,
     pap <- paste("PersonAlyticsPower Version", packageVersion("PersonAlyticsPower"))
     pa  <- paste("PersonAlytics Version", packageVersion('PersonAlytics'))
 
-    cat( dt, "\n", pap, "\n", pa, "\n\n", powerOutput, file = powerfile)
+    cat( dt, "\n", pap, "\n", pa, "\n\n", powerOutput,
+         "\n\n\n", paste(capture.output(design), "\n"), file = powerfile)
   }
 
   # return results

@@ -447,13 +447,13 @@ designICT <- R6::R6Class("designICT",
          nGroups <- length(self$groupNames)
          if(nGroups==0) nGroups <- 1
          cat(.hl(),
-             "An ICT with ", sum(self$n), " participants, ",
+             "Design Information: An ICT with ", sum(self$n), " participants, ",
              length(c(unlist(self$phases))), " time points, and ",
              ifelse(!is.null(self$groupNames), nGroups, 1),
              ifelse(nGroups==1, " group.\n", " groups.\n"), .hl(),
              "\nPhases:\n",
              paste(phases, collapse = ''),
-             "\nGroups:\n", paste(self$groupNames, 'n=', self$n, '\n'),
+             "\nGroups:\n", paste(self$groupNames, 'n=', self$groups, '\n\n'),
              .hl(),
              sep=""
          )
@@ -461,7 +461,7 @@ designICT <- R6::R6Class("designICT",
          cat(.hl())
          print( self$inputMat )
          cat(.hl())
-         cat("The input matrix can be edited by typing `edit(x$inputmat)`\n",
+         cat("\nThe input matrix can be edited by typing `edit(x$inputmat)`\n",
              "where `x` is the name of your ICT design object.\n",
              "Phase : the labels of the study phases.\n",
              "Group : the names of the groups.\n",

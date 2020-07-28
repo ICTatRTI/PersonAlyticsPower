@@ -6,6 +6,7 @@
 \usage{
 powerReport(
   paout,
+  design,
   alpha,
   file,
   saveReport = TRUE,
