@@ -57,7 +57,7 @@
 #'
 #' @param prompt Logical. Default is \code{TRUE}. If TRUE, a check for
 #' whether \code{outFile} already exists will be done and if so, the user
-#' will be prompted whether they want to overwirte \code{outFile}. The
+#' will be prompted whether they want to overwrite \code{outFile}. The
 #' \code{\link{ICTpowerSim}} function turns this off so the user does not
 #' have to monitor a series of simulations.
 #'

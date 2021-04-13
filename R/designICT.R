@@ -483,6 +483,11 @@ designICT <- R6::R6Class("designICT",
                               justData=FALSE, type='histogram',
                               title=NULL)
        {
+         # message
+         message("\nRunning a large sample `designCheck` with ", npg,
+                 " participants per group.\n",
+                 "This may take a few minutes to run.\n\n")
+
          # set mod0 default
          mod0 <- paste("`fitMod` was set to", as.character(fitMod))
 
