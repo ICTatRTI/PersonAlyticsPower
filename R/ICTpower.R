@@ -17,7 +17,13 @@
 #'
 #' @param design An \code{\link{designICT}} object such as
 #' \code{\link{polyICT}}. This must be provided for a parametric bootstrap
-#' esstimate of power.
+#' estimate of power.
+#'
+#' @param interactions A list of pairs of variables for which two-way interactions
+#' should be estimated. Variables that can be included in this list are \code{Time},
+#' \code{phase}, and \code{group}. The default is \code{NULL} in which all pairs
+#' are included if they appear in the data, equivalent to \code{interactions =
+#' list(c("Time", "phase"), c("Time", "group"), c("group", "phase"))}.
 #'
 #' @param B The number of simulated dataset (or parametric bootstrap replications).
 #'
@@ -34,7 +40,7 @@
 #' the \code{dataFile} data.
 #'
 #' @param alpha Numeric. Default is .05. The Type I error rate for computing
-#' emprical power (i.e., the proportion of p-values across \code{B} data sets
+#' empirical power (i.e., the proportion of p-values across \code{B} data sets
 #' that are less than or equal to \code{alpha}).
 #'
 #' @param seed A random seed for replicating the power analysis.
@@ -173,6 +179,7 @@
 
 ICTpower <- function(outFile         = NULL                      ,
                      design          = NULL                      ,
+                     interactions    = NULL                      ,
                      B               = 100                       ,
                      dataFile        = NULL                      ,
                      sampleSizes     = NULL                      ,
@@ -298,19 +305,13 @@ ICTpower <- function(outFile         = NULL                      ,
     if(!exists('time_power')) time_power <- design$randFxOrder
     if(!exists('autoSelect')) autoSelect <- list()
 
-    #
-    # analyze the data using PersonAlytics, treating y1,...,yB
-    # as separate outcomes
-    #
+    # interactions
     phase <- NULL
     ivs   <- NULL
-    int   <- NULL
     if( length(design$phases)>1) phase <- 'phase'
     if( length(design$groups)>1) ivs   <- 'group'
-    if( !is.null(ivs) )          int   <- list(c(ivs, phase), c(ivs, 'Time'))
-
-
   }
+
 
   # non-parametric bootstrap ####
   if(!is.null(dataFile))
@@ -468,13 +469,9 @@ ICTpower <- function(outFile         = NULL                      ,
     if(!exists('time_power')) time_power <- 1
     if(!exists('autoSelect')) autoSelect <- list()
 
-    #
-    # analyze the data using PersonAlytics, treating y1,...,yB
-    # as separate outcomes
-    #
+    # interactions
     phase <- NULL
     ivs   <- NULL
-    int   <- NULL
 
     # if there is more than one phase or more than one group, include phase/group
     wp <- which(tolower(names(Data)) %in% c('phase', 'phases'))
@@ -482,10 +479,32 @@ ICTpower <- function(outFile         = NULL                      ,
     if( length(unique(Data[[wp]])) > 1 ) phase <- names(Data)[wp]
     if( length(unique(Data[[wg]])) > 1 ) ivs   <- names(Data)[wg]
 
-    # if applicable, add interaction terms
-    if( !is.null(ivs) ) int   <- list(c(ivs, phase), c(ivs, 'Time'))
-
   }
+
+  # finalize interactions
+  time <- NULL
+  if(is.null(interactions))
+  {
+    time<- "Time"
+    ints <- c(phase, ivs, time)
+    intl <- list(); k <- 1
+    for(i in seq_along(ints))
+    {
+      for(j in seq_along(ints))
+      {
+        if(i>j)
+        {
+          intl[[k]] <- c(ints[i], ints[j]); k <- k+1
+        }
+      }
+    }
+    ints <- intl
+  }
+  if(is.list(interactions))
+  {
+    ints <- interactions
+  }
+
 
   # distribution check
   family = gamlss.dist::NO()
@@ -542,7 +561,7 @@ ICTpower <- function(outFile         = NULL                      ,
                         time         = 'Time'       ,
                         phase        = phase        ,
                         ivs          = ivs          ,
-                        interactions = int          ,
+                        interactions = ints         ,
                         time_power   = time_power   ,
                         autoSelect   = autoSelect   ,
                         cores        = cores        ,
