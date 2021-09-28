@@ -23,6 +23,7 @@
 # ensure you are in the desired directory first, setting up the study
 # generates ~7000 subfolders
 
+
 library(PersonAlyticsSim)
 
   groups <- list(p3500 = c(group1=3500),
@@ -79,12 +80,12 @@ library(PersonAlyticsSim)
 
   alignPhase  <- c(mmta = 'none', piecewise = 'piecewise')
 
+
   # if running on multiple computers, list their names here, otherwise use
   # noneNames <- list()
   nodeNames <- list(#sdesk   = c(name="RTI-102807", cores=8),
                     sgreen  = c(name="RTI-104040", cores=8),
-                    sorange = c(name="RTI-102921", cores=8)
-  )
+                    sorange = c(name="RTI-102921", cores=8))
 
   # directory set up
   dirNames <- list(c("d", "alignPhase"), c("groups", "sampSizes", "phases", "propErrVar"))
@@ -92,12 +93,11 @@ library(PersonAlyticsSim)
   # aggregate conditions
   conditions <- list(
     groups     = groups     ,
-    sampSizes  = sampSizes ,
-    phases     = phases    ,
-    propErrVar = propErrVar  ,
+    sampSizes  = sampSizes  ,
+    phases     = phases     ,
+    propErrVar = propErrVar ,
     d          = d          ,
-    alignPhase = alignPhase
-  )
+    alignPhase = alignPhase )
 
   # set up the simulation with 3 replications per condition to prevent
   # overloading cpu if run accidentally prior to a full run
