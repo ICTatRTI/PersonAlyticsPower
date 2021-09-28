@@ -4,19 +4,17 @@
 \alias{makePhase}
 \title{makePhase - function to make phases}
 \usage{
-makePhase(
-  nObsPerPhase = c(10, 20, 10),
-  phaseNames = c("phase1", "phase2", "phase3")
-)
+makePhase(nObsPerPhase = c(10, 20, 10), phaseNames = NULL)
 }
 \arguments{
 \item{nObsPerPhase}{Numeric vector. The length is the number of phases
 and each entry is the number of observations per phase.}
 
 \item{phaseNames}{Numeric or character vector. The names of the phases,
-e.g., phase 0 and phase 1, or phases "A", "B", and "C". Phase names must
-be unique, i.e., even if your design is ABA, you should use 1, 2, 3, or
-"A", "B", "C".}
+e.g., \code{c("phase0", "phase1")}. Phase
+names must each be unique, start with a letter, and contain only letters,
+numbers, underscores, or decimals. The defualt is \code{NULL}, in which case
+the \code{P} phases are labeled \code{c("phase1", "phase2", ..., "phaseP")}}
 }
 \value{
 For \code{makePhase}, a list of phase names replicated by the number

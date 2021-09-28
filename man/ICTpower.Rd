@@ -8,6 +8,7 @@ non-parametric bootstrap.}
 ICTpower(
   outFile = NULL,
   design = NULL,
+  interactions = NULL,
   B = 100,
   dataFile = NULL,
   sampleSizes = NULL,
@@ -29,7 +30,13 @@ or \code{outFile=c('condition2', 'Rdata')}. Only `csv` and `RData` are supported
 
 \item{design}{An \code{\link{designICT}} object such as
 \code{\link{polyICT}}. This must be provided for a parametric bootstrap
-esstimate of power.}
+estimate of power.}
+
+\item{interactions}{A list of pairs of variables for which two-way interactions
+should be estimated. Variables that can be included in this list are \code{Time},
+\code{phase}, and \code{group}. The default is \code{NULL} in which all pairs
+are included if they appear in the data, equivalent to \code{interactions =
+list(c("Time", "phase"), c("Time", "group"), c("group", "phase"))}.}
 
 \item{B}{The number of simulated dataset (or parametric bootstrap replications).}
 
@@ -46,7 +53,7 @@ in the data. The group specific sample sizes to be drawn \code{B} times from
 the \code{dataFile} data.}
 
 \item{alpha}{Numeric. Default is .05. The Type I error rate for computing
-emprical power (i.e., the proportion of p-values across \code{B} data sets
+empirical power (i.e., the proportion of p-values across \code{B} data sets
 that are less than or equal to \code{alpha}).}
 
 \item{seed}{A random seed for replicating the power analysis.}
