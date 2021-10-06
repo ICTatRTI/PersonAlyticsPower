@@ -33,9 +33,9 @@
 #' }
 #'
 #'
-GUIinputMat <- function(inputMat, translator=gui1)
+GUIinputMat <- function(inputMat, propErrVar, translator=gui1)
 {
-  newInputMat <- translator(inputMat)
+  newInputMat <- translator(inputMat, propErrVar)
 
   translatorMsg <- c("Variable Check:", "Passed")
   if(!is.data.frame(newInputMat))
@@ -52,7 +52,7 @@ GUIinputMat <- function(inputMat, translator=gui1)
 #' @export
 #'
 #' @param inputMat An inputmatrix from a \code{\link{polyICT}} object.
-gui1 <- function(inputMat)
+gui1 <- function(inputMat, propErrVar)
 {
   nms <- c("Phase",
            "Subgroup",
@@ -81,9 +81,9 @@ gui1 <- function(inputMat)
     Mean1  <- inputMat$Phase.Slope
     Var0   <- inputMat$Intercept.Standard.Deviation^2
     Var1   <- inputMat$Slope.Standard.Deviation^2
-    randFx <- 0.5
-    res    <- 0.25
-    mserr  <- 0.25
+    randFx <- propErrVar[1]
+    res    <- propErrVar[2]
+    mserr  <- propErrVar[3]
 
     newInputMat <- data.frame(
       Phase  = Phase  ,
