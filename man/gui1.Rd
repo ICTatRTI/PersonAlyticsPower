@@ -4,7 +4,7 @@
 \alias{gui1}
 \title{Translator for GUI output version April 2020}
 \usage{
-gui1(inputMat)
+gui1(inputMat, propErrVar)
 }
 \arguments{
 \item{inputMat}{An inputmatrix from a \code{\link{polyICT}} object.}

@@ -113,7 +113,7 @@ myPolyICT$inputMat
 #  phases=makePhase(c(20,60,20))),
 #  B=3, seed = 24)
 
-# safe cloning
+# parametric examples with safe cloning
 myPolyICT2 <- myPolyICT$clone(deep=TRUE)
 myPolyICT2$update(groups=c(group1=20, group2=20))
 testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),

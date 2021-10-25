@@ -4,7 +4,7 @@
 \alias{GUIinputMat}
 \title{Function to translate input matrices from the PersonAlytics GUI}
 \usage{
-GUIinputMat(inputMat, translator = gui1)
+GUIinputMat(inputMat, propErrVar, translator = gui1)
 }
 \arguments{
 \item{inputMat}{An input matrix created by the PersonAlytics GUI, which

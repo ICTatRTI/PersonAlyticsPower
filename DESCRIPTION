@@ -13,7 +13,7 @@ License: GPL-2 | GPL-3
 Encoding: UTF-8
 LazyData: true
 Depends: 
-    R (>= 3.4),
+    R (>= 3.5),
     MASS,
     PersonAlytics,
     R.utils
@@ -23,7 +23,7 @@ Imports:
     nlme, 
     snow,
     boot
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Suggests: 
     knitr,
     rmarkdown,

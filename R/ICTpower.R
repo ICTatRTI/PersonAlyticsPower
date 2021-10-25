@@ -96,7 +96,7 @@
 #' #  phases=makePhase(c(20,60,20))),
 #' #  B=3, seed = 24)
 #'
-#' # safe cloning
+#' # parametric examples with safe cloning
 #' myPolyICT2 <- myPolyICT$clone(deep=TRUE)
 #' myPolyICT2$update(groups=c(group1=20, group2=20))
 #' testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
@@ -210,29 +210,53 @@ ICTpower <- function(outFile         = NULL                      ,
   # generate seeds
   seeds <- PersonAlyticsPower:::.makeSeeds(seed, B)
 
+  #~# slated for deprecation, I don't think it does anything
   # process dots specific to PersonAlytic
-  dots <-  list(...)
-  dotsNames <- names(dots)
-  PersonAlyticParms <- c("target_ivs"     ,
-                         "time_power"     ,
-                         "correlation"    ,
-                         "subgroup"       ,
-                         "method"         ,
-                         "package"        ,
-                         "individual_mods",
-                         "PalyticObj"     ,
-                         "whichIC"        ,
-                         "charSub"        ,
-                         "sigma.formula"  ,
-                         "p.method"       ,
-                         "alpha"          ,
-                         "nbest"          ,
-                         "alignPhase"     ,
-                         "fpc"            ,
-                         "debugforeach"   )
-  for(i in seq_along(dotsNames))
+  #dots <-  list(...)
+  #dotsNames <- names(dots)
+  #PersonAlyticParms <- c("target_ivs"     ,
+  #                       "time_power"     ,
+  #                       "correlation"    ,
+  #                       "subgroup"       ,
+  #                       "method"         ,
+  #                       "package"        ,
+  #                       "individual_mods",
+  #                       "PalyticObj"     ,
+  #                       "whichIC"        ,
+  #                       "charSub"        ,
+  #                       "sigma.formula"  ,
+  #                       "p.method"       ,
+  #                       "alpha"          ,
+  #                       "nbest"          ,
+  #                       "alignPhase"     ,
+  #                       "fpc"            ,
+  #                       "debugforeach"   ,
+  #                       "userFormula"    ,
+  #                       "interactions"   )
+  #for(i in seq_along(dotsNames))
+  #{
+  #  if(dotsNames[i] %in% PersonAlyticParms) assign(dotsNames[i], dots[[dotsNames[i]]])
+  #}
+
+  # check userFormula and interaction inputs
+  if(exists("userFormula") & exists("interactions"))
   {
-    if(dotsNames[i] %in% PersonAlyticParms) assign(dotsNames[i], dots[[dotsNames[i]]])
+    if(length(userFormula) > 0 & length(interactions) > 0 )
+    {
+      warning("\nWhen `userFormula` is supplied, `interactions` will be ignored.",
+              "\nSpecify all desired interactions in `userFormula`.\n\n")
+      interactions <- list()
+    }
+  }
+  # check userFormula and phase inptus
+  if(exists("userFormula") & !is.null(design$phase))
+  {
+    if(length(userFormula > 0))
+    {
+      warning("\nwhen `userFormula` is supplied, `phase` will be ignored.",
+              "\nSpecify phase in 'userFormula'.\n\n")
+      # overwriting phase is taken care later when `phas <- NULL` is initialized
+    }
   }
 
   # parametric bootstrap ####
@@ -292,6 +316,16 @@ ICTpower <- function(outFile         = NULL                      ,
     message("Data simulation took: ",
             capture.output(Sys.time() - start), ".\n\n")
 
+
+    # add design matrix if userFormula is present
+    if(exists("userFormula"))
+    {
+      temp <- byPhasebyGroup(Data, "Time", "phase", "group")
+      # TODO there should be a test here that userFormula$fixed == temp$fixed
+      Data <- temp$data
+      rm(temp)
+    }
+
     #
     # process inputs in `...` that may be passed to `PersonAlytic`
     #
@@ -308,8 +342,8 @@ ICTpower <- function(outFile         = NULL                      ,
     # interactions
     phase <- NULL
     ivs   <- NULL
-    if( length(design$phases)>1) phase <- 'phase'
-    if( length(design$groups)>1) ivs   <- 'group'
+    if( length(design$phases)>1 & is.null(userFormula)) phase <- 'phase'
+    if( length(design$groups)>1 & is.null(userFormula)) ivs   <- 'group'
   }
 
 
@@ -476,8 +510,8 @@ ICTpower <- function(outFile         = NULL                      ,
     # if there is more than one phase or more than one group, include phase/group
     wp <- which(tolower(names(Data)) %in% c('phase', 'phases'))
     wg <- which(tolower(names(Data)) %in% c('group', 'groups'))
-    if( length(unique(Data[[wp]])) > 1 ) phase <- names(Data)[wp]
-    if( length(unique(Data[[wg]])) > 1 ) ivs   <- names(Data)[wg]
+    if( length(unique(Data[[wp]])) > 1  & is.null(userFormula)) phase <- names(Data)[wp]
+    if( length(unique(Data[[wg]])) > 1  & is.null(userFormula)) ivs   <- names(Data)[wg]
 
   }
 
