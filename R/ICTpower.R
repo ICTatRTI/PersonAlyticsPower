@@ -210,34 +210,6 @@ ICTpower <- function(outFile         = NULL                      ,
   # generate seeds
   seeds <- PersonAlyticsPower:::.makeSeeds(seed, B)
 
-  #~# slated for deprecation, I don't think it does anything
-  # process dots specific to PersonAlytic
-  #dots <-  list(...)
-  #dotsNames <- names(dots)
-  #PersonAlyticParms <- c("target_ivs"     ,
-  #                       "time_power"     ,
-  #                       "correlation"    ,
-  #                       "subgroup"       ,
-  #                       "method"         ,
-  #                       "package"        ,
-  #                       "individual_mods",
-  #                       "PalyticObj"     ,
-  #                       "whichIC"        ,
-  #                       "charSub"        ,
-  #                       "sigma.formula"  ,
-  #                       "p.method"       ,
-  #                       "alpha"          ,
-  #                       "nbest"          ,
-  #                       "alignPhase"     ,
-  #                       "fpc"            ,
-  #                       "debugforeach"   ,
-  #                       "userFormula"    ,
-  #                       "interactions"   )
-  #for(i in seq_along(dotsNames))
-  #{
-  #  if(dotsNames[i] %in% PersonAlyticParms) assign(dotsNames[i], dots[[dotsNames[i]]])
-  #}
-
   # check userFormula and interaction inputs
   if(exists("userFormula") & exists("interactions"))
   {
@@ -463,15 +435,6 @@ ICTpower <- function(outFile         = NULL                      ,
     ddescriptives <- c(Population, lapply(descriptives[,2:ncol(descriptives)],
                                           PersonAlytics::dstats))
     ddReport(ddescriptives, paste(outFile$file, "resampleDescriptives.txt", sep="_"))
-
-
-    #descriptives <- data.frame(ddescriptives)
-    #row.names(ddescriptives) <- names(ddescriptives)
-    #descriptives <- rbind(popuplation=popStats, ddescriptives)
-    #rite.csv(ddescriptives, paste(outFile$file, "resampleDescriptives.csv", sep="_"))
-    # save for later if we need raw descriptives
-    #descriptives  <- rbind( popStats, descriptives)
-    #row.names(descriptives) <- c('y0', paste('y', 1:B,sep=''))
 
 
     # restructure into dataset

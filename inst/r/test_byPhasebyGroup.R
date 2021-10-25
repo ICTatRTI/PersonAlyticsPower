@@ -9,10 +9,10 @@ userFormula <- byPhasebyGroup(NULL, 1:myPolyICT$nObs, myPolyICT$phaseNames,
 userFormula <- list(fixed=formula(paste("y1~", userFormula$fixed)),
                     random=~Time|id)
 
-debug(ICTpower)
+#debug(ICTpower)
 userfrm <- ICTpower(c('userfrm', 'csv'),
                     myPolyICT,
-                    B=1000,
+                    B=10,
                     seed = 25,
                     prompt=FALSE,
                     userFormula=userFormula,
