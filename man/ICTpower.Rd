@@ -17,6 +17,7 @@ ICTpower(
   cores = parallel::detectCores() - 1,
   savePowerReport = TRUE,
   standardize = list(dv = FALSE, ivs = FALSE, byids = FALSE),
+  userFormula = list(fixed = NULL, random = NULL, formula = NULL),
   prompt = TRUE,
   ...
 )
@@ -73,6 +74,9 @@ conditions in a `csv` file.}
 \item{standardize}{Named list of length 3. Default is
 \code{list(dv = TRUE, ivs = FALSE, byids = TRUE)}. See
 \code{\link{PersonAlytic}} or \code{\link{Palytic}}.}
+
+\item{userFormula}{List of equations, see \code{\link{PersonAlytic}}. Default
+is \code{NULL}. Only \code{userFormula$fixed} is currently supported.}
 
 \item{prompt}{Logical. Default is \code{TRUE}. If TRUE, a check for
 whether \code{outFile} already exists will be done and if so, the user

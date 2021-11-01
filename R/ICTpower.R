@@ -67,6 +67,9 @@
 #' \code{\link{ICTpowerSim}} function turns this off so the user does not
 #' have to monitor a series of simulations.
 #'
+#' @param userFormula List of equations, see \code{\link{PersonAlytic}}. Default
+#' is \code{NULL}. Only \code{userFormula$fixed} is currently supported.
+#'
 #' @param ... Further arguments to be passed to \code{\link{PersonAlytic}} for
 #' analysis. All options in \code{PersonAlytic} can be passed except for
 #' \code{output}, \code{data}, \code{ids}, \code{dvs}, \code{time}, and
@@ -190,11 +193,14 @@ ICTpower <- function(outFile         = NULL                      ,
                      standardize     = list(dv    = FALSE ,
                                             ivs   = FALSE ,
                                             byids = FALSE )      ,
+                     userFormula     = list(fixed   = NULL,
+                                            random  = NULL,
+                                            formula = NULL)      ,
                      prompt          = TRUE                      ,
                      ...
 )
 {
-  #
+  # check inputs
   if(is.null(design) & is.null(dataFile))
   {
     stop('Please provide `design` or `dataFile`, both are `NULL`.')
@@ -211,24 +217,21 @@ ICTpower <- function(outFile         = NULL                      ,
   seeds <- PersonAlyticsPower:::.makeSeeds(seed, B)
 
   # check userFormula and interaction inputs
-  if(exists("userFormula") & exists("interactions"))
+  if(!is.null(userFormula$formula))
   {
-    if(length(userFormula) > 0 & length(interactions) > 0 )
-    {
-      warning("\nWhen `userFormula` is supplied, `interactions` will be ignored.",
-              "\nSpecify all desired interactions in `userFormula`.\n\n")
-      interactions <- list()
-    }
+    stop("\nCurrently only `userFormula$fixed` & `userFormula$random` is ",
+         "\nsupported. Set `userFormula$formula` to NULL.\n\n")
   }
-  # check userFormula and phase inptus
-  if(exists("userFormula") & !is.null(design$phase))
+  if(is.null(userFormula$fixed) & !is.null(userFormula$random))
   {
-    if(length(userFormula > 0))
-    {
-      warning("\nwhen `userFormula` is supplied, `phase` will be ignored.",
-              "\nSpecify phase in 'userFormula'.\n\n")
-      # overwriting phase is taken care later when `phas <- NULL` is initialized
-    }
+    stop("\n`userFormula$random` is only supported when `userFormula$fixed` ",
+         "\nis also provided.\n\n")
+  }
+  if(!is.null(userFormula$fixed) & exists("interactions"))
+  {
+    warning("\nWhen `userFormula$fixed` is supplied, `interactions` will be ignored.",
+            "\nSpecify all desired interactions in `userFormula`.\n\n")
+    interactions <- list()
   }
 
   # parametric bootstrap ####
@@ -290,10 +293,9 @@ ICTpower <- function(outFile         = NULL                      ,
 
 
     # add design matrix if userFormula is present
-    if(exists("userFormula"))
+    if(!is.null(userFormula$fixed))
     {
       temp <- byPhasebyGroup(Data, "Time", "phase", "group")
-      # TODO there should be a test here that userFormula$fixed == temp$fixed
       Data <- temp$data
       rm(temp)
     }
@@ -314,8 +316,10 @@ ICTpower <- function(outFile         = NULL                      ,
     # interactions
     phase <- NULL
     ivs   <- NULL
-    if( length(design$phases)>1 & is.null(userFormula)) phase <- 'phase'
-    if( length(design$groups)>1 & is.null(userFormula)) ivs   <- 'group'
+    phaseCheck <- any(all.names(userFormula$fixed) %in% "phase")
+    fixedNull  <- is.null(userFormula$fixed)
+    if( length(design$phases)>1 & (fixedNull | phaseCheck)) phase <- 'phase'
+    if( length(design$groups)>1 & (fixedNull | phaseCheck)) ivs   <- 'group'
   }
 
 
@@ -469,12 +473,15 @@ ICTpower <- function(outFile         = NULL                      ,
     # interactions
     phase <- NULL
     ivs   <- NULL
+    phases <- c('phase', 'phases')
+    phaseCheck <- any(tolower(all.names(userFormula$fixed)) %in% phases)
+    fixedNull  <- is.null(userFormula$fixed)
 
     # if there is more than one phase or more than one group, include phase/group
-    wp <- which(tolower(names(Data)) %in% c('phase', 'phases'))
+    wp <- which(tolower(names(Data)) %in% phases)
     wg <- which(tolower(names(Data)) %in% c('group', 'groups'))
-    if( length(unique(Data[[wp]])) > 1  & is.null(userFormula)) phase <- names(Data)[wp]
-    if( length(unique(Data[[wg]])) > 1  & is.null(userFormula)) ivs   <- names(Data)[wg]
+    if( length(unique(Data[[wp]])) > 1  & (fixedNull | phaseCheck)) phase <- names(Data)[wp]
+    if( length(unique(Data[[wg]])) > 1  & (fixedNull | phaseCheck)) ivs   <- names(Data)[wg]
 
   }
 
@@ -564,6 +571,7 @@ ICTpower <- function(outFile         = NULL                      ,
                         cores        = cores        ,
                         standardize  = standardize  ,
                         family       = family       ,
+                        userFormula  = userFormula  ,
                         ...
   )
 
