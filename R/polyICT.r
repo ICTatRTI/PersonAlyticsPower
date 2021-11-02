@@ -571,8 +571,10 @@ polyICT <- R6::R6Class("polyICT",
                                  self$inputMat$Phase==thisp &
                                    self$inputMat$Group==thisg,
                                  self$meanNames]*sqrt(rFxVr)
-                               n     <- self$groups[[thisg]]
-                               nObs  <- length(self$phases[[thisp]])
+                               n     <- self$inputMat$n[self$inputMat$Phase==thisp &
+                                                          self$inputMat$Group==thisg]
+                               nObs  <- self$inputMat$nObs[self$inputMat$Phase==thisp &
+                                                             self$inputMat$Group==thisg]
                                dM    <- self$designMat[self$designMat$phase==thisp,]
                                propErrVar <- self$inputMat[
                                  self$inputMat$Phase==thisp &

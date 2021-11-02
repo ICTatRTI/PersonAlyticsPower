@@ -1,13 +1,17 @@
 library(PersonAlyticsPower)
 example(polyICT)
 myPolyICT$inputMat
-
-
 myPolyICT$yMean <- 0
 myPolyICT$ySD <- 1
-myPolyICT$designCheck()
+myPolyICT$inputMat[6,6] <- -.3
+myPolyICT$inputMat[3,3] <- 10
 
-B <- 1000
+
+temp <- myPolyICT$makeData()
+
+myPolyICT$designCheck(npg = 100)
+
+B <- 10#00
 
 nofrm <- ICTpower(c('nofrm', 'csv'),
                   myPolyICT,

@@ -98,7 +98,7 @@ Stephen Tueller \email{stueller@rti.org}
   ylim = NULL,
   fitMod = FALSE,
   seed = 123,
-  npg = 5000,
+  npg = 2000,
   return = "plot",
   justData = FALSE,
   type = "histogram",

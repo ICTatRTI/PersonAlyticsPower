@@ -82,3 +82,63 @@ samplingDist <- function(paout)
     xlab("Estimated Time Effect")
 }
 
+# NOTE: this is unfinished. It was to be used in the `inputMat` function within
+# `.active()`, but the code currently there may be sufficient
+#' .update - function to update multiple objects when any
+#' one object is updated
+#' @author Stephen Tueller \email{stueller@@rti.org}
+#' @keywords internal
+.update <- function(..., anICT)
+{
+  if(length(ls())!=2)
+  {
+    stop("\nMore than two items were passed to `.update()`. Only 2 are allowed.\n\n")
+  }
+  if(exists("inputmat"))
+  {
+    if(!identical(anICT$inputMat, inputMat))
+    {
+      # update
+    }
+  }
+  if(exists("groups"))
+  {
+    if(!identical(anICT$groups, groups))
+    {
+
+    }
+  }
+  if(exists("phases"))
+  {
+    if(!identical(anICT$phases, phases))
+    {
+
+    }
+  }
+  if(exits("designMat"))
+  {
+    if(!identical(anICT$designMat, designMat))
+    {
+
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

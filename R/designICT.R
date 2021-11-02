@@ -14,7 +14,48 @@
       if( missing(value) ){ private$.inputMat }
       else
       {
+        # update phase objects
+        phases <- makePhase(value$nObs[value$Group==levels(value$Group)[1]],
+                            levels(value$Phase))
+        private$.phases <- phases
+        private$.phaseNames <- names(phases)
+        for(i in seq_along(levels(value$Group)))
+        {
+          if(i>1)
+          {
+            value$nObs[value$Group==levels(value$Group)[i]] <-
+              value$nObs[value$Group==levels(value$Group)[1]]
+          }
+        }
+        private$.nObs <- sum(value$nObs[value$Group==levels(value$Group)[1]])
+
+        # update group objects
+        private$.groups <- value$n[value$Phase==levels(value$Phase)[1]]
+        private$.groupNames <- levels(value$Group)
+        for(i in seq_along(levels(value$Phase)))
+        {
+          if(i>1)
+          {
+            value$n[value$Phase==levels(value$Phase)[i]] <-
+              value$n[value$Phase==levels(value$Phase)[1]]
+          }
+        }
+        private$.n <- sum(value$n[value$Phase==levels(value$Phase)[1]])
+
+        # update designMat
+        maxRandFx <- length(names(value)[grepl("Mean", names(value))])
+        private$.designMat <- makeDesignMat(phases, names(phases), maxRandFx)
+
+        # warning
+        warning("\n`inputMat` may have been updated to ensure consistent phase ",
+                "\nlengths across groups and consistent group sizes across ",
+                "\nphases. Check the input matrix is as intented:\n\n")
+        print(value)
+        cat("\n\n")
+
+        # update cleaned up inputMat
         private$.inputMat <- value
+
         self
       }
 
@@ -181,95 +222,15 @@
       }
     },
 
-    groups = function(value)
-    {
-      if( missing(value) ){ private$.groups }
-      else
-      {
-        if(is.null(names(value)))
-        {
-          names(value) <- paste("group", 1:length(value),
-                                 sep="")
-        }
 
-        private$.groups <- value
-        self
-      }
-    },
-
-    n = function(value)
-    {
-      if( missing(value) ){ private$.n }
-      else
-      {
-        private$.n <- value
-        self
-      }
-    },
-
-    phases= function(value)
-    {
-      if( missing(value) ){ private$.phases }
-      else
-      {
-        if(is.null(names(value)))
-        {
-          names(value) <- paste("phase", 1:length(value),
-                                 sep="")
-        }
-
-        private$.phases <- value
-        self
-      }
-    },
-
-    nObs = function(value)
-    {
-      if( missing(value) ){ private$.nObs }
-      else
-      {
-        private$.nObs <- value
-        self
-      }
-    },
-
-    designMat = function(value)
-    {
-      if( missing(value) ){ private$.designMat }
-      else
-      {
-        private$.designMat <- value
-        self
-      }
-    },
-
-    phaseNames = function(value)
-    {
-      if( missing(value) ){ private$.phaseNames }
-      else
-      {
-        private$.phaseNames <- value
-        self
-      }
-    },
-
-    groupNames = function(value)
-    {
-      if( missing(value) ){ private$.groupNames }
-      else
-      {
-        private$.groupNames <- value
-        self
-      }
-    },
-
+    # fields than cannot be updated by the user
     randFxOrder = function(value)
     {
       if( missing(value) ){ private$.randFxOrder }
       else
       {
-        private$.randFxOrder <- value
-        self
+        stop("\n`randFxOrder` is read only, make changes to `inputMat` instead.\n\n",
+             call. = FALSE)
       }
     },
 
@@ -278,8 +239,8 @@
       if( missing(value) ){ private$.meanNames }
       else
       {
-        private$.meanNames <- value
-        self
+        stop("\n`meanNames` is read only, make changes to `inputMat` instead.\n\n",
+             call. = FALSE)
       }
     },
 
@@ -288,22 +249,88 @@
       if( missing(value) ){ private$.varNames }
       else
       {
-        private$.varNames <- value
-        self
+        stop("\n`varNames` is read only, make changes to `inputMat` instead.\n\n",
+             call. = FALSE)
       }
     },
-    # fields than cannot be updated by the user
 
-    # nothing here for now, everything needs to be updatable by $update()
+    groups = function(value)
+    {
+      if( missing(value) ){ private$.groups }
+      else
+      {
+        stop("\n`groups` is read only, make changes to `inputMat` instead.\n\n",
+             call. = FALSE)
+      }
+    },
 
+    n = function(value)
+    {
+      if( missing(value) ){ private$.n }
+      else
+      {
+        stop("\n`n` is read only, make changes to `inputMat` instead.\n\n",
+             call. = FALSE)
+      }
+    },
 
-    # fields not currently implementd
+    phases= function(value)
+    {
+      if( missing(value) ){ private$.phases }
+      else
+      {
+        stop("\n`phases` is read only, make changes to `inputMat` instead.\n\n",
+             call. = FALSE)
+      }
+    },
+
+    nObs = function(value)
+    {
+      if( missing(value) ){ private$.nObs }
+      else
+      {
+        stop("\n`nObs` is read only, make changes to `inputMat` instead.\n\n",
+             call. = FALSE)
+      }
+    },
+
+    designMat = function(value)
+    {
+      if( missing(value) ){ private$.designMat }
+      else
+      {
+        stop("\n`designMat` is read only, make changes to `inputMat` instead.\n\n",
+             call. = FALSE)
+      }
+    },
+
+    phaseNames = function(value)
+    {
+      if( missing(value) ){ private$.phaseNames }
+      else
+      {
+        stop("\n`phaseNames` is read only, make changes to `inputMat` instead.\n\n",
+             call. = FALSE)
+      }
+    },
+
+    groupNames = function(value)
+    {
+      if( missing(value) ){ private$.groupNames }
+      else
+      {
+        stop("\n`groupNames` is read only, make changes to `inputMat` instead.\n\n",
+             call. = FALSE)
+      }
+    },
+
     randFxFam = function(value)
     {
       if( missing(value) ){ private$.randFxFam }
       else
       {
-        c
+        stop("\n`randFxFam` is read only, make changes to `inputMat` instead.\n\n",
+             call. = FALSE)
       }
     },
 
@@ -312,8 +339,8 @@
       if( missing(value) ){ private$.randFxFamParms }
       else
       {
-        private$.randFxFamParms <- value
-        self
+        stop("\n`randFxFamParms` is read only, make changes to `inputMat` instead.\n\n",
+             call. = FALSE)
       }
     }
   )
@@ -479,7 +506,7 @@ designICT <- R6::R6Class("designICT",
        },
 
        designCheck = function(file=NULL, ylim=NULL, fitMod=FALSE,
-                              seed=123, npg=5000, return = 'plot',
+                              seed=123, npg=2000, return = 'plot',
                               justData=FALSE, type='histogram',
                               title=NULL)
        {
@@ -493,10 +520,14 @@ designICT <- R6::R6Class("designICT",
 
          # save and reset n, due to inheritance design will get overwritten, fix
          # n below
-         originaln <- self$groups
+         originaln <- aggregate(self$inputMat$nObs, list(self$inputMat$Group),
+                                function(x) x[1])
          tempn <- rep(npg, length(originaln))
          names(tempn) <- names(self$groups)
-         self$groups <- tempn; rm(tempn)
+         for(i in seq_along(tempn))
+         {
+           self$inputMat$n[self$inputMat$Group==self$groupNames[i]] <- tempn[i]
+         }
 
          # simulate one big data set using `npg` and print descriptive stats
          dat <- self$makeData(seed=seed)
@@ -581,7 +612,10 @@ designICT <- R6::R6Class("designICT",
          }
 
          # restore the original sample sizes
-         self$groups <- originaln
+         for(i in seq_along(tempn))
+         {
+           self$inputMat$n[self$inputMat$Group==self$groupNames[i]] <- originaln$x[i]
+         }
 
          # return
          if(return=='plot'    ) return( gg )
