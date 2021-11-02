@@ -9,7 +9,7 @@ myPolyICT$inputMat[3,3] <- 10
 
 temp <- myPolyICT$makeData()
 
-myPolyICT$designCheck(npg = 100)
+myPolyICT$designCheck()
 
 B <- 10#00
 
