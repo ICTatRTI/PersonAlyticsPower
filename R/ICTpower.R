@@ -792,20 +792,26 @@ powerReport <- function(paout, design, alpha, file, saveReport=TRUE, fpc=FALSE,
   }
 
   # AIC, BIC
+  CI <- 1-alpha
   meanfun <- function(data, i){
     d <- data[i, ]
     return(mean(d))
   }
-  whichIC <- c("AIC", "BIC")
+  whichIC <- c("AIC", "BIC", "LL", "DF")
   valueICm <- valueIClower <- valueICupper<- list()
   for(i in whichIC)
   {
     valueICm[[i]] <- mean(paout[[i]], na.rm = TRUE)
 
+    if (i %in% c("DF"))
+      {
+      valueIClower[[i]] <- valueICupper[[i]] <- valueICm[[i]]
+    } else {
     b <- boot::boot(paout[, i, drop = FALSE], statistic=meanfun, R=2000)
-    ci <- boot::boot.ci(b, conf = 0.95, type = "norm")
+    ci <- boot::boot.ci(b, conf = CI, type = "norm")
     valueIClower[[i]] <- ci$normal[2]
     valueICupper[[i]] <- ci$normal[3]
+    }
   }
 
   # print the report to the screen
@@ -836,7 +842,7 @@ powerReport <- function(paout, design, alpha, file, saveReport=TRUE, fpc=FALSE,
   fitOutput <- c(
     paste(gsub("\\s", " ", format("Fit Metric",
                                   width=max(nchar(names(whichIC))))),
-          '\tMean Estimates\tCI Lower Bound\tCI Upper Bound\n'), .hl(),
+          '\tMean Estimates\t',CI,'CI Lower Bound\t',CI,'CI Upper Bound\n'), .hl(),
     fitOutput
   )
 
