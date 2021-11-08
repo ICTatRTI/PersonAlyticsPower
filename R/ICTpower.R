@@ -791,6 +791,23 @@ powerReport <- function(paout, design, alpha, file, saveReport=TRUE, fpc=FALSE,
     valueLsd[[i]] <- sd(paout[[i]], na.rm = TRUE)
   }
 
+  # AIC, BIC
+  meanfun <- function(data, i){
+    d <- data[i, ]
+    return(mean(d))
+  }
+  whichIC <- c("AIC", "BIC")
+  valueICm <- valueIClower <- valueICupper<- list()
+  for(i in whichIC)
+  {
+    valueICm[[i]] <- mean(paout[[i]], na.rm = TRUE)
+
+    b <- boot::boot(paout[, i, drop = FALSE], statistic=meanfun, R=2000)
+    ci <- boot::boot.ci(b, conf = 0.95, type = "norm")
+    valueIClower[[i]] <- ci$normal[2]
+    valueICupper[[i]] <- ci$normal[3]
+  }
+
   # print the report to the screen
   names(powerL) <- gsub('.p.value', '', names(powerL))
   names(powerL) <- gsub("\\s", " ", format(names(powerL),
@@ -807,11 +824,27 @@ powerReport <- function(paout, design, alpha, file, saveReport=TRUE, fpc=FALSE,
     powerOutput
   )
 
+  # print fit metrics
+  names(whichIC) <- whichIC
+  names(whichIC) <- gsub("\\s", " ", format(names(whichIC),
+                                           width=max(nchar(names(whichIC)))) )
+  fitOutput <- paste(sprintf("%s"    , names(whichIC))            , '\t\t',
+                       sprintf("% 2.3f", round(unlist(valueICm),3))  , '\t',
+                       sprintf("% 2.3f", round(unlist(valueIClower),3)) , '\t',
+                       sprintf("% 2.3f", round(unlist(valueICupper),3))   , '\t',
+                       '\n' )
+  fitOutput <- c(
+    paste(gsub("\\s", " ", format("Fit Metric",
+                                  width=max(nchar(names(whichIC))))),
+          '\tMean Estimates\tCI Lower Bound\tCI Upper Bound\n'), .hl(),
+    fitOutput
+  )
+
   if(printToScreen)
   {
     if(!fpc) message("Power Report")
     if( fpc) message("Power Report with Finite Population Correction")
-    message(.hl(), powerOutput, .hl() )
+    message(.hl(), powerOutput, "\n\n", fitOutput, .hl() )
   }
 
   # save the report
@@ -830,7 +863,7 @@ powerReport <- function(paout, design, alpha, file, saveReport=TRUE, fpc=FALSE,
     pap <- paste("PersonAlyticsPower Version", packageVersion("PersonAlyticsPower"))
     pa  <- paste("PersonAlytics Version", packageVersion('PersonAlytics'))
 
-    cat( dt, "\n", pap, "\n", pa, "\n\n", powerOutput,
+    cat( dt, "\n", pap, "\n", pa, "\n\n", powerOutput, "\n\n", fitOutput,
          "\n\n\n", paste(capture.output(design), "\n"), file = powerfile)
   }
 
