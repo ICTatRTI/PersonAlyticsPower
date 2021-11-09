@@ -793,10 +793,7 @@ powerReport <- function(paout, design, alpha, file, saveReport=TRUE, fpc=FALSE,
 
   # AIC, BIC
   CI <- 1-alpha
-  meanfun <- function(data, i){
-    d <- data[i, ]
-    return(mean(d))
-  }
+  B <- nrow(paout)
   whichIC <- c("AIC", "BIC", "LL", "DF")
   valueICm <- valueIClower <- valueICupper<- list()
   for(i in whichIC)
@@ -806,11 +803,11 @@ powerReport <- function(paout, design, alpha, file, saveReport=TRUE, fpc=FALSE,
     if (i %in% c("DF"))
       {
       valueIClower[[i]] <- valueICupper[[i]] <- valueICm[[i]]
+
     } else {
-    b <- boot::boot(paout[, i, drop = FALSE], statistic=meanfun, R=2000)
-    ci <- boot::boot.ci(b, conf = CI, type = "norm")
-    valueIClower[[i]] <- ci$normal[2]
-    valueICupper[[i]] <- ci$normal[3]
+    ci <- coxed::bca(paout[, i])
+    valueIClower[[i]] <- ci[1]
+    valueICupper[[i]] <- ci[2]
     }
   }
 
@@ -826,9 +823,16 @@ powerReport <- function(paout, design, alpha, file, saveReport=TRUE, fpc=FALSE,
   powerOutput <- c(
     paste(gsub("\\s", " ", format("Predictor",
                                   width=max(nchar(names(powerL))))),
-      '\tMean Estimates\tSD Estimates\tPower\n'), .hl(),
-    powerOutput
-  )
+      '\tMean Estimates\tSE Estimates\tPower\n'), .hl(),
+    powerOutput, .hl())
+
+  powerOutputMessage <- paste(
+    "\n'Mean Estimates' is the average of the", B, "replications.",
+    "\n'SE Estimates' is the standard deviation of the", B, "replications ",
+    "\n    and will equal the population standard error when B is large and the",
+    "\n    model is correct.",
+    "\n'Power' is the estimated statistical power, or the proportion of the",
+    "\n    ", B, "replications where p <= ", alpha, ".", "\n")
 
   # print fit metrics
   names(whichIC) <- whichIC
@@ -839,7 +843,7 @@ powerReport <- function(paout, design, alpha, file, saveReport=TRUE, fpc=FALSE,
                        sprintf("% 2.3f", round(unlist(valueIClower),3)) , '\t',
                        sprintf("% 2.3f", round(unlist(valueICupper),3))   , '\t',
                        '\n' )
-  fitOutput <- c(
+  fitOutput <- c(.hl(),
     paste(gsub("\\s", " ", format("Fit Metric",
                                   width=max(nchar(names(whichIC))))),
           '\tMean Estimates\t',CI,'CI Lower Bound\t',CI,'CI Upper Bound\n'), .hl(),
@@ -850,7 +854,7 @@ powerReport <- function(paout, design, alpha, file, saveReport=TRUE, fpc=FALSE,
   {
     if(!fpc) message("Power Report")
     if( fpc) message("Power Report with Finite Population Correction")
-    message(.hl(), powerOutput, "\n\n", fitOutput, .hl() )
+    message(.hl(), powerOutput, powerOutputMessage, "\n", fitOutput, .hl() )
   }
 
   # save the report
@@ -869,8 +873,8 @@ powerReport <- function(paout, design, alpha, file, saveReport=TRUE, fpc=FALSE,
     pap <- paste("PersonAlyticsPower Version", packageVersion("PersonAlyticsPower"))
     pa  <- paste("PersonAlytics Version", packageVersion('PersonAlytics'))
 
-    cat( dt, "\n", pap, "\n", pa, "\n\n", powerOutput, "\n\n", fitOutput,
-         "\n\n\n", paste(capture.output(design), "\n"), file = powerfile)
+    cat( dt, "\n", pap, "\n", pa, "\n\n", powerOutput, "\n", powerOutputMessage,
+         "\n\n", fitOutput, "\n\n\n", paste(capture.output(design), "\n"), file = powerfile)
   }
 
   # return results
