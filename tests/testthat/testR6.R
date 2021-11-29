@@ -10,13 +10,13 @@ test_that("polyICT updates",
             testthat::expect_equal(class(test1), c("polyICT", "designICT", "R6" ))
 
             # test updateability of test1
-            .groups <- test1$groups <- c(group1=201, group2=202)
+            .groups <- test1$inputMat$n[c(1,4)] <- c(group1=201, group2=202)
             names(.groups) <- names(test1$groups)
             testthat::expect_equal(test1$groups, .groups)
 
 
             .phases <- makePhase(c(10,30,20))
-            test1$update(phases=.phases)
+            test1$inputMat$nObs[1:3] <- c(10,30,20)
             testthat::expect_equal(test1$phases, .phases)
 
             .propErrVar <- c(randFx=.4,res=.3,mserr=.3)

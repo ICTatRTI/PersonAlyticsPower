@@ -16,6 +16,6 @@ test_that("dists",
 
   testthat::expect_false(identical(d1, d2))
 
-  file.remove('Rplots.pdf')
+  #file.remove('Rplots.pdf')
   file.remove('stationary.arma')
 })

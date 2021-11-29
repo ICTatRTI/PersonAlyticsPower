@@ -11,12 +11,12 @@
 #' @examples
 #'
 #' data(GUIinputMatExample)
-#' inputMat <- GUIinputMat(GUIinputMatExample)
+#' inputMat <- GUIinputMat(GUIinputMatExample, c(randFx=.5, res=.5, mserr=.0))
 #'
 #' myPolyICT <- polyICT$new(
 #'   groups            = c(group1=10, group2=20)          ,
 #'   phases            = makePhase()                      ,
-#'   propErrVar        = c(randFx=.5, res=.25, mserr=.25) ,
+#'   propErrVar        = c(randFx=.5, res=.5, mserr=.0)   ,
 #'   randFxOrder       = 1                                ,
 #'   randFxCor         = 0.2                              ,
 #'   randFxVar         = c(1, 1)                          ,
@@ -44,7 +44,7 @@ GUIinputMat <- function(inputMat, propErrVar, translator=gui1)
   }
   .checkInputMat(newInputMat, translatorMsg)
 
-  return(newInputMat)
+  newInputMat
 }
 
 #' Translator for GUI output version April 2020
@@ -96,7 +96,8 @@ gui1 <- function(inputMat, propErrVar)
       Var1   = Var1   ,
       randFx = randFx ,
       res    = res    ,
-      mserr  = mserr  )
+      mserr  = mserr  ,
+      row.names = NULL)
 
     return(newInputMat)
   }
@@ -130,11 +131,11 @@ gui1 <- function(inputMat, propErrVar)
 #' @keywords internal
 .checkSampSize <- function(inputMat)
 {
-  groups <- levels(factor(inputMat$Group))
+  groups <- levels(factor(inputMat$Sample.Size))
   group_size_variance <- list()
   for(i in groups)
   {
-    group_size_variance[[i]] <- var(inputMat$n[inputMat$Group==i])
+    group_size_variance[[i]] <- var(inputMat$Sample.Size[inputMat$Sample.Size==i])
   }
   group_size_variance <- unlist(group_size_variance)
 

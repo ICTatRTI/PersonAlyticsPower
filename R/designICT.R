@@ -14,6 +14,10 @@
       if( missing(value) ){ private$.inputMat }
       else
       {
+        # make factors if not already factors
+        value$Phase <- factor(value$Phase)
+        value$Group <- factor(value$Group)
+
         # update phase objects
         phases <- makePhase(value$nObs[value$Group==levels(value$Group)[1]],
                             levels(value$Phase))

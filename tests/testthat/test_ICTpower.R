@@ -17,7 +17,7 @@ test_that("piecewise",
   )
 
   myPolyICTnonPar <- myPolyICT$clone(deep=TRUE)
-  myPolyICTnonPar$update(groups=c(group1=500, group2=500))
+  myPolyICTnonPar$inputMat$n <- 500
   Data <- myPolyICTnonPar$makeData()
   save(Data, file = "Data.RData")
 

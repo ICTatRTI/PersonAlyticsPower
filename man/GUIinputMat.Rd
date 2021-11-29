@@ -19,12 +19,12 @@ Function to translate input matrices from the PersonAlytics GUI
 \examples{
 
 data(GUIinputMatExample)
-inputMat <- GUIinputMat(GUIinputMatExample)
+inputMat <- GUIinputMat(GUIinputMatExample, c(randFx=.5, res=.5, mserr=.0))
 
 myPolyICT <- polyICT$new(
   groups            = c(group1=10, group2=20)          ,
   phases            = makePhase()                      ,
-  propErrVar        = c(randFx=.5, res=.25, mserr=.25) ,
+  propErrVar        = c(randFx=.5, res=.5, mserr=.0)   ,
   randFxOrder       = 1                                ,
   randFxCor         = 0.2                              ,
   randFxVar         = c(1, 1)                          ,
