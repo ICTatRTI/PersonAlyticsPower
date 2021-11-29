@@ -524,7 +524,7 @@ designICT <- R6::R6Class("designICT",
 
          # save and reset n, due to inheritance design will get overwritten, fix
          # n below
-         originaln <- aggregate(self$inputMat$nObs, list(self$inputMat$Group),
+         originaln <- aggregate(self$inputMat$n, list(self$inputMat$Group),
                                 function(x) x[1])
          tempn <- rep(npg, length(originaln))
          names(tempn) <- names(self$groups)
