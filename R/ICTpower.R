@@ -83,46 +83,22 @@
 #' example(polyICT)
 #' myPolyICT$inputMat
 #'
-#' # parametric bootstrap examples
-#'
-#' # lazy cloning - this can lead to errors as `myPolyICT` is updated with each
-#' # call to `myPolyICT$update`
-#'
-#' #testICTpower10 <- ICTpower(c('testICTpower10', 'csv'),
-#' #  myPolyICT, B=3,
-#' #  seed = 54)
-#' #testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
-#' #  myPolyICT$update(groups=c(group1=20, group2=20)), B=3,
-#' #  seed = 23)
-#' #testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
-#' #  myPolyICT$update(groups=c(group1=20, group2=20),
-#' #  phases=makePhase(c(20,60,20))),
-#' #  B=3, seed = 24)
-#'
-#' # parametric examples with safe cloning
+#' # parametric examples with safe cloning using deep=TRUE
 #' myPolyICT2 <- myPolyICT$clone(deep=TRUE)
-#' myPolyICT2$update(groups=c(group1=20, group2=20))
-#' testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
+#' myPolyICT2$inputMat$n <- c(20,20)
+#' testICTpower20 <- ICTpower(c('testICTpower_n20_20', 'csv'),
 #'   myPolyICT2, B=3, seed = 25, prompt=FALSE)
 #'
 #' myPolyICT3 <- myPolyICT$clone(deep=TRUE)
-#' myPolyICT3$update(groups=c(group1=20, group2=20),
-#'   phases=makePhase(c(20,60,20)))
-#' testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
+#' myPolyICT3$inputMat$nObs <- c(15, 60, 20)
+#' testICTpower20t100 <- ICTpower(c('testICTpower_nObs15_60_20', 'csv'),
 #'   myPolyICT3, B=3, seed = 26, prompt = FALSE)
-#'
-#' myPolyICT4 <- myPolyICT$clone(deep=TRUE)
-#' myPolyICT4$update(groups=c(group1=20, group2=20),
-#'   phases=makePhase(c(20,60,20)))
-#' testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
-#'   myPolyICT4, B=3, seed = 27, prompt = FALSE)
-#'
 #'
 #' # non-parametric bootstrap examples
 #'
 #' # create a population with 500 participants per group
 #' myPolyICTnonPar <- myPolyICT$clone(deep=TRUE)
-#' myPolyICTnonPar$update(groups=c(group1=500, group2=500))
+#' myPolyICTnonPar$inputMat$n <- c(500, 500)
 #' Data <- myPolyICTnonPar$makeData()
 #' save(Data, file = "Data.RData")
 #'
@@ -133,7 +109,7 @@
 #'          sampleSizes = c(25,25)             ,
 #'          prompt      = FALSE                )
 #'
-#' # with a finite power correction passing `fpc` by ...
+#' # with a finite power correction passing `fpc`
 #' ICTpower(outFile     = c("npbsFPCtest", "csv") ,
 #'          B           = 3                       ,
 #'          dataFile    = "Data.RData"            ,
@@ -153,31 +129,17 @@
 #' start_time <- Sys.time()
 #' myPolyICT2 <- myPolyICT$clone(deep=TRUE)
 #' myPolyICT2$update(groups=c(group1=20, group2=20))
-#' testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
+#' testICTpower20 <- ICTpower(c('testICTpower20_B1000', 'csv'),
 #'   myPolyICT2, B=1000, seed = 25, prompt=FALSE)
 #' end_time <- Sys.time()
 #' end_time - start_time
 #'
-#' # clean up
-#' file.remove( 'piecewise_PowerReport.txt' )
-#' file.remove( 'piecewise_PersonAlytic.csv' )
-#' file.remove( 'REMLlme.txt' )
-#' file.remove( 'piecewise.Data.csv' )
-#' file.remove( 'npbsFPCtest_PowerReportFPC.txt' )
-#' file.remove( 'npbsFPCtest_PowerReport.txt' )
-#' file.remove( 'npbsFPCtest_PersonAlytic.csv' )
-#' file.remove( 'npbsFPCtest.Data.csv' )
-#' file.remove( 'npbsTest_PowerReport.txt' )
-#' file.remove( 'npbsTest_PersonAlytic.csv' )
-#' file.remove( 'npbsTest.Data.csv' )
-#' file.remove( 'Data.RData' )
-#' file.remove( 'testICTpower20_PowerReport.txt' )
-#' file.remove( 'testICTpower20_PersonAlytic.csv' )
-#' file.remove( 'testICTpower20.Data.csv' )
-#' file.remove( 'piecewise_mse.csv' )
-#' file.remove( 'npbsFPCtest_mse.csv' )
-#' file.remove( 'npbsTest_mse.csv' )
-#'  }
+#' # clean up - only run if you want to deletet all txt, csv, and RData files in
+#' # the current working directory
+#' #toDelete <- dir(getwd())
+#' #toDelete <- toDelete[grepl(".txt|.csv|.RData", toDelete)]
+#' #file.remove( toDelete )
+#' }
 #'
 
 ICTpower <- function(outFile         = NULL                      ,
@@ -452,11 +414,6 @@ ICTpower <- function(outFile         = NULL                      ,
     # merging messes up data order, resort
     Data <- Data[order(Data$id, Data$group, Data$phase, Data$Time),]
 
-
-    # qc
-    #any(duplicated(DataB$id[DataB$group=='group1'], DataB$id[DataB$group=='group1']))
-
-
     #
     # process inputs in `...` that may be passed to `PersonAlytic`
     #
@@ -484,31 +441,6 @@ ICTpower <- function(outFile         = NULL                      ,
     if( length(unique(Data[[wg]])) > 1  & (fixedNull | phaseCheck)) ivs   <- names(Data)[wg]
 
   }
-
-  # finalize interactions
-  time <- NULL
-  if(is.null(interactions))
-  {
-    time<- "Time"
-    ints <- c(phase, ivs, time)
-    intl <- list(); k <- 1
-    for(i in seq_along(ints))
-    {
-      for(j in seq_along(ints))
-      {
-        if(i>j)
-        {
-          intl[[k]] <- c(ints[i], ints[j]); k <- k+1
-        }
-      }
-    }
-    ints <- intl
-  }
-  if(is.list(interactions))
-  {
-    ints <- interactions
-  }
-
 
   # distribution check
   family = gamlss.dist::NO()
@@ -565,7 +497,7 @@ ICTpower <- function(outFile         = NULL                      ,
                         time         = 'Time'       ,
                         phase        = phase        ,
                         ivs          = ivs          ,
-                        interactions = ints         ,
+                        interactions = interactions ,
                         time_power   = time_power   ,
                         autoSelect   = autoSelect   ,
                         cores        = cores        ,
