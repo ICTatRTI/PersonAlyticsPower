@@ -4,12 +4,12 @@
 #'
 #' @author Stephen Tueller \email{stueller@@rti.org}
 #'
-#' @param designs A named list of designs.
-#' in \code{\link{ICTpower}}. The names in the named list will be passed to
+#' @param designs Named list. Each element in the list is an \code{\link{ICTpower}}
+#' design. The names in the named list will be passed to
 #' the parameter \code{file} in \code{\link{ICTpower}}.
 #'
 #' @param pReportName Character. A name used to create output files. The default
-#' is \code{"ICTpowerSimResults"}
+#' is \code{"ICTpowerSimResults"}.
 #'
 #' @param B Numeric (integer). The number of replicated data sets per \code{design}
 #' in \code{designs}.
@@ -32,9 +32,9 @@
 #' @param dotar Logical. The default is \code{FALSE}. Should the data files
 #' (if requested, see \code{save}) and analysis results be saved in a *.tar
 #' file with the same name as \code{pReportName} and then delete the unzipped
-#' copies of these files? This is suggested wheth the number of designs is
-#' large. The summary of power across all conditions will no be included in the
-#' *.tar archive. It is strongly encourage that a test run with only three
+#' copies of these files? This is suggested when the number of designs is
+#' large. The summary of power across all conditions will not be included in the
+#' *.tar archive. It is strongly encouraged that a test run with only three
 #' designs and B=3 is attempted at first to make sure archiving is done
 #' correctly. If the path names resulting from your working directory are
 #' too long, archiving will fail with the error "storing paths of more than 100
@@ -48,7 +48,7 @@
 #' designs <- list()
 #' designs[["defaultsN20"]] <- polyICT$new()
 #' designs[["defaultsN40"]] <- designs[["defaultsN20"]]$clone(deep=TRUE)
-#' designs[["defaultsN40"]]$update(groups = c(group1=40, group2=40))
+#' designs[["defaultsN40"]]$inputMat$n <- c(group1=40, group2=40)
 #'
 #' # run the simulation (without saving output, console print only)
 #' ICTpowerSim(designs, pReportName  = "ex1", B=3)

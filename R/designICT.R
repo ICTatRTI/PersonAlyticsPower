@@ -367,7 +367,7 @@
 #'
 #'   \item{\code{print}}{
 #'
-#'     A method for printing a the primary inputs for an ICT design.
+#'     A method for printing the primary inputs for an ICT design.
 #'
 #'   }
 #'

@@ -305,7 +305,6 @@ setupDist <- function(design, err, famParms, propErrVar, file = 'setupDist')
 #'
 #' @examples
 #'
-#' # makePhase example
 #' makePhase()
 makePhase <- function(nObsPerPhase = c(10,20,10) ,
                       phaseNames = NULL  )

@@ -257,7 +257,7 @@ Err <- R6::R6Class("err",
 #' # constrained to be in (0,1)
 #' hist(errBeta)
 #' plot(errBeta)
-#' auto.arima(ts(errBeta))
+#' forecast::auto.arima(ts(errBeta))
 armaErr <- R6::R6Class("errARMA",
 
   inherit = Err,

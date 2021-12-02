@@ -25,11 +25,11 @@
 #' are included if they appear in the data, equivalent to \code{interactions =
 #' list(c("Time", "phase"), c("Time", "group"), c("group", "phase"))}.
 #'
-#' @param B The number of simulated dataset (or parametric bootstrap replications).
+#' @param B The number of simulated datasets (or parametric bootstrap replications).
 #'
-#' @param dataFile Character. A file name for exntant data. Use this option to
+#' @param dataFile Character. A file name for extant data. Use this option to
 #' do a non-parametric bootstrap (e.g., for finite sample power).
-#' If \code{dataFile} is provide, \code{design}
+#' If \code{dataFile} is provided, \code{design}
 #' will be ignored. The \code{dataFile} must be a *.csv file with the variables
 #' 'id' and 'Time', optionally 'phase' and/or 'group', and dependent variables
 #' labeled 'y'. Alternatively, \code{dataFile} may be a *.Rdata file named 'Data'
@@ -85,35 +85,23 @@
 #'
 #' # parametric bootstrap examples
 #'
-#' # lazy cloning - this can lead to errors as `myPolyICT` is updated with each
-#' # call to `myPolyICT$update`
+#' # when updating a designICT object, use safe cloning to avoid errors updating
+#' an object
 #'
-#' #testICTpower10 <- ICTpower(c('testICTpower10', 'csv'),
-#' #  myPolyICT, B=3,
-#' #  seed = 54)
-#' #testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
-#' #  myPolyICT$update(groups=c(group1=20, group2=20)), B=3,
-#' #  seed = 23)
-#' #testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
-#' #  myPolyICT$update(groups=c(group1=20, group2=20),
-#' #  phases=makePhase(c(20,60,20))),
-#' #  B=3, seed = 24)
-#'
-#' # parametric examples with safe cloning
 #' myPolyICT2 <- myPolyICT$clone(deep=TRUE)
-#' myPolyICT2$update(groups=c(group1=20, group2=20))
+#' myPolyICT2$inputMat$n <- c(group1=20, group2=20)
 #' testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
 #'   myPolyICT2, B=3, seed = 25, prompt=FALSE)
 #'
 #' myPolyICT3 <- myPolyICT$clone(deep=TRUE)
-#' myPolyICT3$update(groups=c(group1=20, group2=20),
-#'   phases=makePhase(c(20,60,20)))
+#' myPolyICT3$inputMat$n <- c(group1=20, group2=20)
+#' myPolyICT3$inputMat$nObs <- c(20,60,20)
 #' testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
 #'   myPolyICT3, B=3, seed = 26, prompt = FALSE)
 #'
 #' myPolyICT4 <- myPolyICT$clone(deep=TRUE)
-#' myPolyICT4$update(groups=c(group1=20, group2=20),
-#'   phases=makePhase(c(20,60,20)))
+#' myPolyICT4$inputMat$n <- c(group1=20, group2=20)
+#' myPolyICT4$inputMat$nObs <- c(20,60,20)
 #' testICTpower20t100 <- ICTpower(c('testICTpower20', 'csv'),
 #'   myPolyICT4, B=3, seed = 27, prompt = FALSE)
 #'
@@ -122,7 +110,7 @@
 #'
 #' # create a population with 500 participants per group
 #' myPolyICTnonPar <- myPolyICT$clone(deep=TRUE)
-#' myPolyICTnonPar$update(groups=c(group1=500, group2=500))
+#' myPolyICTnonPar$inputMat$n <- c(group1=500, group2=500)
 #' Data <- myPolyICTnonPar$makeData()
 #' save(Data, file = "Data.RData")
 #'
@@ -152,7 +140,7 @@
 #' # Timing run for B=1000
 #' start_time <- Sys.time()
 #' myPolyICT2 <- myPolyICT$clone(deep=TRUE)
-#' myPolyICT2$update(groups=c(group1=20, group2=20))
+#' myPolyICT2$inputMat$n <- c(group1=20, group2=20)
 #' testICTpower20 <- ICTpower(c('testICTpower20', 'csv'),
 #'   myPolyICT2, B=1000, seed = 25, prompt=FALSE)
 #' end_time <- Sys.time()

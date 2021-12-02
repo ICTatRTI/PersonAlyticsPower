@@ -22,7 +22,8 @@ Imports:
     gamlss, 
     nlme, 
     snow,
-    boot
+    boot,
+    coxed
 RoxygenNote: 7.1.2
 Suggests: 
     knitr,

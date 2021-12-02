@@ -15,7 +15,7 @@
 #' @details
 #' The \code{polyICT} class generator specifies the inputs needed to simulate
 #' data from a polynomial growth model. Once a \code{polyICT} object is created,
-#' you can called its methods and examine or update its fields.
+#' you can call its methods and examine or update its fields.
 #'
 #' Methods are functions that come packaged within your \code{polyICT} object
 #' and include \code{$print()} for printing the inputs,
@@ -24,7 +24,7 @@
 #' \code{$makeData} for simulating a single data set. See the section
 #' titled \strong{Methods}.
 #'
-#' Fields are all the data stored within a \code{polyICT} object,
+#' Fields contain all the data stored within a \code{polyICT} object,
 #' some of which are provided by the user when initializing a \code{polyICT}
 #' object, and others which are derived from these inputs and cannot be changed
 #' by the user directly. These are detailed in the section titled \strong{Fields}.
@@ -143,7 +143,7 @@
 #'   \strong{Methods} section for more details.
 #'
 #'   \code{merror} An error object for the measurement error. The default
-#'   is \code{armaErr$new(list()}, a white noise process. See
+#'   is \code{armaErr$new(list())}, a white noise process. See
 #'   \code{\link{armaErr}}. Also see \code{makeData} in the \strong{Methods}
 #'   section for more details.
 #'
@@ -167,7 +167,7 @@
 #'
 #'   \item{\code{designCheck}}{See \code{\link{designICT}}.}
 #'
-#'   \item{\code{update}}{A method to update editable field in a \code{polyICT}
+#'   \item{\code{update}}{A method to update editable fields in a \code{polyICT}
 #'   object. Fields that can be updated are those listed in \code{new}. New
 #'   values are passed by name using, for example,
 #'   \code{$update(groups=c(group1=25, group2=25), randFxOrder=2)}. The are no
@@ -182,7 +182,7 @@
 #'
 #'     \code{seed} Numeric. The default is \code{123}. A random seed for
 #'     reproducibility. If multiple calls are made to \code{makeData}, the seed
-#'     should change for each call as is done automatically by
+#'     will change for each call as is done automatically by
 #'     \code{\link{ICTpower}}.
 #'   }
 #' }
@@ -205,8 +205,8 @@
 #'   )
 #'
 #' # print the object
-#'
 #' myPolyICT
+#'
 #' # equivalent to:
 #' #print(myPolyICT)
 #' #myPolyICT$print()
@@ -235,6 +235,8 @@
 #' myPolyICT$inputMat
 #'
 #' # now do a large sample (n=5,000/group) check of the design using $designCheck.
+#' #myPolyICT$designCheck(npg = 5000)
+#'
 #' # Notice that in group 2, there is a jump of about .3*15=4.5 between phases
 #' # one and two, and that within phase 3 there is -.6*15=-9 point reduction. This
 #' # is not run when calling example(polyICT) due to it taking several seconds to
