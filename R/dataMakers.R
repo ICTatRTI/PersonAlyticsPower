@@ -40,7 +40,7 @@
 #' @keywords internal
 #'
 #'
-.polyData <- function(seed=123, n, nObs, mu, Sigma, self, dM,
+.polyData <- function(seed=123, n, nObs, mu, Sigma, self, dMsim, dM,
                      rFxVr, propErrVar, group=NULL)
 {
   # get seeds
@@ -74,7 +74,7 @@
     if(i>1)
     {
       # multiply by the time points
-      etaM <- matrix(eta[,i]) %*% dM[,i]
+      etaM <- matrix(eta[,i]) %*% dMsim[,i]
       etaV <- scale(etaM)
       etaV[is.nan(etaV[,1]),1] <- 0
       # ensure the variances are exact

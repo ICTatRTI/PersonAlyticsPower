@@ -578,12 +578,13 @@ polyICT <- R6::R6Class("polyICT",
                                nObs  <- self$inputMat$nObs[self$inputMat$Phase==thisp &
                                                              self$inputMat$Group==thisg]
                                dM    <- self$designMat[self$designMat$phase==thisp,]
+                               dMsim <- dM
 
                                # re-center time for phases past 1
                                if(p>1)
                                {
                                  wc <- 2:ncol(dM)
-                                 dM[,wc] <- dM[,wc] - matrix(apply(dM[,wc], 2, min),
+                                 dMsim[,wc] <- dM[,wc] - matrix(apply(dM[,wc], 2, min),
                                                              nrow(dM[,wc]), 2, byrow=T)
 
                                }
@@ -600,6 +601,7 @@ polyICT <- R6::R6Class("polyICT",
                                                       mu         = unlist(mu)         ,
                                                       Sigma      = Sigma              ,
                                                       self       = self               ,
+                                                      dMsim      = dMsim              ,
                                                       dM         = dM                 ,
                                                       rFxVr      = unlist(rFxVr)      ,
                                                       propErrVar = unlist(propErrVar) ,

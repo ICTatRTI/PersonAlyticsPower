@@ -12,6 +12,7 @@ class}
   mu,
   Sigma,
   self,
+  dMsim,
   dM,
   rFxVr,
   propErrVar,
