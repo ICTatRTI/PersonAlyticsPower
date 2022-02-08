@@ -40,7 +40,7 @@
 #' @keywords internal
 #'
 #'
-.polyData <- function(seed=123, n, nObs, mu, Sigma, self, dM,
+.polyData <- function(seed=123, n, nObs, mu, Sigma, self, dM, dM01,
                      rFxVr, propErrVar, group=NULL)
 {
   # get seeds
@@ -59,7 +59,7 @@
 
   # rescale random effects by  by propErrVar and reVars, retaining means
   eta <- seta %*% diag( sqrt(propErrVar[1] * reVars) ) +
-    matrix(apply(eta, 2, mean), nrow(eta), ncol(eta), byrow=TRUE)
+    matrix(mu, nrow(eta), ncol(eta), byrow=TRUE) # `mu` was `apply(eta, 2, mean)`
 
   # qc - should hold even in small samples
   #all(propErrVar[1] * reVars, apply(eta, 2, var))
@@ -73,13 +73,29 @@
     if(i==1) etaM <- matrix(eta[,i]) %*% rep(1, nObs)
     if(i>1)
     {
-      # multiply by time rescaled to 0,1
-      dMi  <- dM[,i]-min(dM[,i])
-      dMi  <- c(dMi/max(dMi))
-      etaM <- matrix(eta[,i]) %*% dMi
+      # multiply by the time points
+      etaM <- matrix(eta[,i]) %*% dM[,i]
+      etaV <- scale(etaM)
+      etaV[is.nan(etaV[,1]),1] <- 0
+      # ensure the variances are exact
+      etaM <- etaV*matrix(sd(eta[,i]), nrow(etaM), ncol(etaM), byrow=T) +
+                   matrix(apply(etaM, 2, mean), nrow(etaM), ncol(etaM), byrow=T)
     }
     .L[[i]] <- etaM
   }
+
+  # correct to target variances
+  Y <- Reduce('+', .L)
+  trueVar <- apply(do.call(rbind, lapply(.L, function(x) apply(x, 2, var))), 2, sum)
+  Y <- scale(Y)*matrix(sqrt(trueVar),   nrow(Y), ncol(Y), byrow=T) +
+    matrix(apply(Y,2,mean), nrow(Y), ncol(Y), byrow = T)
+
+  # get total error variances by subtraction
+  errVar <- 1-apply(Y, 2, var)
+
+  # rescale err and merr variances to sum to 1
+  errorVar <- propErrVar[2:3]
+  errorVar <- errorVar/max(errorVar)
 
   # errors w/ scaling
    err <- scale(self$error$makeErrors(n, nObs, seeds[2]))
@@ -88,11 +104,11 @@
   attr(err, "scaled:scale")   <- NULL
   attr(merr, "scaled:center") <- NULL
   attr(merr, "scaled:scale")  <- NULL
-  .L[[length(.L) + 1]] <- sqrt(propErrVar[2]) *  err
-  .L[[length(.L) + 1]] <- sqrt(propErrVar[3]) * merr
+   err <- err*matrix(errorVar[1]*sqrt(errVar), nrow(err), ncol(err), byrow=T)
+  merr <- merr*matrix(errorVar[2]*sqrt(errVar), nrow(merr), ncol(merr), byrow=T)
 
-  # now put it all together
-  Y <- Reduce('+', .L)
+  # construct observed data
+  Y <- Y + err + merr
 
   # create id and prepend group number to ensure unique ids
   id <- sort(rep(1:n, nObs))
@@ -128,7 +144,7 @@
 
 
 
-#' makeEta - a wrapper for mvrnorm that currenty does nothing else but set the
+#' makeEta - a wrapper for mvrnorm that currently does nothing else but set the
 #' seed and call mvrnorm. Retained as we may need to extend its functionality
 #'
 #' @author Stephen Tueller \email{stueller@@rti.org}

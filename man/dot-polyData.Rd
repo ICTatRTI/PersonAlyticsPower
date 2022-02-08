@@ -13,6 +13,7 @@ class}
   Sigma,
   self,
   dM,
+  dM01,
   rFxVr,
   propErrVar,
   group = NULL
