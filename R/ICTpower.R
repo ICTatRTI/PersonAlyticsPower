@@ -778,7 +778,7 @@ powerReport <- function(paout, design, alpha, file, saveReport=TRUE, fpc=FALSE,
   fitOutput <- c(.hl(),
     paste(gsub("\\s", " ", format("Fit Metric",
                                   width=max(nchar(names(whichIC))))),
-          '\tMean Estimates\t',CI,'CI Lower Bound\t',CI,'CI Upper Bound\n'), .hl(),
+          '\tMean Estimates\t',CI,'CI Lo\t',CI,'CI Up\n'), .hl(),
     fitOutput
   )
 
