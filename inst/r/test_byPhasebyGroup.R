@@ -4,8 +4,8 @@
 library(PersonAlyticsPower)
 example(polyICT)
 myPolyICT$inputMat
-myPolyICT$yMean <- 0
-myPolyICT$ySD <- 1
+myPolyICT$yMean <- NULL
+myPolyICT$ySD   <- NULL
 myPolyICT$inputMat[6,6] <- -.3
 myPolyICT$inputMat[3,3] <- 10
 

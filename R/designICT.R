@@ -512,7 +512,7 @@ designICT <- R6::R6Class("designICT",
        designCheck = function(file=NULL, ylim=NULL, fitMod=FALSE,
                               seed=123, npg=2000, return = 'plot',
                               justData=FALSE, type='histogram',
-                              title=NULL)
+                              title="Design Check")
        {
          # message
          message("\nRunning a large sample `designCheck` with ", npg,
@@ -600,6 +600,7 @@ designICT <- R6::R6Class("designICT",
            }
 
            # autoscale ylim, needs assymetric update for skewed data
+           ylim <- c(min(dat$y, na.rm=T), max(dat$y, na.rm=T))
            if(is.null(self$ylim) & !is.null(self$ySD) & is.null(self$yCut))
            {
              ylim <- c(-2.75*self$ySD, 2.75*self$ySD) + self$yMean

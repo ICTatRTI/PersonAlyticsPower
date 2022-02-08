@@ -102,7 +102,7 @@ Stephen Tueller \email{stueller@rti.org}
   return = "plot",
   justData = FALSE,
   type = "histogram",
-  title = NULL
+  title = "Design Check"
 )}\if{html}{\out{</div>}}
 }
 

@@ -616,7 +616,10 @@ polyICT <- R6::R6Class("polyICT",
                            {
                              if(is.null(self$yMin) & is.null(self$yMax))
                              {
-                               data$y <- scale(data$y)*self$ySD + self$yMean
+                               if(!is.null(self$yMean) & !is.null(self$ySD))
+                               {
+                                 data$y <- scale(data$y)*self$ySD + self$yMean
+                               }
                              }
                              if(!is.null(self$yMin) & is.null(self$yMax))
                              {
