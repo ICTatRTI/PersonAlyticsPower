@@ -553,13 +553,6 @@ polyICT <- R6::R6Class("polyICT",
                                            length(self$groupNames))
                            data <- list(); d <- 1
 
-                           # rescale time to 0,1
-                           designMat2 <- self$designMat
-                           for(i in 2:ncol(designMat2))
-                           {
-                             designMat2[,i] <- designMat2[,i]/max(designMat2[,i])
-                           }
-
                            for(g in seq_along(self$groupNames))
                            {
                              thisg <- self$groupNames[[g]]
@@ -585,7 +578,15 @@ polyICT <- R6::R6Class("polyICT",
                                nObs  <- self$inputMat$nObs[self$inputMat$Phase==thisp &
                                                              self$inputMat$Group==thisg]
                                dM    <- self$designMat[self$designMat$phase==thisp,]
-                               dM01  <- designMat2[self$designMat$phase==thisp,]
+
+                               # re-center time for phases past 1
+                               if(p>1)
+                               {
+                                 wc <- 2:ncol(dM)
+                                 dM[,wc] <- dM[,wc] - matrix(apply(dM[,wc], 2, min),
+                                                             nrow(dM[,wc]), 2, byrow=T)
+
+                               }
 
                                propErrVar <- self$inputMat[
                                  self$inputMat$Phase==thisp &
@@ -600,7 +601,6 @@ polyICT <- R6::R6Class("polyICT",
                                                       Sigma      = Sigma              ,
                                                       self       = self               ,
                                                       dM         = dM                 ,
-                                                      dM01       = dM01               ,
                                                       rFxVr      = unlist(rFxVr)      ,
                                                       propErrVar = unlist(propErrVar) ,
                                                       group      = thisg              )

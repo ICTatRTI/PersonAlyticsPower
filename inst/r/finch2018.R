@@ -30,7 +30,8 @@ finch2018$inputMat[finch2018$inputMat$Phase=='phase2' &
 
 finch2018$inputMat
 debug(PersonAlyticsPower:::.polyData)
-debug(finch2018$designCheck)
+#debug(finch2018$designCheck)
+debug(finch2018$makeData)
 finch2018$designCheck()
 
 interactions = list()

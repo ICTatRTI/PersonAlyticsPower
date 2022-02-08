@@ -40,7 +40,7 @@
 #' @keywords internal
 #'
 #'
-.polyData <- function(seed=123, n, nObs, mu, Sigma, self, dM, dM01,
+.polyData <- function(seed=123, n, nObs, mu, Sigma, self, dM,
                      rFxVr, propErrVar, group=NULL)
 {
   # get seeds
