@@ -544,7 +544,7 @@ polyICT <- R6::R6Class("polyICT",
                          },
 
                          # makeData method
-                         makeData = function(seed=123)
+                         makeData = function(seed=123, y0atyMean=TRUE, yMean=0)
                          {
                            # prep the seeds
                            seeds <- .makeSeeds(seed, length(self$phaseNames) *
@@ -640,6 +640,12 @@ polyICT <- R6::R6Class("polyICT",
                              data$y <- cutY(data$y, self$yCut)
                            }
 
+                           # re-center y
+                           if(y0atyMean)
+                           {
+                             y0Mean <- mean(data$y[data$phase==levels(data$phase)[1]])
+                             data$y <- data$y - y0Mean + yMean
+                           }
 
                            # the makeData method is terminal, self is not returned
                            # which means chaining is not possible past this point

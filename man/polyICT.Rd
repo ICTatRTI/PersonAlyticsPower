@@ -368,8 +368,8 @@ distribution specified in \code{randFxFam}. Not implemented.}
   randFxVar = c(1, 1),
   error = armaErr$new(),
   merror = armaErr$new(list()),
-  ySD = 15,
-  yMean = 100,
+  ySD = 1,
+  yMean = 0,
   yMin = NULL,
   yMax = NULL,
   yCut = NULL,
@@ -402,7 +402,7 @@ distribution specified in \code{randFxFam}. Not implemented.}
 \if{latex}{\out{\hypertarget{method-makeData}{}}}
 \subsection{Method \code{makeData()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{polyICT$makeData(seed = 123)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{polyICT$makeData(seed = 123, y0atyMean = TRUE, yMean = 0)}\if{html}{\out{</div>}}
 }
 
 }

@@ -70,6 +70,10 @@
 #' @param userFormula List of equations, see \code{\link{PersonAlytic}}. Default
 #' is \code{NULL}. Only \code{userFormula$fixed} is currently supported.
 #'
+#' @param y0atyMean Logical. Default is \code{TRUE}. If \code{TRUE}, after data
+#' are standardized, they are re-centered such that the mean of the outcome at
+#' the baseline phase is \code{yMean}.
+#'
 #' @param ... Further arguments to be passed to \code{\link{PersonAlytic}} for
 #' analysis. All options in \code{PersonAlytic} can be passed except for
 #' \code{output}, \code{data}, \code{ids}, \code{dvs}, \code{time}, and
@@ -159,6 +163,7 @@ ICTpower <- function(outFile         = NULL                      ,
                                             random  = NULL,
                                             formula = NULL)      ,
                      prompt          = TRUE                      ,
+                     y0atyMean       = TRUE                      ,
                      ...
 )
 {
@@ -228,7 +233,7 @@ ICTpower <- function(outFile         = NULL                      ,
     Data <- foreach( b=DIM, .packages = pkgs, .options.snow = opts) %dopar%
     {
       # construct the data
-      dat <- design$makeData(seeds[b])
+      dat <- design$makeData(seeds[b], y0atyMean, design$yMean)
 
       # rename for merging
       names(dat)[2] <- paste('y', b, sep='')

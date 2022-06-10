@@ -19,6 +19,7 @@ ICTpower(
   standardize = list(dv = FALSE, ivs = FALSE, byids = FALSE),
   userFormula = list(fixed = NULL, random = NULL, formula = NULL),
   prompt = TRUE,
+  y0atyMean = TRUE,
   ...
 )
 }
@@ -83,6 +84,10 @@ whether \code{outFile} already exists will be done and if so, the user
 will be prompted whether they want to overwrite \code{outFile}. The
 \code{\link{ICTpowerSim}} function turns this off so the user does not
 have to monitor a series of simulations.}
+
+\item{y0atyMean}{Logical. Default is \code{TRUE}. If \code{TRUE}, after data
+are standardized, they are re-centered such that the mean of the outcome at
+the baseline phase is \code{yMean}.}
 
 \item{...}{Further arguments to be passed to \code{\link{PersonAlytic}} for
 analysis. All options in \code{PersonAlytic} can be passed except for
