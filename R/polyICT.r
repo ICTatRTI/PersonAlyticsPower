@@ -324,8 +324,9 @@ polyICT <- R6::R6Class("polyICT",
                            # check yCut
                            if(length(yCut) > 5)
                            {
-                             stop("\n`yCut` has more than 5 categories, only 5 are",
-                                  "\nsupported by multinomial regression.\n\n")
+                             warning("\n`yCut` has more than 5 categories,",
+                                  "\nonly 5 are supported by multinomial
+                                  regression.\n\n")
                            }
                            if(sum(yCut) != 1 & sum(yCut) != 0)
                            {
