@@ -42,10 +42,11 @@ ICTpower(outFile = c('BinaryTest0', 'csv'),
          B = 3,
          seed = 3,
          prompt = F,
+         y0atyMean = F, # needed to prevent mean centering of y, BI() is automatically selected
          family = BI()
          )
 
-# try "count" variable
+ # try "count" variable
 nb <- rnbinom(nrow(y), mu = 1, size = 1)
 countICT <- polyICT$new(
   groups            = c(group1=10, group2=10)          ,

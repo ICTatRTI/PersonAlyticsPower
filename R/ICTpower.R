@@ -448,13 +448,26 @@ ICTpower <- function(outFile         = NULL                      ,
   }
 
   # distribution check
-  family = gamlss.dist::NO()
-  if(!is.null(design$yCut))
+  if(!is.null(list(...)$family))
   {
-    .l <- length(design$yCut)
-    if( .l==2 ) family = gamlss.dist::BI()
-    if( .l>=3 ) family = eval(parse(text=paste("MULTIN(type = '", .l, "')", sep='')))
-    rm(.l)
+    # set family locally
+    family <- list(...)$family
+    # remove family from ellipses to prevent "...argument matched by multiple arguments"
+    # in PersonAlytic
+    mc <- match.call()
+    mc$family <- NULL
+    eval(mc, parent.frame())
+  }
+  if( is.null(list(...)$family))
+  {
+    family = gamlss.dist::NO()
+    if(!is.null(design$yCut))
+    {
+      .l <- length(design$yCut)
+      if( .l==2 ) family = gamlss.dist::BI()
+      if( .l>=3 ) family = eval(parse(text=paste("MULTIN(type = '", .l, "')", sep='')))
+      rm(.l)
+    }
   }
 
   # if requested, save the data
