@@ -78,22 +78,22 @@ transformed to have a distribution different from those available to \code{FUN}.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{armaErr$new()}}
-\item \href{#method-checkModel}{\code{armaErr$checkModel()}}
-\item \href{#method-makeErrors}{\code{armaErr$makeErrors()}}
-\item \href{#method-clone}{\code{armaErr$clone()}}
+\item \href{#method-errARMA-new}{\code{armaErr$new()}}
+\item \href{#method-errARMA-checkModel}{\code{armaErr$checkModel()}}
+\item \href{#method-errARMA-makeErrors}{\code{armaErr$makeErrors()}}
+\item \href{#method-errARMA-clone}{\code{armaErr$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="PersonAlyticsPower" data-topic="err" data-id="print">}\href{../../PersonAlyticsPower/html/err.html#method-print}{\code{PersonAlyticsPower::err$print()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="PersonAlyticsPower" data-topic="err" data-id="print"><a href='../../PersonAlyticsPower/html/err.html#method-err-print'><code>PersonAlyticsPower::err$print()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-errARMA-new"></a>}}
+\if{latex}{\out{\hypertarget{method-errARMA-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{armaErr$new(
@@ -105,8 +105,8 @@ transformed to have a distribution different from those available to \code{FUN}.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-checkModel"></a>}}
-\if{latex}{\out{\hypertarget{method-checkModel}{}}}
+\if{html}{\out{<a id="method-errARMA-checkModel"></a>}}
+\if{latex}{\out{\hypertarget{method-errARMA-checkModel}{}}}
 \subsection{Method \code{checkModel()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{armaErr$checkModel(
@@ -120,8 +120,8 @@ transformed to have a distribution different from those available to \code{FUN}.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-makeErrors"></a>}}
-\if{latex}{\out{\hypertarget{method-makeErrors}{}}}
+\if{html}{\out{<a id="method-errARMA-makeErrors"></a>}}
+\if{latex}{\out{\hypertarget{method-errARMA-makeErrors}{}}}
 \subsection{Method \code{makeErrors()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{armaErr$makeErrors(n, nObservations, seed = 123, debug = FALSE)}\if{html}{\out{</div>}}
@@ -129,8 +129,8 @@ transformed to have a distribution different from those available to \code{FUN}.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-errARMA-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-errARMA-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

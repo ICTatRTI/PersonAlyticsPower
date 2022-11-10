@@ -74,14 +74,14 @@ Stephen Tueller \email{stueller@rti.org}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-print}{\code{designICT$print()}}
-\item \href{#method-designCheck}{\code{designICT$designCheck()}}
-\item \href{#method-clone}{\code{designICT$clone()}}
+\item \href{#method-designICT-print}{\code{designICT$print()}}
+\item \href{#method-designICT-designCheck}{\code{designICT$designCheck()}}
+\item \href{#method-designICT-clone}{\code{designICT$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
+\if{html}{\out{<a id="method-designICT-print"></a>}}
+\if{latex}{\out{\hypertarget{method-designICT-print}{}}}
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{designICT$print(...)}\if{html}{\out{</div>}}
@@ -89,8 +89,8 @@ Stephen Tueller \email{stueller@rti.org}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-designCheck"></a>}}
-\if{latex}{\out{\hypertarget{method-designCheck}{}}}
+\if{html}{\out{<a id="method-designICT-designCheck"></a>}}
+\if{latex}{\out{\hypertarget{method-designICT-designCheck}{}}}
 \subsection{Method \code{designCheck()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{designICT$designCheck(
@@ -108,8 +108,8 @@ Stephen Tueller \email{stueller@rti.org}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-designICT-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-designICT-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

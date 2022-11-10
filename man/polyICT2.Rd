@@ -215,22 +215,22 @@ and the third element would be the variance of the quadratic term.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{polyICT2$new()}}
-\item \href{#method-print}{\code{polyICT2$print()}}
-\item \href{#method-makeData}{\code{polyICT2$makeData()}}
-\item \href{#method-clone}{\code{polyICT2$clone()}}
+\item \href{#method-polyICT-new}{\code{polyICT2$new()}}
+\item \href{#method-polyICT-print}{\code{polyICT2$print()}}
+\item \href{#method-polyICT-makeData}{\code{polyICT2$makeData()}}
+\item \href{#method-polyICT-clone}{\code{polyICT2$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="PersonAlyticsPower" data-topic="designICT" data-id="designCheck">}\href{../../PersonAlyticsPower/html/designICT.html#method-designCheck}{\code{PersonAlyticsPower::designICT$designCheck()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="PersonAlyticsPower" data-topic="designICT" data-id="designCheck"><a href='../../PersonAlyticsPower/html/designICT.html#method-designICT-designCheck'><code>PersonAlyticsPower::designICT$designCheck()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-polyICT-new"></a>}}
+\if{latex}{\out{\hypertarget{method-polyICT-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{polyICT2$new(
@@ -254,8 +254,8 @@ and the third element would be the variance of the quadratic term.}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
+\if{html}{\out{<a id="method-polyICT-print"></a>}}
+\if{latex}{\out{\hypertarget{method-polyICT-print}{}}}
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{polyICT2$print(...)}\if{html}{\out{</div>}}
@@ -263,8 +263,8 @@ and the third element would be the variance of the quadratic term.}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-makeData"></a>}}
-\if{latex}{\out{\hypertarget{method-makeData}{}}}
+\if{html}{\out{<a id="method-polyICT-makeData"></a>}}
+\if{latex}{\out{\hypertarget{method-polyICT-makeData}{}}}
 \subsection{Method \code{makeData()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{polyICT2$makeData(randFx, errors = NULL, y = NULL, ymean = NULL, yvar = NULL)}\if{html}{\out{</div>}}
@@ -272,8 +272,8 @@ and the third element would be the variance of the quadratic term.}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-polyICT-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-polyICT-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

@@ -340,23 +340,23 @@ distribution specified in \code{randFxFam}. Not implemented.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{polyICT$new()}}
-\item \href{#method-print}{\code{polyICT$print()}}
-\item \href{#method-update}{\code{polyICT$update()}}
-\item \href{#method-makeData}{\code{polyICT$makeData()}}
-\item \href{#method-clone}{\code{polyICT$clone()}}
+\item \href{#method-polyICT-new}{\code{polyICT$new()}}
+\item \href{#method-polyICT-print}{\code{polyICT$print()}}
+\item \href{#method-polyICT-update}{\code{polyICT$update()}}
+\item \href{#method-polyICT-makeData}{\code{polyICT$makeData()}}
+\item \href{#method-polyICT-clone}{\code{polyICT$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="PersonAlyticsPower" data-topic="designICT" data-id="designCheck">}\href{../../PersonAlyticsPower/html/designICT.html#method-designCheck}{\code{PersonAlyticsPower::designICT$designCheck()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="PersonAlyticsPower" data-topic="designICT" data-id="designCheck"><a href='../../PersonAlyticsPower/html/designICT.html#method-designICT-designCheck'><code>PersonAlyticsPower::designICT$designCheck()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-polyICT-new"></a>}}
+\if{latex}{\out{\hypertarget{method-polyICT-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{polyICT$new(
@@ -380,8 +380,8 @@ distribution specified in \code{randFxFam}. Not implemented.}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
+\if{html}{\out{<a id="method-polyICT-print"></a>}}
+\if{latex}{\out{\hypertarget{method-polyICT-print}{}}}
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{polyICT$print(...)}\if{html}{\out{</div>}}
@@ -389,8 +389,8 @@ distribution specified in \code{randFxFam}. Not implemented.}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-update"></a>}}
-\if{latex}{\out{\hypertarget{method-update}{}}}
+\if{html}{\out{<a id="method-polyICT-update"></a>}}
+\if{latex}{\out{\hypertarget{method-polyICT-update}{}}}
 \subsection{Method \code{update()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{polyICT$update(...)}\if{html}{\out{</div>}}
@@ -398,8 +398,8 @@ distribution specified in \code{randFxFam}. Not implemented.}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-makeData"></a>}}
-\if{latex}{\out{\hypertarget{method-makeData}{}}}
+\if{html}{\out{<a id="method-polyICT-makeData"></a>}}
+\if{latex}{\out{\hypertarget{method-polyICT-makeData}{}}}
 \subsection{Method \code{makeData()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{polyICT$makeData(seed = 123, y0atyMean = TRUE, yMean = 0)}\if{html}{\out{</div>}}
@@ -407,8 +407,8 @@ distribution specified in \code{randFxFam}. Not implemented.}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-polyICT-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-polyICT-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

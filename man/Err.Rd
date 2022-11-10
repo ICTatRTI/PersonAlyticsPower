@@ -33,14 +33,14 @@ transformed to have a distribution implied by \code{fam}.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{Err$new()}}
-\item \href{#method-print}{\code{Err$print()}}
-\item \href{#method-clone}{\code{Err$clone()}}
+\item \href{#method-err-new}{\code{Err$new()}}
+\item \href{#method-err-print}{\code{Err$print()}}
+\item \href{#method-err-clone}{\code{Err$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-err-new"></a>}}
+\if{latex}{\out{\hypertarget{method-err-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Err$new(model = NULL, errVar = 1, FUN = NULL, fam = NULL, famParms = NULL)}\if{html}{\out{</div>}}
@@ -48,8 +48,8 @@ transformed to have a distribution implied by \code{fam}.}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
+\if{html}{\out{<a id="method-err-print"></a>}}
+\if{latex}{\out{\hypertarget{method-err-print}{}}}
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Err$print(...)}\if{html}{\out{</div>}}
@@ -57,8 +57,8 @@ transformed to have a distribution implied by \code{fam}.}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-err-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-err-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
