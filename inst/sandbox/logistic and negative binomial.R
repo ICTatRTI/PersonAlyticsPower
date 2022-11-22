@@ -1,7 +1,10 @@
 library(PersonAlyticsPower)
-myPolyICT <- polyICT$new(
-  groups            = c(group1=10, group2=10)          ,
-  phases            = makePhase()                      ,
+library(ggplot2)
+library(longCatEDA)
+library(gamlss)
+binICT <- polyICT$new(
+  groups            = c(group1=100)                    ,
+  phases            = makePhase(c(20, 20))             ,
   propErrVar        = c(randFx=.5, res=.25, mserr=.25) ,
   randFxOrder       = 1                                ,
   randFxCor         = 0.2                              ,
@@ -12,41 +15,69 @@ myPolyICT <- polyICT$new(
   yMean             = 100                              ,
   yCut = c(.5, .5)
 )
-myPolyICT$inputMat[myPolyICT$inputMat$Phase=='phase2' &
-                     myPolyICT$inputMat$Group=='group2', 'Mean0'] <- .3
-myPolyICT$inputMat[myPolyICT$inputMat$Phase=='phase3' &
-                     myPolyICT$inputMat$Group=='group2', 'Mean0'] <- .3
-myPolyICT$inputMat[myPolyICT$inputMat$Phase=='phase3' &
-                     myPolyICT$inputMat$Group=='groups', 'Mean1'] <- -.6
-myPolyICT$inputMat
-y <- myPolyICT$makeData(y0atyMean=F) # needed to prevent mean centering of y
+binICT$inputMat[binICT$inputMat$Phase=='phase2', 'Mean0'] <- .1
+y <- binICT$makeData(y0atyMean=F) # needed to prevent mean centering of y
+
+# viz
 hist(y$y)
-myPolyICT$designCheck() # this fails
+# line plot - fails
+ggplot(y, aes(x=Time, y=y, group=id, col=phase)) + geom_point() + geom_line()
+# see ?sorter from longCatEDA
+ggplot(y, aes(x=Time, y=id, fill=factor(y))) +
+  geom_tile(colour="transparent") +
+  scale_fill_manual(values=1:2) +
+  facet_grid(phase ~ ., space="free_y", scales="free_y")
+#lc <- longCat()
 
 
+binICT$designCheck() # this fails
+
+# https://www.escal.site/ says d=1 is OR=1.8
+y <- byPhasebyGroup(y, time="Time", phase="phase", group="group")
+(frm <- paste("y  ~ - 1 +", paste(y$dummyNames, collapse = "+")))
+userFormula <- list()
+userFormula$fixed <- formula(frm)
+userFormula$random <-  formula(~ Time | id)
 m0 <- PersonAlytic(output = 'BinaryTest0',
-                   data = y,
+                   data = y$data,
                    ids = 'id',
                    dvs = 'y',
                    phase = 'phase',
                    time = 'Time',
-                   ivs = c('group'),
+                   ivs = y$dummyNames,
                    package = 'gamlss',
                    family = BI(),
                    autoSelect = list(),
+                   userFormula = userFormula,
                    individual_mods  = FALSE)
 summary(m0)
 
+# QC model manually
+(frm <- paste("y  ~ - 1 +", paste(y$dummyNames, collapse = "+"),
+              "+ re(random=~ Time | id)"))
+m0m <- gamlss(formula(frm), data=y$data,
+              family=BI())
+summary(m0m)
+# drop the terms that should be 0
+(frm <- paste("y  ~ - 1 + group1_phase2_int" ,
+              "+ re(random=~ Time | id)"))
+m0m <- gamlss(formula(frm), data=y$data,
+              family=BI())
+summary(m0m)
+
+# update userFormula
+userFormula <- termsToFormula("group1_phase2_int")
 ICTpower(outFile = c('BinaryTest0', 'csv'),
-         design = myPolyICT,
-         B = 3,
+         design = binICT,
+         B = 100,
          seed = 3,
          prompt = F,
          y0atyMean = F, # needed to prevent mean centering of y, BI() is automatically selected
-         family = BI()
+         family = BI(),
+         userFormula = userFormula
          )
 
- # try "count" variable
+# try "count" variable
 nb <- rnbinom(nrow(y), mu = 1, size = 1)
 countICT <- polyICT$new(
   groups            = c(group1=10, group2=10)          ,
@@ -61,10 +92,8 @@ countICT <- polyICT$new(
   yMean             = 100                              ,
   yCut = c(table(nb)/length(nb))
 )
-ynb <- countICT$makeData()
+ynb <- countICT$makeData(y0atyMean=F)
 hist(ynb$y)
-table(ynb$y)
-ynb$y <- as.numeric(factor(ynb$y)) - 1
 table(ynb$y)
 
 nb0 <- PersonAlytic(output = 'NegBinTest0',
