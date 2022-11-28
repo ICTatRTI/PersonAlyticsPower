@@ -180,8 +180,25 @@ ICTpower <- function(outFile         = NULL                      ,
   # check file name
   if(!is.null(outFile)) outFile <- PersonAlyticsPower:::.checkFile(outFile, prompt)
 
+  # unpack elipses
+  args <- formals(PersonAlytic)
+  for(i in seq_along(args))
+  {
+    if(!exists(names(args)[i]))
+    {
+      assign(names(args)[i], args[[i]])
+    }
+  }
+  for(i in seq_along(list(...)))
+  {
+    if(names(list(...))[[i]] %in% names(args))
+    {
+      assign(names(list(...))[[i]], list(...)[[i]])
+    }
+  }
+
   # generate seeds
-  seeds <- PersonAlyticsPower:::.makeSeeds(seed, B)
+  seeds <- PersonAlyticsPower:::.makeSeeds(seed, B) # shouldn't need triple :
 
   # check userFormula and interaction inputs
   if(!is.null(userFormula$formula))
@@ -451,16 +468,16 @@ ICTpower <- function(outFile         = NULL                      ,
   if(!is.null(list(...)$family))
   {
     # set family locally
-    family <- list(...)$family
+    family <<- list(...)$family
     # remove family from ellipses to prevent "...argument matched by multiple arguments"
     # in PersonAlytic
-    mc <- match.call()
-    mc$family <- NULL
-    eval(mc, parent.frame())
+    #mc <- match.call()
+    #mc$family <- NULL
+    #eval(mc, parent.frame())
   }
   if( is.null(list(...)$family))
   {
-    family = gamlss.dist::NO()
+    family <- gamlss.dist::NO()
     if(!is.null(design$yCut))
     {
       .l <- length(design$yCut)
