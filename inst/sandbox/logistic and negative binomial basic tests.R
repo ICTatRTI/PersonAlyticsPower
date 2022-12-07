@@ -110,12 +110,18 @@ des_nb <- polyICT$new(
   merror            = armaErr$new(list())              ,
   ySD               = 15                               ,
   yMean             = 100                              ,
-  yCut = yCut5.0.5
+  yCut = yCut
 )
+des_nb$inputMat[des_nb$inputMat$Phase=='phase2', 'Mean0'] <- .5
 frm <- termsToFormula("group1_phase2_int")
+ptm <- proc.time()
 ICTpower(outFile = "des_nb",
          design = des_nb,
-         B = 3,
+         B = 10,
          userFormula = frm,
-         family = NBI())
+         family = NBI(),
+         standardize = list(dv=T, ivs=F, byids=F),
+         package = "gamlss",
+         seed = 4269)
+proc.time() - ptm
 
