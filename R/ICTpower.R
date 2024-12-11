@@ -473,7 +473,9 @@ ICTpower <- function(outFile         = NULL                      ,
   }
 
   # auto-detect family if not provided
-  if( is.null(list(...)$family) & !exists("family") )
+  if( is.null(list(...)$family) |
+      !exists("family")        |
+      (exists("family") & "function" %in% class(family)) )
   {
     family <- gamlss.dist::NO()
     if(!is.null(design$yCut))

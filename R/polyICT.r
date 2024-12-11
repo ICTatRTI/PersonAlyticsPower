@@ -229,9 +229,9 @@
 #' myPolyICT$inputMat[myPolyICT$inputMat$Phase=='phase2' &
 #'   myPolyICT$inputMat$Group=='group2', 'Mean0'] <- .3
 #' myPolyICT$inputMat[myPolyICT$inputMat$Phase=='phase3' &
-#'   myPolyICT$inputMat$Group=='group2', 'Mean0'] <- .3
+#'   myPolyICT$inputMat$Group=='group2', 'Mean0'] <- .6
 #' myPolyICT$inputMat[myPolyICT$inputMat$Phase=='phase3' &
-#'   myPolyICT$inputMat$Group=='group2', 'Mean1'] <- -.6
+#'   myPolyICT$inputMat$Group=='group2', 'Mean1'] <- -.06
 #' myPolyICT$inputMat
 #'
 #' # now do a large sample (n=5,000/group) check of the design using $designCheck.
@@ -243,7 +243,7 @@
 #'
 #' \dontrun{
 #'
-#' myPolyICT$designCheck(ylim=c(75,125))
+#' myPolyICT$designCheck()
 #'
 #' # for comparison, see what can happen under finite samples (n=10/group).
 #' # Notice that there are substantial changes in group1 even though none are
