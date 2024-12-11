@@ -15,7 +15,5 @@ expectedVar
 }
 \author{
 Stephen Tueller \email{stueller@rti.org}
-
-Stephen Tueller \email{stueller@rti.org}
 }
 \keyword{internal}

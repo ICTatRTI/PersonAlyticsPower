@@ -177,11 +177,18 @@ ICTpower <- function(outFile         = NULL                      ,
     stop('Please provide only on of `design` or `dataFile` but not both.')
   }
 
+  # change y0atyMean to F if design$yCut != NULL
+  if(!is.null(design$yCut))
+  {
+    y0atyMean <- FALSE
+    message("In the design, `yCut` was not NULL, changing `y0atyMean<-FALSE`")
+  }
+
   # check file name
   if(!is.null(outFile)) outFile <- PersonAlyticsPower:::.checkFile(outFile, prompt)
 
   # generate seeds
-  seeds <- PersonAlyticsPower:::.makeSeeds(seed, B)
+  seeds <- PersonAlyticsPower:::.makeSeeds(seed, B) # shouldn't need triple :
 
   # check userFormula and interaction inputs
   if(!is.null(userFormula$formula))
@@ -447,14 +454,37 @@ ICTpower <- function(outFile         = NULL                      ,
 
   }
 
-  # distribution check
-  family = gamlss.dist::NO()
-  if(!is.null(design$yCut))
+
+  # unpack elipses
+  args <- formals(PersonAlytic)
+  for(i in seq_along(args))
   {
-    .l <- length(design$yCut)
-    if( .l==2 ) family = gamlss.dist::BI()
-    if( .l>=3 ) family = eval(parse(text=paste("MULTIN(type = '", .l, "')", sep='')))
-    rm(.l)
+    if(!exists(names(args)[i]))
+    {
+      assign(names(args)[i], args[[i]])
+    }
+  }
+  for(i in seq_along(list(...)))
+  {
+    if(names(list(...))[[i]] %in% names(args))
+    {
+      assign(names(list(...))[[i]], list(...)[[i]])
+    }
+  }
+
+  # auto-detect family if not provided
+  if( is.null(list(...)$family) |
+      !exists("family")        |
+      (exists("family") & "function" %in% class(family)) )
+  {
+    family <- gamlss.dist::NO()
+    if(!is.null(design$yCut))
+    {
+      .l <- length(design$yCut)
+      if( .l==2 ) family = gamlss.dist::BI()
+      if( .l>=3 ) family = eval(parse(text=paste("MULTIN(type = '", .l, "')", sep='')))
+      rm(.l)
+    }
   }
 
   # if requested, save the data
@@ -495,21 +525,37 @@ ICTpower <- function(outFile         = NULL                      ,
 
   if( is.null(dataFile)) dvs   <- as.list(paste('y', 1:B, sep=''))
   if(!is.null(dataFile)) dvs   <- as.list(paste('y', 0:B, sep=''))
-  paout <- PersonAlytic(output       = outFile$file ,
-                        data         = Data         ,
-                        ids          = 'id'         ,
-                        dvs          = dvs          ,
-                        time         = 'Time'       ,
-                        phase        = phase        ,
-                        ivs          = ivs          ,
-                        interactions = interactions ,
-                        time_power   = time_power   ,
-                        autoSelect   = autoSelect   ,
-                        cores        = cores        ,
-                        standardize  = standardize  ,
-                        family       = family       ,
-                        userFormula  = userFormula  ,
-                        ...
+  paout <- PersonAlytic(
+    output          = outFile$file,
+    data            = Data,
+    ids             = 'id',
+    dvs             = dvs,
+    time            = 'Time',
+    phase           = phase,
+    ivs             = ivs,
+    target_ivs      = target_ivs,
+    interactions    = interactions,
+    time_power      = time_power,
+    correlation     = correlation,
+    family          = family,
+    subgroup        = subgroup,
+    standardize     = standardize,
+    method          = method,
+    package         = package,
+    individual_mods = individual_mods,
+    PalyticObj      = PalyticObj,
+    autoSelect      = autoSelect,
+    whichIC         = whichIC,
+    charSub         = charSub,
+    sigma.formula   = sigma.formula,
+    p.method        = p.method,
+    alpha           = alpha,
+    nbest           = nbest,
+    alignPhase      = alignPhase,
+    fpc             = fpc,
+    debugforeach    = debugforeach,
+    cores           = cores,
+    userFormula     = userFormula
   )
 
   # check for failed PersonAlytic calls
@@ -693,7 +739,7 @@ powerReport <- function(paout, design, alpha, file, saveReport=TRUE, fpc=FALSE,
   paout <- paout[paout$dv!='y0',]
 
   # power estimates are the proportion of p < alpha
-  whichP <- names(paout)[ grepl('p.value', names(paout)) ]
+  whichP <- names(paout)[ grepl('p.value|Pr.', names(paout)) ]
 
   # select whichP based on FPC
   whichFPC <- grepl('FPC', whichP)
@@ -710,7 +756,7 @@ powerReport <- function(paout, design, alpha, file, saveReport=TRUE, fpc=FALSE,
   }
 
   # effect size estimates (value)
-  whichV <- names(paout)[ grepl('Value', names(paout)) ]
+  whichV <- names(paout)[ grepl('Value|.Estimate', names(paout)) ]
   whichV <- whichV[! grepl('statValue', whichV)]
 
   # select whichV based on FPC
@@ -848,4 +894,3 @@ ddReport <- function(ddescriptives, file)
 
   cat( dt, "\n", pap, "\n", pa, "\n\n", ddHead, ddOutput, file = file)
 }
-
